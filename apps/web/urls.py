@@ -5,12 +5,13 @@ from . import views
 app_name = "web"
 
 urlpatterns = [
+    # Pagina publica
+    path("", views.HomeView.as_view(), name="home"),
     # Auth
     path("login/", views.LoginView.as_view(), name="login"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
     # Dashboard
-    path("", views.DashboardView.as_view(), name="dashboard"),
-    path("dashboard/", views.DashboardView.as_view(), name="dashboard-alt"),
+    path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
     # Leads
     path("leads/", views.LeadListView.as_view(), name="leads"),
     path("leads/novo/", views.LeadCreateView.as_view(), name="lead-create"),

@@ -1,17 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-  --color-primary-950: #172554;
+  /* Paleta RUCH — extraída da identidade visual */
+  --color-primary-50: #f0f5f3;
+  --color-primary-100: #dce8e2;
+  --color-primary-200: #b8d1c5;
+  --color-primary-300: #8db5a3;
+  --color-primary-400: #629880;
+  --color-primary-500: #3d6b5a;
+  --color-primary-600: #2d4a3e;
+  --color-primary-700: #243d33;
+  --color-primary-800: #1c3029;
+  --color-primary-900: #15241e;
+  --color-primary-950: #0d1714;
+
+  --color-ruch-dark: #2d4a3e;
+  --color-ruch-bg: #384f46;
+  --color-ruch-light: #b8bfba;
 }
 
 @utility btn {
@@ -47,6 +52,11 @@
 @utility btn-success {
   @apply btn bg-emerald-600 text-white;
   &:hover { @apply bg-emerald-700; }
+}
+
+@utility btn-outline {
+  @apply btn border-2 border-white text-white bg-transparent;
+  &:hover { background: rgba(255,255,255,0.1); }
 }
 
 @utility card {

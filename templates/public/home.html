@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prometheus — RUCH Digital Technology</title>
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
+</head>
+<body class="bg-white text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur border-b border-gray-100" x-data="{ open: false }">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+      <span class="text-xl font-bold tracking-wider text-primary-600">RUCH</span>
+      <!-- Desktop -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#sobre" class="text-sm text-gray-600 hover:text-primary-600 transition">Sobre</a>
+        <a href="#servicos" class="text-sm text-gray-600 hover:text-primary-600 transition">Produtos</a>
+        <a href="#como-funciona" class="text-sm text-gray-600 hover:text-primary-600 transition">Como Funciona</a>
+        <a href="#parceiro" class="text-sm text-gray-600 hover:text-primary-600 transition">Seja Parceiro</a>
+        <a href="{% url 'web:login' %}" class="btn-primary text-sm">Acessar Painel</a>
+      </div>
+      <!-- Mobile toggle -->
+      <button @click="open = !open" class="md:hidden p-2 text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          <path x-show="open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <!-- Mobile menu -->
+    <div x-show="open" x-transition class="md:hidden border-t border-gray-100 bg-white px-6 pb-4 space-y-3">
+      <a href="#sobre" class="block text-sm text-gray-600 py-2" @click="open = false">Sobre</a>
+      <a href="#servicos" class="block text-sm text-gray-600 py-2" @click="open = false">Produtos</a>
+      <a href="#como-funciona" class="block text-sm text-gray-600 py-2" @click="open = false">Como Funciona</a>
+      <a href="#parceiro" class="block text-sm text-gray-600 py-2" @click="open = false">Seja Parceiro</a>
+      <a href="{% url 'web:login' %}" class="block btn-primary text-sm text-center">Acessar Painel</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="relative bg-primary-600 text-white overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-700 via-primary-600 to-primary-500 opacity-90"></div>
+    <div class="relative max-w-6xl mx-auto px-6 pt-32 pb-20 md:pt-40 md:pb-28">
+      <div class="max-w-2xl">
+        <p class="text-primary-200 text-sm font-medium tracking-widest uppercase mb-4">Portal de Parceiros</p>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+          Tecnologia que <br>impulsiona <span class="text-primary-200">resultados</span>
+        </h1>
+        <p class="text-lg text-primary-100 mb-8 max-w-lg">
+          Plataforma Prometheus: gerencie leads, acompanhe vendas e receba comissões em tempo real. Tudo em um s&oacute; lugar.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="{% url 'web:login' %}" class="btn-primary bg-white text-primary-700 hover:bg-primary-50 px-6 py-3 text-base font-semibold">
+            Acessar Painel
+          </a>
+          <a href="#como-funciona" class="btn-outline px-6 py-3 text-base">
+            Como funciona
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Decorative shape -->
+    <div class="absolute bottom-0 left-0 right-0">
+      <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
+        <path d="M0 100h1440V60C1200 100 240 0 0 60v40z" fill="white"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Sobre -->
+  <section id="sobre" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Sobre a RUCH</h2>
+        <p class="text-gray-600 text-lg">
+          Somos uma empresa de tecnologia focada em solu&ccedil;&otilde;es digitais que transformam neg&oacute;cios. Oferecemos produtos e servi&ccedil;os que aceleram a opera&ccedil;&atilde;o dos nossos clientes e parceiros.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center p-6">
+          <div class="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold">R</div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Resultados Reais</h3>
+          <p class="text-gray-500 text-sm">Solu&ccedil;&otilde;es que geram impacto mensur&aacute;vel no faturamento dos nossos parceiros.</p>
+        </div>
+        <div class="text-center p-6">
+          <div class="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold">U</div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Unic&iacute;dade</h3>
+          <p class="text-gray-500 text-sm">Cada projeto &eacute; &uacute;nico. Personalizamos cada implementa&ccedil;&atilde;o para o contexto do cliente.</p>
+        </div>
+        <div class="text-center p-6">
+          <div class="w-14 h-14 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold">C</div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Confian&ccedil;a</h3>
+          <p class="text-gray-500 text-sm">Transpar&ecirc;ncia total: acompanhe suas leads e comiss&otilde;es em tempo real pelo painel.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Servicos / Produtos -->
+  <section id="servicos" class="py-20 md:py-28 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Nossos Produtos</h2>
+        <p class="text-gray-600 text-lg">Solu&ccedil;&otilde;es completas em tecnologia para cada necessidade do seu cliente.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in produtos %}
+        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg hover:border-primary-200 transition-all duration-300">
+          <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ item.nome }}</h3>
+          <p class="text-gray-500 text-sm">{{ item.descricao }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Como Funciona -->
+  <section id="como-funciona" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Como Funciona</h2>
+        <p class="text-gray-600 text-lg">Processo simples e transparente para nossos parceiros.</p>
+      </div>
+      <div class="grid md:grid-cols-4 gap-8">
+        <div class="text-center">
+          <div class="w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">1</div>
+          <h3 class="font-semibold text-gray-900 mb-2">Cadastre a Lead</h3>
+          <p class="text-gray-500 text-sm">Insira os dados do cliente potencial no painel.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">2</div>
+          <h3 class="font-semibold text-gray-900 mb-2">An&aacute;lise</h3>
+          <p class="text-gray-500 text-sm">Nossa equipe analisa e qualifica a lead recebida.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">3</div>
+          <h3 class="font-semibold text-gray-900 mb-2">Implanta&ccedil;&atilde;o</h3>
+          <p class="text-gray-500 text-sm">Processamos e implantamos o servi&ccedil;o contratado.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">4</div>
+          <h3 class="font-semibold text-gray-900 mb-2">Comiss&atilde;o</h3>
+          <p class="text-gray-500 text-sm">Sua comiss&atilde;o &eacute; gerada automaticamente ap&oacute;s a venda.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Parceiro -->
+  <section id="parceiro" class="py-20 md:py-28 bg-primary-600 text-white">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Seja um Parceiro RUCH</h2>
+      <p class="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
+        Cadastre leads, acompanhe o status em tempo real e receba comiss&otilde;es de forma autom&aacute;tica. Junte-se &agrave; nossa rede de parceiros.
+      </p>
+      <a href="{% url 'web:login' %}" class="inline-flex items-center gap-2 bg-white text-primary-700 hover:bg-primary-50 px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
+        Acessar o Painel
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-primary-900 text-primary-300 py-12">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div>
+          <span class="text-xl font-bold tracking-wider text-white">RUCH</span>
+          <p class="text-sm mt-1">Digital Technology</p>
+        </div>
+        <div class="flex gap-8 text-sm">
+          <a href="#sobre" class="hover:text-white transition">Sobre</a>
+          <a href="#servicos" class="hover:text-white transition">Produtos</a>
+          <a href="#como-funciona" class="hover:text-white transition">Como Funciona</a>
+          <a href="{% url 'web:login' %}" class="hover:text-white transition">Painel</a>
+        </div>
+      </div>
+      <div class="border-t border-primary-800 mt-8 pt-8 text-center text-xs text-primary-400">
+        &copy; {% now "Y" %} RUCH Digital Technology. Todos os direitos reservados.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

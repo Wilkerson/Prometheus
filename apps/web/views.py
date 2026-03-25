@@ -15,6 +15,26 @@ from .mixins import HtmxMixin, OperadorRequiredMixin, is_htmx
 
 
 # ---------------------------------------------------------------------------
+# Landing Page (p&uacute;blica)
+# ---------------------------------------------------------------------------
+class HomeView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect("web:dashboard")
+
+        produtos = [
+            {"nome": "Agentes de IA", "descricao": "Assistentes inteligentes que automatizam atendimento, vendas e processos operacionais."},
+            {"nome": "SaaS", "descricao": "Plataformas sob medida para otimizar a gestao e escalar seu negocio."},
+            {"nome": "CRM", "descricao": "Gestao completa do relacionamento com clientes em uma interface intuitiva."},
+            {"nome": "ERP", "descricao": "Sistema integrado de gestao empresarial para controle total da operacao."},
+            {"nome": "Sites", "descricao": "Sites institucionais e landing pages de alta conversao com design profissional."},
+            {"nome": "Consultoria", "descricao": "Consultoria em tecnologia e automacao para transformar digitalmente seu negocio."},
+        ]
+
+        return render(request, "public/home.html", {"produtos": produtos})
+
+
+# ---------------------------------------------------------------------------
 # Auth
 # ---------------------------------------------------------------------------
 class LoginView(View):
