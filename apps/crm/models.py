@@ -29,10 +29,20 @@ class EntidadeParceira(models.Model):
 
 class Lead(models.Model):
     class Status(models.TextChoices):
-        NOVO = "novo", "Novo"
-        QUALIFICADO = "qualificado", "Qualificado"
-        VENDIDO = "vendido", "Vendido"
-        PERDIDO = "perdido", "Perdido"
+        RECEBIDA = "recebida", "Recebida"
+        EM_ANALISE = "em_analise", "Em Análise"
+        EM_PROCESSAMENTO = "em_processamento", "Em Processamento"
+        CONCLUIDA = "concluida", "Concluída"
+        PERDIDA = "perdida", "Perdida"
+
+    # Transições válidas de status
+    TRANSICOES_VALIDAS = {
+        Status.RECEBIDA: (Status.EM_ANALISE, Status.PERDIDA),
+        Status.EM_ANALISE: (Status.EM_PROCESSAMENTO, Status.PERDIDA),
+        Status.EM_PROCESSAMENTO: (Status.CONCLUIDA, Status.PERDIDA),
+        Status.CONCLUIDA: (),
+        Status.PERDIDA: (),
+    }
 
     class Produto(models.TextChoices):
         AGENTES_IA = "agentes_ia", "Agentes de IA"
@@ -64,7 +74,7 @@ class Lead(models.Model):
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default=Status.NOVO,
+        default=Status.RECEBIDA,
     )
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
@@ -76,6 +86,38 @@ class Lead(models.Model):
 
     def __str__(self):
         return f"{self.nome} — {self.get_status_display()}"
+
+    def pode_transitar_para(self, novo_status):
+        """Verifica se a transição de status é válida."""
+        return novo_status in self.TRANSICOES_VALIDAS.get(self.status, ())
+
+
+class LeadHistorico(models.Model):
+    """Registra cada mudança de status do lead para timeline/SLA."""
+
+    lead = models.ForeignKey(
+        Lead,
+        on_delete=models.CASCADE,
+        related_name="historico",
+    )
+    status_anterior = models.CharField(max_length=20, choices=Lead.Status.choices)
+    status_novo = models.CharField(max_length=20, choices=Lead.Status.choices)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    observacao = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Histórico do Lead"
+        verbose_name_plural = "Históricos de Leads"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.lead.nome}: {self.status_anterior} → {self.status_novo}"
 
 
 def upload_cliente_path(instance, filename):

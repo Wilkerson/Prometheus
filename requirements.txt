@@ -21,6 +21,9 @@ django-storages>=1.14,<2.0
 boto3>=1.35,<2.0
 google-cloud-storage>=2.18,<3.0
 
+# HTTP client
+requests>=2.32,<3.0
+
 # Environment
 python-decouple>=3.8,<4.0
 

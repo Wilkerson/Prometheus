@@ -1,16 +1,14 @@
 from django.db.models import Count, Q, Sum
-from rest_framework import serializers, status
-from rest_framework.decorators import action
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, mixins
 
-from apps.accounts.models import Usuario
 from apps.accounts.permissions import IsParceiro
 
 from .models import Lead
-from .serializers import LeadSerializer
+from .serializers import LeadCreateParceiroSerializer, LeadListSerializer
 
 
 class ParceiroLeadViewSet(
@@ -26,11 +24,15 @@ class ParceiroLeadViewSet(
     - GET  /api/v1/parceiro/leads/{id}/    → detalhe de um lead
     """
 
-    serializer_class = LeadSerializer
     permission_classes = [IsAuthenticated, IsParceiro]
     filterset_fields = ["status", "produto_interesse"]
     search_fields = ["nome", "email"]
     ordering_fields = ["criado_em", "status"]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return LeadCreateParceiroSerializer
+        return LeadListSerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -87,10 +89,11 @@ class ParceiroDashboardView(APIView):
             "leads": {
                 "total": total_leads,
                 "por_status": {
-                    "novo": leads_por_status.get("novo", 0),
-                    "qualificado": leads_por_status.get("qualificado", 0),
-                    "vendido": leads_por_status.get("vendido", 0),
-                    "perdido": leads_por_status.get("perdido", 0),
+                    "recebida": leads_por_status.get("recebida", 0),
+                    "em_analise": leads_por_status.get("em_analise", 0),
+                    "em_processamento": leads_por_status.get("em_processamento", 0),
+                    "concluida": leads_por_status.get("concluida", 0),
+                    "perdida": leads_por_status.get("perdida", 0),
                 },
             },
             "comissoes": {
