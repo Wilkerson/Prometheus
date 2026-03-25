@@ -1,5 +1,7 @@
-from rest_framework import viewsets
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from apps.accounts.models import Usuario
 from apps.accounts.permissions import IsOperador, IsOwnerParceiro, IsSuperAdmin
@@ -9,6 +11,7 @@ from .serializers import (
     ClienteSerializer,
     EntidadeParceiraSerializer,
     LeadSerializer,
+    LeadStatusSerializer,
     ProdutoContratadoSerializer,
 )
 
@@ -24,7 +27,7 @@ class EntidadeParceiraViewSet(viewsets.ModelViewSet):
 class LeadViewSet(viewsets.ModelViewSet):
     """
     Leads:
-    - Super Admin / Operador: veem todos
+    - Super Admin / Operador: veem todos, podem alterar status
     - Parceiro: vê e cria apenas os seus
     """
 
@@ -48,6 +51,48 @@ class LeadViewSet(viewsets.ModelViewSet):
             serializer.save(parceiro=user.parceiro)
         else:
             serializer.save()
+
+    @action(detail=True, methods=["patch"], url_path="status", permission_classes=[IsOperador])
+    def update_status(self, request, pk=None):
+        """PATCH /api/v1/leads/{id}/status/ — atualiza status (admin/operador)."""
+        lead = self.get_object()
+        serializer = LeadStatusSerializer(lead, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(LeadSerializer(lead).data)
+
+    @action(detail=True, methods=["post"], url_path="converter", permission_classes=[IsOperador])
+    def converter_em_cliente(self, request, pk=None):
+        """POST /api/v1/leads/{id}/converter/ — converte lead em cliente."""
+        lead = self.get_object()
+
+        if hasattr(lead, "cliente"):
+            return Response(
+                {"detail": "Este lead já foi convertido em cliente."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if lead.status != Lead.Status.VENDIDO:
+            return Response(
+                {"detail": "Somente leads com status 'vendido' podem ser convertidos."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        documento = request.data.get("documento", "")
+        if not documento:
+            return Response(
+                {"detail": "O campo 'documento' (CPF/CNPJ) é obrigatório."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cliente = Cliente.objects.create(
+            lead=lead,
+            nome=lead.nome,
+            documento=documento,
+            email=lead.email,
+            telefone=lead.telefone,
+        )
+        return Response(ClienteSerializer(cliente).data, status=status.HTTP_201_CREATED)
 
 
 class ClienteViewSet(viewsets.ModelViewSet):
