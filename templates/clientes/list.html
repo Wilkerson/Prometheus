@@ -3,6 +3,12 @@
 {% block title %}Clientes{% endblock %}
 {% block page_title %}Clientes{% endblock %}
 
+{% block page_actions %}
+{% if can_add %}
+<a href="{% url 'web:cliente-create' %}" class="btn-primary">+ Novo Cliente</a>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="card mb-6">
   <div class="flex gap-3">

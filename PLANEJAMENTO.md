@@ -308,8 +308,11 @@ perdida         → (status final)
 - `POST /leads/{id}/status/` — Alteração de status via HTMX
 - `GET /leads/pipeline/` — Kanban por status
 - `GET /leads/calendario/` — Calendário mensal
-- `GET /clientes/` — Listagem de clientes
+- `GET /clientes/` — Listagem de clientes (permissao: `crm.view_cliente`)
+- `GET /clientes/novo/` — Cadastro de cliente (permissao: `crm.add_cliente`)
 - `GET /clientes/{id}/` — Detalhe do cliente + produtos
+- `GET /clientes/{id}/editar/` — Edicao do cliente (permissao: `crm.change_cliente`)
+- `POST /clientes/{id}/excluir/` — Exclusao do cliente (permissao: `crm.delete_cliente`)
 - `GET /comissoes/` — Listagem de comissões
 
 ---
@@ -387,7 +390,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 31. [x] Refatorar controle de acesso para usar permissoes Django (groups + permissions)
 32. [x] Refatorar model Cliente: remover documento, adicionar endereco/cep, arquivo = "Produtos ou Servicos"
 33. [x] Remover modulo de conversao de lead em cliente (lead ja chega convertida do parceiro)
-34. [ ] Aplicar design system (JSON) quando fornecido
+34. [x] Implementar CRUD completo de clientes na dashboard (criar, editar, excluir com permissoes)
+35. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 

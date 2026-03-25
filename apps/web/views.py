@@ -344,6 +344,39 @@ class ClienteListView(PermissionRequiredMixin, HtmxMixin, ListView):
             qs = qs.filter(Q(nome__icontains=search) | Q(cnpj__icontains=search) | Q(email__icontains=search))
         return qs
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("crm.add_cliente")
+        return ctx
+
+
+class ClienteCreateView(PermissionRequiredMixin, View):
+    permission_required = "crm.add_cliente"
+
+    def get(self, request):
+        leads = Lead.objects.filter(status=Lead.Status.CONCLUIDA).exclude(
+            cliente__isnull=False
+        ).select_related("parceiro")
+        return render(request, "clientes/create.html", {"leads": leads})
+
+    def post(self, request):
+        lead_id = request.POST.get("lead")
+        lead = get_object_or_404(Lead, pk=lead_id) if lead_id else None
+
+        cliente = Cliente.objects.create(
+            lead=lead,
+            nome=request.POST.get("nome", ""),
+            cnpj=request.POST.get("cnpj", ""),
+            email=request.POST.get("email", ""),
+            telefone=request.POST.get("telefone", ""),
+            endereco=request.POST.get("endereco", ""),
+            cep=request.POST.get("cep", ""),
+        )
+
+        if is_htmx(request):
+            return render(request, "clientes/_create_success.html", {"cliente": cliente})
+        return redirect("web:cliente-detail", pk=cliente.pk)
+
 
 class ClienteDetailView(PermissionRequiredMixin, View):
     permission_required = "crm.view_cliente"
@@ -353,7 +386,47 @@ class ClienteDetailView(PermissionRequiredMixin, View):
             Cliente.objects.prefetch_related("produtos"),
             pk=pk,
         )
-        return render(request, "clientes/detail.html", {"cliente": cliente})
+        ctx = {
+            "cliente": cliente,
+            "can_edit": request.user.has_perm("crm.change_cliente"),
+            "can_delete": request.user.has_perm("crm.delete_cliente"),
+        }
+        return render(request, "clientes/detail.html", ctx)
+
+
+class ClienteUpdateView(PermissionRequiredMixin, View):
+    permission_required = "crm.change_cliente"
+
+    def get(self, request, pk):
+        cliente = get_object_or_404(Cliente, pk=pk)
+        return render(request, "clientes/edit.html", {"cliente": cliente})
+
+    def post(self, request, pk):
+        cliente = get_object_or_404(Cliente, pk=pk)
+        cliente.nome = request.POST.get("nome", cliente.nome)
+        cliente.cnpj = request.POST.get("cnpj", cliente.cnpj)
+        cliente.email = request.POST.get("email", cliente.email)
+        cliente.telefone = request.POST.get("telefone", "")
+        cliente.endereco = request.POST.get("endereco", "")
+        cliente.cep = request.POST.get("cep", "")
+        cliente.ativo = request.POST.get("ativo") == "on"
+        cliente.save()
+
+        if is_htmx(request):
+            return render(request, "clientes/_edit_success.html", {"cliente": cliente})
+        return redirect("web:cliente-detail", pk=cliente.pk)
+
+
+class ClienteDeleteView(PermissionRequiredMixin, View):
+    permission_required = "crm.delete_cliente"
+
+    def post(self, request, pk):
+        cliente = get_object_or_404(Cliente, pk=pk)
+        cliente.delete()
+        if is_htmx(request):
+            from django.http import HttpResponse
+            return HttpResponse(headers={"HX-Redirect": "/clientes/"})
+        return redirect("web:clientes")
 
 
 # ---------------------------------------------------------------------------

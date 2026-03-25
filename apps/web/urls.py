@@ -21,7 +21,10 @@ urlpatterns = [
     path("leads/<int:pk>/status/", views.LeadUpdateStatusView.as_view(), name="lead-update-status"),
     # Clientes
     path("clientes/", views.ClienteListView.as_view(), name="clientes"),
+    path("clientes/novo/", views.ClienteCreateView.as_view(), name="cliente-create"),
     path("clientes/<int:pk>/", views.ClienteDetailView.as_view(), name="cliente-detail"),
+    path("clientes/<int:pk>/editar/", views.ClienteUpdateView.as_view(), name="cliente-edit"),
+    path("clientes/<int:pk>/excluir/", views.ClienteDeleteView.as_view(), name="cliente-delete"),
     # Comissões
     path("comissoes/", views.ComissaoListView.as_view(), name="comissoes"),
 ]
