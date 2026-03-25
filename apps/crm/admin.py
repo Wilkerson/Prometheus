@@ -20,9 +20,9 @@ class LeadAdmin(admin.ModelAdmin):
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ("nome", "documento", "email", "ativo", "ativado_em")
+    list_display = ("nome", "documento", "cnpj", "email", "ativo", "ativado_em")
     list_filter = ("ativo",)
-    search_fields = ("nome", "documento", "email")
+    search_fields = ("nome", "documento", "cnpj", "email")
 
 
 @admin.register(ProdutoContratado)

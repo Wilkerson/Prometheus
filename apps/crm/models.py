@@ -78,6 +78,10 @@ class Lead(models.Model):
         return f"{self.nome} — {self.get_status_display()}"
 
 
+def upload_cliente_path(instance, filename):
+    return f"clientes/{instance.documento}/{filename}"
+
+
 class Cliente(models.Model):
     lead = models.OneToOneField(
         Lead,
@@ -85,9 +89,16 @@ class Cliente(models.Model):
         related_name="cliente",
     )
     nome = models.CharField(max_length=200)
-    documento = models.CharField("CPF/CNPJ", max_length=20, unique=True)
+    documento = models.CharField("CPF", max_length=14, blank=True)
+    cnpj = models.CharField("CNPJ", max_length=18, unique=True)
     email = models.EmailField()
     telefone = models.CharField(max_length=20, blank=True)
+    arquivo = models.FileField(
+        "Arquivo/Documento",
+        upload_to=upload_cliente_path,
+        blank=True,
+        null=True,
+    )
     ativo = models.BooleanField(default=True)
     ativado_em = models.DateTimeField(auto_now_add=True)
 

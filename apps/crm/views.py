@@ -78,17 +78,18 @@ class LeadViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        documento = request.data.get("documento", "")
-        if not documento:
+        cnpj = request.data.get("cnpj", "")
+        if not cnpj:
             return Response(
-                {"detail": "O campo 'documento' (CPF/CNPJ) é obrigatório."},
+                {"detail": "O campo 'cnpj' é obrigatório."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         cliente = Cliente.objects.create(
             lead=lead,
             nome=lead.nome,
-            documento=documento,
+            cnpj=cnpj,
+            documento=request.data.get("documento", ""),
             email=lead.email,
             telefone=lead.telefone,
         )

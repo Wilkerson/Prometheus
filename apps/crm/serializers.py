@@ -66,13 +66,21 @@ class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
         fields = (
-            "id", "lead", "nome", "documento", "email",
-            "telefone", "ativo", "ativado_em", "produtos",
+            "id", "lead", "nome", "documento", "cnpj", "email",
+            "telefone", "arquivo", "ativo", "ativado_em", "produtos",
         )
         read_only_fields = ("id", "ativado_em")
 
-    def validate_documento(self, value):
+    def validate_cnpj(self, value):
         digits = "".join(c for c in value if c.isdigit())
-        if len(digits) not in (11, 14):
-            raise serializers.ValidationError("Documento deve ser CPF (11 dígitos) ou CNPJ (14 dígitos).")
+        if len(digits) != 14:
+            raise serializers.ValidationError("CNPJ deve conter 14 dígitos.")
+        return value
+
+    def validate_documento(self, value):
+        if not value:
+            return value
+        digits = "".join(c for c in value if c.isdigit())
+        if len(digits) != 11:
+            raise serializers.ValidationError("CPF deve conter 11 dígitos.")
         return value

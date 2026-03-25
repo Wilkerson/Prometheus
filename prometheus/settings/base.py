@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "drf_spectacular",
     "django_celery_beat",
+    "storages",
 ]
 
 LOCAL_APPS = [
@@ -183,3 +184,46 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+# -----------------------------------------------------------------------------
+# Storage (uploads de arquivos)
+# -----------------------------------------------------------------------------
+# Providers suportados: "s3" (AWS S3 / Cloudflare R2), "gcs" (Google Cloud), "local"
+# Para Cloudflare R2: use provider "s3" com STORAGE_S3_ENDPOINT_URL apontando para R2
+STORAGE_PROVIDER = config("STORAGE_PROVIDER", default="local")
+
+if STORAGE_PROVIDER == "s3":
+    STORAGES = {
+        "default": {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
+    AWS_ACCESS_KEY_ID = config("STORAGE_S3_ACCESS_KEY")
+    AWS_SECRET_ACCESS_KEY = config("STORAGE_S3_SECRET_KEY")
+    AWS_STORAGE_BUCKET_NAME = config("STORAGE_S3_BUCKET_NAME")
+    AWS_S3_REGION_NAME = config("STORAGE_S3_REGION", default="us-east-1")
+    AWS_S3_ENDPOINT_URL = config("STORAGE_S3_ENDPOINT_URL", default="")
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = True
+    AWS_QUERYSTRING_EXPIRE = 3600
+
+    if not AWS_S3_ENDPOINT_URL:
+        AWS_S3_ENDPOINT_URL = None
+
+elif STORAGE_PROVIDER == "gcs":
+    STORAGES = {
+        "default": {"BACKEND": "storages.backends.gcloud.GoogleCloudStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
+    GS_BUCKET_NAME = config("STORAGE_GCS_BUCKET_NAME")
+    GS_PROJECT_ID = config("STORAGE_GCS_PROJECT_ID", default="")
+    GS_CREDENTIALS_FILE = config("STORAGE_GCS_CREDENTIALS_FILE", default="")
+    GS_FILE_OVERWRITE = False
+    GS_DEFAULT_ACL = None
+    GS_QUERYSTRING_AUTH = True
+
+    if GS_CREDENTIALS_FILE:
+        from google.oauth2 import service_account
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(GS_CREDENTIALS_FILE)
+
+# Se STORAGE_PROVIDER == "local", usa o default do Django (MEDIA_ROOT)
