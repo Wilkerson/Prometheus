@@ -3,53 +3,71 @@
 
 ---
 
-## Contexto do projeto
+## 1. Contexto do projeto
 
-Sistema web para captação e gestão de clientes de produtos/serviços de tecnologia (Agentes IA, SaaS, CRM, ERP, Sites, Consultoria). Uma entidade parceira comercial acessa um painel restrito para inserir leads captados. O sistema gerencia o pipeline de vendas, calcula comissões e expõe uma API REST para integração com sistema externo próprio.
+Sistema web para captação e gestão de clientes de produtos/serviços de tecnologia (Agentes IA, SaaS, CRM, ERP, Sites, Consultoria). Uma entidade parceira comercial acessa um painel restrito para inserir leads captados. O sistema gerencia o pipeline interno, calcula comissões e integra com sistema externo próprio via API REST.
+
+### Fluxo principal
+
+```
+Parceiro envia lead → Recebida → Em Análise → Em Processamento ──→ API envia para sistema externo
+                                                                            ↓
+                                                          Sistema externo implanta o serviço
+                                                                            ↓
+                                              Concluída ←── Callback retorna status pro Prometheus
+                                                  ↓
+                                          Converte em Cliente → Produto Contratado → Comissão gerada
+```
 
 ---
 
-## 1. Stack tecnológico
+## 2. Stack tecnológico
 
 - **Backend:** Python 3.12 + Django 5 + Django REST Framework
 - **Banco de dados:** PostgreSQL 15
 - **Cache / filas:** Redis + Celery
-- **Autenticação:** JWT (djangorestframework-simplejwt)
+- **Autenticação:** JWT (djangorestframework-simplejwt) + API Key (sistemas externos)
+- **Storage:** django-storages (AWS S3 / Cloudflare R2 / Google Cloud Storage)
 - **Servidor:** Nginx + Gunicorn
 - **Infra:** Docker + Docker Compose
 - **CI/CD:** GitHub Actions
 - **Monitoramento:** Sentry + Uptime Kuma
+- **Testes:** Django TestCase + SQLite em memória
 
 ---
 
-## 2. Perfis de usuário
+## 3. Perfis de usuário e controle de acesso
 
-| Perfil | Acesso |
-|---|---|
-| Super Admin | Acesso total ao sistema |
-| Operador interno | Módulos atribuídos |
-| Entidade parceira | Cadastro de leads + visualização de comissões |
-| Sistema externo | API Key para integração |
+| Perfil | Role | Acesso |
+|---|---|---|
+| Super Admin | `super_admin` | Acesso total — CRUD de usuários, parceiros, leads, clientes, comissões |
+| Operador Interno | `operador` | CRM — gerencia leads, converte clientes, altera status, produtos contratados |
+| Entidade Parceira | `parceiro` | Painel restrito — cadastra leads, vê apenas os seus, consulta suas comissões |
+| Sistema Externo | API Key (`X-API-Key`) | Callback de status de leads e inserção de clientes via API |
+
+O token JWT retorna `perfil`, `nome` e `email` no payload para controle no front-end.
 
 ---
 
-## 3. Módulos do sistema
+## 4. Módulos do sistema
 
-### MVP (fase 1)
-- Autenticação e controle de acesso por perfil
-- CRM: gestão de leads e clientes
-- Painel restrito da entidade parceira
-- Cálculo de comissão percentual por venda
-- API REST para integração com sistema externo
+### MVP (fase 1) — implementado
+- Autenticação JWT + controle de acesso por perfil
+- CRM: gestão de leads com pipeline de status e histórico
+- Painel restrito da entidade parceira com dashboard
+- Cálculo automático de comissão via signal
+- Integração bidirecional com sistema externo (envio + callback)
+- Calendário de leads e monitoramento de SLA
+- Upload de arquivos com suporte a storage na nuvem
 
-### Pós-MVP
+### Pós-MVP (fase 2)
 - Módulo financeiro
 - Suporte ao cliente / tickets
 - Operacional / onboarding de serviços
 
 ---
 
-## 4. Produtos/serviços ofertados
+## 5. Produtos/serviços ofertados
 
 - Agentes de IA
 - SaaS
@@ -60,80 +78,137 @@ Sistema web para captação e gestão de clientes de produtos/serviços de tecno
 
 ---
 
-## 5. Arquitetura
+## 6. Arquitetura
 
 ```
-Navegador (Admin / Parceiro / Sistema externo)
-        ↓
-    Nginx (SSL · rate limit · static files)
-        ↓
-  Django App — Gunicorn/WSGI
-  ┌─────────────────────────────────────────┐
-  │ Auth module │ CRM module │ API REST │ Admin │
-  └─────────────────────────────────────────┘
-        ↓              ↓              ↓
-  PostgreSQL 15    Redis cache    Object Storage
-        ↓
-  Celery workers (tarefas assíncronas)
+Navegador (Admin / Parceiro)          Sistema Externo
+        ↓                                   ↓
+    Nginx (SSL · rate limit · static)    API Key (X-API-Key)
+        ↓                                   ↓
+  ┌──────────────────────────────────────────────────────┐
+  │                Django App — Gunicorn/WSGI             │
+  │                                                      │
+  │  accounts     crm          comissoes     integracao  │
+  │  (JWT+roles)  (leads,      (cálculo     (callback,  │
+  │               clientes,    automático)   envio API)  │
+  │               histórico,                             │
+  │               calendário)                            │
+  └──────────────────────────────────────────────────────┘
+        ↓              ↓              ↓             ↓
+  PostgreSQL 15   Redis/Celery   Object Storage   Sistema
+                  (tasks async)  (S3/R2/GCS)      Externo
 ```
 
 ---
 
-## 6. Modelos de dados (principais)
+## 7. Modelos de dados
 
 ```
-USUARIO
-  id, nome, email, perfil, ativo, criado_em
+USUARIO (AbstractUser)
+  id, username, email, first_name, last_name, perfil [super_admin|operador|parceiro],
+  is_active, date_joined
 
 ENTIDADE_PARCEIRA
-  id, usuario_id (FK), nome_entidade, percentual_comissao, ativo
+  id, usuario_id (FK OneToOne), nome_entidade, percentual_comissao, ativo, criado_em
 
 LEAD
-  id, parceiro_id (FK), operador_id (FK), nome, email, telefone,
-  produto_interesse, status [novo|qualificado|vendido|perdido], criado_em
+  id, parceiro_id (FK), operador_id (FK nullable), nome, email, telefone,
+  produto_interesse [agentes_ia|saas|crm|erp|sites|consultoria],
+  status [recebida|em_analise|em_processamento|concluida|perdida],
+  criado_em, atualizado_em
+
+LEAD_HISTORICO
+  id, lead_id (FK), status_anterior, status_novo, usuario_id (FK nullable),
+  observacao, criado_em
 
 CLIENTE
-  id, lead_id (FK), nome, documento, email, telefone, status, ativado_em
+  id, lead_id (FK OneToOne), nome, documento (CPF, opcional), cnpj (obrigatório, unique),
+  email, telefone, arquivo (FileField, opcional), ativo, ativado_em
 
 PRODUTO_CONTRATADO
-  id, cliente_id (FK), produto, valor, status, contratado_em
+  id, cliente_id (FK), produto, valor, status [ativo|suspenso|cancelado], contratado_em
 
 COMISSAO
   id, parceiro_id (FK), venda_id (FK), valor_venda,
   percentual, valor_comissao, status [pendente|pago], gerado_em
 
 TOKEN_INTEGRACAO
-  id, nome, token, ativo, criado_em
+  id, nome, token (auto-gerado), ativo, criado_em
+```
+
+### Transições válidas de status do Lead
+
+```
+recebida        → em_analise, perdida
+em_analise      → em_processamento, perdida
+em_processamento → concluida, perdida  (concluida vem via callback do sistema externo)
+concluida       → (status final)
+perdida         → (status final)
 ```
 
 ---
 
-## 7. Endpoints da API (base: /api/v1/)
+## 8. Endpoints da API (base: /api/v1/)
 
 ### Autenticação
-- `POST /auth/token/` — Login, retorna JWT
+- `POST /auth/token/` — Login, retorna JWT com perfil/nome/email
 - `POST /auth/token/refresh/` — Renova token
+- `GET  /auth/me/` — Dados do usuário logado
+- CRUD `/auth/usuarios/` — Gestão de usuários (Super Admin)
 
 ### Leads
-- `POST /leads/` — Cadastra lead (parceiro)
-- `GET /leads/` — Lista leads do parceiro
-- `GET /leads/{id}/` — Detalhe do lead
-- `PATCH /leads/{id}/status/` — Atualiza status (admin)
+- `POST /leads/` — Cadastra lead
+- `GET  /leads/` — Lista leads (filtro por perfil)
+- `GET  /leads/{id}/` — Detalhe com histórico completo
+- `PATCH /leads/{id}/status/` — Atualiza status com validação de transição (operador/admin)
+- `GET  /leads/{id}/historico/` — Timeline de mudanças de status
+- `POST /leads/{id}/converter/` — Converte lead concluída em cliente (operador)
+- `GET  /leads/calendario/?mes=YYYY-MM` — Leads agrupadas por dia
+- `GET  /leads/sla/?dias=N` — Leads paradas há mais de N dias
+
+### Painel do Parceiro
+- `POST /parceiro/leads/` — Cadastra novo lead
+- `GET  /parceiro/leads/` — Lista leads do parceiro
+- `GET  /parceiro/leads/{id}/` — Detalhe de um lead
+- `GET  /parceiro/dashboard/` — Resumo com totais por status e comissões
 
 ### Clientes
-- `POST /clientes/` — Converte lead em cliente ativo
-- `GET /clientes/` — Lista clientes (admin)
-- `GET /clientes/{id}/` — Detalhe + produtos
+- CRUD `/clientes/` — Gestão de clientes (operador/admin)
+- CRUD `/produtos-contratados/` — Produtos de cada cliente
 
 ### Comissões
 - `GET /comissoes/` — Lista comissões (parceiro vê as próprias)
 
-### Integração externa
-- `POST /integracao/cliente/` — Insere cliente via API Key (sistema externo)
+### Integração externa (autenticação via X-API-Key)
+- `POST /integracao/cliente/` — Insere cliente via sistema externo
+- `POST /integracao/lead/status/` — Callback do sistema externo (concluida/perdida)
 
 ---
 
-## 8. Planejamento de capacidade
+## 9. Storage de arquivos
+
+Suporte a 3 providers configuráveis via variável `STORAGE_PROVIDER`:
+
+| Provider | Backend | Uso |
+|---|---|---|
+| `local` | Django MEDIA_ROOT | Desenvolvimento |
+| `s3` | AWS S3 / Cloudflare R2 (boto3) | Produção (AWS ou Cloudflare) |
+| `gcs` | Google Cloud Storage | Produção (GCP) |
+
+Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
+
+---
+
+## 10. Integração com sistema externo
+
+| Evento | Direção | Como |
+|---|---|---|
+| Lead entra em processamento | Prometheus → Externo | Task Celery `enviar_lead_sistema_externo` (POST com retry) |
+| Implantação concluída/perdida | Externo → Prometheus | Callback `POST /integracao/lead/status/` com API Key |
+
+---
+
+## 11. Planejamento de capacidade
 
 | Fase | Prazo | Clientes | Infraestrutura |
 |---|---|---|---|
@@ -143,27 +218,31 @@ TOKEN_INTEGRACAO
 
 ---
 
-## 9. Próximos passos de desenvolvimento
+## 12. Passos de desenvolvimento
 
 > **Regra:** realizar commit do projeto após a implementação ou alteração de cada passo.
 
-1. [x] Criar estrutura do projeto Django
-2. [x] Configurar ambiente Docker (Dockerfile + docker-compose.yml)
-3. [x] Configurar PostgreSQL e variáveis de ambiente (.env)
-4. [x] Criar apps Django: `accounts`, `crm`, `comissoes`, `integracao`
-5. [x] Implementar models conforme planejamento de dados
-6. [x] Configurar autenticação JWT + perfis de acesso
-7. [x] Implementar serializers e viewsets (DRF)
-8. [x] Implementar painel restrito da entidade parceira
-9. [x] Implementar cálculo automático de comissão
-10. [ ] Testes e documentação da API (Swagger/drf-spectacular)
-11. [ ] Implementar front-end (design system fornecido em JSON)
+### Back-end
+1. [x] Criar estrutura do projeto Django e apps (`accounts`, `crm`, `comissoes`, `integracao`)
+2. [x] Configurar ambiente Docker (Dockerfile + docker-compose + Nginx)
+3. [x] Configurar PostgreSQL, variáveis de ambiente e split de settings (base/dev/production/test)
+4. [x] Implementar models e admin (Usuario, EntidadeParceira, Lead, Cliente, ProdutoContratado, Comissao, TokenIntegracao)
+5. [x] Configurar autenticação JWT customizada + permissions por perfil (SuperAdmin, Operador, Parceiro)
+6. [x] Implementar serializers e viewsets com validações (DRF)
+7. [x] Implementar pipeline de leads com transições validadas e LeadHistorico (timeline)
+8. [x] Implementar painel restrito da entidade parceira com dashboard
+9. [x] Implementar cálculo automático de comissão (signal post_save)
+10. [x] Implementar integração bidirecional com sistema externo (envio Celery + callback API Key)
+11. [x] Implementar calendário de leads e monitoramento de SLA
+12. [x] Implementar upload de arquivos com suporte a storage na nuvem (S3/R2/GCS)
+13. [x] Implementar testes automatizados (23 testes cobrindo fluxo completo)
+14. [ ] Documentação da API (Swagger/drf-spectacular) — ajustes finais
+15. [ ] CI/CD com GitHub Actions
 
----
+### Front-end
+16. [ ] Implementar front-end (design system fornecido em JSON)
 
-## 10. Front-end
-
-A implementação do front-end será realizada **por último**, após a conclusão de todos os passos do back-end. O design system será fornecido em formato JSON e servirá como base para a construção das interfaces.
+> A implementação do front-end será realizada **por último**, após a conclusão de todos os passos do back-end. O design system será fornecido em formato JSON e servirá como base para a construção das interfaces.
 
 ---
 
