@@ -5,3 +5,6 @@ class ComissoesConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.comissoes"
     verbose_name = "Comissões"
+
+    def ready(self):
+        import apps.comissoes.signals  # noqa: F401
