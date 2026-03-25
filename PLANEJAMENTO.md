@@ -145,7 +145,9 @@ TOKEN_INTEGRACAO
 
 ## 9. Próximos passos de desenvolvimento
 
-1. [ ] Criar estrutura do projeto Django
+> **Regra:** realizar commit do projeto após a implementação ou alteração de cada passo.
+
+1. [x] Criar estrutura do projeto Django
 2. [ ] Configurar ambiente Docker (Dockerfile + docker-compose.yml)
 3. [ ] Configurar PostgreSQL e variáveis de ambiente (.env)
 4. [ ] Criar apps Django: `accounts`, `crm`, `comissoes`, `integracao`
@@ -155,6 +157,13 @@ TOKEN_INTEGRACAO
 8. [ ] Implementar painel restrito da entidade parceira
 9. [ ] Implementar cálculo automático de comissão
 10. [ ] Testes e documentação da API (Swagger/drf-spectacular)
+11. [ ] Implementar front-end (design system fornecido em JSON)
+
+---
+
+## 10. Front-end
+
+A implementação do front-end será realizada **por último**, após a conclusão de todos os passos do back-end. O design system será fornecido em formato JSON e servirá como base para a construção das interfaces.
 
 ---
 
