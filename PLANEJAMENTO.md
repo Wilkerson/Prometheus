@@ -149,7 +149,7 @@ TOKEN_INTEGRACAO
 
 1. [x] Criar estrutura do projeto Django
 2. [x] Configurar ambiente Docker (Dockerfile + docker-compose.yml)
-3. [ ] Configurar PostgreSQL e variáveis de ambiente (.env)
+3. [x] Configurar PostgreSQL e variáveis de ambiente (.env)
 4. [ ] Criar apps Django: `accounts`, `crm`, `comissoes`, `integracao`
 5. [ ] Implementar models conforme planejamento de dados
 6. [ ] Configurar autenticação JWT + perfis de acesso

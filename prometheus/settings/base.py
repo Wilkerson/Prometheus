@@ -1,20 +1,19 @@
 """
-Configurações do projeto Prometheus — RUCH Digital Technology.
+Configurações base do projeto Prometheus — RUCH Digital Technology.
+Compartilhadas entre todos os ambientes.
 """
 
-import os
 from datetime import timedelta
 from pathlib import Path
 
 from decouple import Csv, config
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # -----------------------------------------------------------------------------
 # Core
 # -----------------------------------------------------------------------------
 SECRET_KEY = config("SECRET_KEY")
-DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="", cast=Csv())
 
 # -----------------------------------------------------------------------------
@@ -92,6 +91,8 @@ DATABASES = {
         "PASSWORD": config("DB_PASSWORD", default="prometheus"),
         "HOST": config("DB_HOST", default="localhost"),
         "PORT": config("DB_PORT", default="5432"),
+        "ATOMIC_REQUESTS": True,
+        "CONN_MAX_AGE": config("DB_CONN_MAX_AGE", default=60, cast=int),
     }
 }
 
@@ -182,12 +183,3 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
-
-# -----------------------------------------------------------------------------
-# Sentry (opcional)
-# -----------------------------------------------------------------------------
-SENTRY_DSN = config("SENTRY_DSN", default="")
-if SENTRY_DSN:
-    import sentry_sdk
-
-    sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=0.2)

@@ -34,6 +34,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      DJANGO_SETTINGS_MODULE: prometheus.settings.dev
       DB_HOST: db
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
@@ -48,15 +49,14 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: >
-      sh -c "python manage.py migrate --noinput &&
-             gunicorn prometheus.wsgi:application --bind 0.0.0.0:8000 --workers 3 --reload"
+    command: gunicorn prometheus.wsgi:application --bind 0.0.0.0:8000 --workers 3 --reload
 
   celery:
     build: .
     restart: unless-stopped
     env_file: .env
     environment:
+      DJANGO_SETTINGS_MODULE: prometheus.settings.dev
       DB_HOST: db
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
@@ -74,6 +74,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      DJANGO_SETTINGS_MODULE: prometheus.settings.dev
       DB_HOST: db
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
