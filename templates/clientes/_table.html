@@ -1,0 +1,34 @@
+{% if clientes %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-gray-200 text-left text-gray-500">
+        <th class="pb-3 font-medium">Nome</th>
+        <th class="pb-3 font-medium">CNPJ</th>
+        <th class="pb-3 font-medium">Email</th>
+        <th class="pb-3 font-medium">Status</th>
+        <th class="pb-3 font-medium">Data</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for cliente in clientes %}
+      <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{% url 'web:cliente-detail' cliente.pk %}'">
+        <td class="py-3 font-medium text-gray-900">{{ cliente.nome }}</td>
+        <td class="py-3 text-gray-600">{{ cliente.cnpj }}</td>
+        <td class="py-3 text-gray-600">{{ cliente.email }}</td>
+        <td class="py-3">
+          {% if cliente.ativo %}
+          <span class="badge bg-emerald-100 text-emerald-800">Ativo</span>
+          {% else %}
+          <span class="badge bg-gray-100 text-gray-600">Inativo</span>
+          {% endif %}
+        </td>
+        <td class="py-3 text-gray-500">{{ cliente.ativado_em|date:"d/m/Y" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-gray-500 py-4">Nenhum cliente encontrado.</p>
+{% endif %}

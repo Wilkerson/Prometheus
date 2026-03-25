@@ -239,10 +239,22 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 14. [ ] Documentação da API (Swagger/drf-spectacular) — ajustes finais
 15. [ ] CI/CD com GitHub Actions
 
-### Front-end
-16. [ ] Implementar front-end (design system fornecido em JSON)
+### Front-end (Django Templates + HTMX + Alpine.js + Tailwind CSS v4)
+16. [x] Configurar Tailwind CSS v4 (pytailwindcss) + HTMX + Alpine.js
+17. [x] Criar app `web` com views, mixins, context processors e URLs
+18. [x] Implementar layout base (sidebar responsiva, topbar, messages, loading)
+19. [x] Implementar tela de login
+20. [x] Implementar dashboard com stats, pipeline e leads recentes
+21. [x] Implementar listagem de leads com busca/filtros HTMX em tempo real
+22. [x] Implementar detalhe do lead com timeline e alteração de status via HTMX
+23. [x] Implementar formulário de criação de lead
+24. [x] Implementar pipeline Kanban (visualização por colunas de status)
+25. [x] Implementar calendário de leads por mês
+26. [x] Implementar listagem e detalhe de clientes
+27. [x] Implementar listagem de comissões com filtros
+28. [ ] Aplicar design system (JSON) quando fornecido
 
-> A implementação do front-end será realizada **por último**, após a conclusão de todos os passos do back-end. O design system será fornecido em formato JSON e servirá como base para a construção das interfaces.
+> **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 
 ---
 

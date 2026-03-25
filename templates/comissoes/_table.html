@@ -1,0 +1,53 @@
+{% if comissoes %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-gray-200 text-left text-gray-500">
+        <th class="pb-3 font-medium">Parceiro</th>
+        <th class="pb-3 font-medium">Valor da Venda</th>
+        <th class="pb-3 font-medium">Percentual</th>
+        <th class="pb-3 font-medium">Comissão</th>
+        <th class="pb-3 font-medium">Status</th>
+        <th class="pb-3 font-medium">Data</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for comissao in comissoes %}
+      <tr class="hover:bg-gray-50">
+        <td class="py-3 font-medium text-gray-900">{{ comissao.parceiro.nome_entidade }}</td>
+        <td class="py-3 text-gray-600">R$ {{ comissao.valor_venda }}</td>
+        <td class="py-3 text-gray-600">{{ comissao.percentual }}%</td>
+        <td class="py-3 font-medium text-gray-900">R$ {{ comissao.valor_comissao }}</td>
+        <td class="py-3">
+          {% if comissao.status == "pendente" %}
+          <span class="badge bg-yellow-100 text-yellow-800">Pendente</span>
+          {% else %}
+          <span class="badge bg-emerald-100 text-emerald-800">Pago</span>
+          {% endif %}
+        </td>
+        <td class="py-3 text-gray-500">{{ comissao.gerado_em|date:"d/m/Y" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+  <span class="text-sm text-gray-500">
+    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+  </span>
+  <div class="flex gap-2">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="btn-secondary text-xs">Anterior</a>
+    {% endif %}
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary text-xs">Próxima</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% else %}
+<p class="text-sm text-gray-500 py-4">Nenhuma comissão encontrada.</p>
+{% endif %}

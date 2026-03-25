@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Lead{% endblock %}
+{% block page_title %}Novo Lead{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card">
+    <form method="post" hx-post="{% url 'web:lead-create' %}" hx-target="#form-result">
+      {% csrf_token %}
+      <div class="space-y-4">
+        <div>
+          <label for="nome" class="label">Nome completo</label>
+          <input type="text" name="nome" id="nome" required class="input" placeholder="Nome do lead">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="email" class="label">Email</label>
+            <input type="email" name="email" id="email" required class="input" placeholder="email@exemplo.com">
+          </div>
+          <div>
+            <label for="telefone" class="label">Telefone</label>
+            <input type="text" name="telefone" id="telefone" class="input" placeholder="(11) 99999-9999">
+          </div>
+        </div>
+        <div>
+          <label for="produto_interesse" class="label">Produto de interesse</label>
+          <select name="produto_interesse" id="produto_interesse" required class="input">
+            <option value="">Selecione...</option>
+            {% for value, label in produto_choices %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div id="form-result" class="mt-4"></div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary">Cadastrar Lead</button>
+        <a href="{% url 'web:leads' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

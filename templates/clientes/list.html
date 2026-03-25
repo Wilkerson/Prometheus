@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="card mb-6">
+  <div class="flex gap-3">
+    <div class="flex-1">
+      <input type="text" name="q" placeholder="Buscar por nome, CNPJ ou email..."
+             class="input"
+             hx-get="{% url 'web:clientes' %}"
+             hx-target="#clientes-table"
+             hx-trigger="input changed delay:300ms"
+             hx-push-url="true">
+    </div>
+  </div>
+</div>
+
+<div class="card" id="clientes-table">
+  {% include "clientes/_table.html" %}
+</div>
+{% endblock %}

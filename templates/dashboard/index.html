@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="card">
+    <div class="text-sm font-medium text-gray-500">Total de Leads</div>
+    <div class="mt-1 text-3xl font-bold text-gray-900">{{ leads_total }}</div>
+  </div>
+  <div class="card">
+    <div class="text-sm font-medium text-gray-500">Em Processamento</div>
+    <div class="mt-1 text-3xl font-bold text-purple-600">{{ leads_por_status.em_processamento|default:"0" }}</div>
+  </div>
+  <div class="card">
+    <div class="text-sm font-medium text-gray-500">Comissões Pendentes</div>
+    <div class="mt-1 text-3xl font-bold text-yellow-600">R$ {{ comissao_pendente }}</div>
+  </div>
+  <div class="card {% if leads_atrasadas > 0 %}border-red-300 bg-red-50{% endif %}">
+    <div class="text-sm font-medium text-gray-500">Leads Atrasadas (SLA)</div>
+    <div class="mt-1 text-3xl font-bold {% if leads_atrasadas > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">{{ leads_atrasadas }}</div>
+  </div>
+</div>
+
+<!-- Status Pipeline -->
+<div class="card mb-8">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Pipeline de Leads</h2>
+  <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+    {% for status_value, status_label in status_list %}
+    <div class="text-center p-3 rounded-lg bg-gray-50">
+      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status|default_if_none:"{}"|dictsort:status_value }}{% with count=leads_por_status %}{% if status_value in count %}{{ count|dictsort:status_value }}{% else %}0{% endif %}{% endwith %}</div>
+      <div class="text-xs text-gray-500 mt-1">{{ status_label }}</div>
+    </div>
+    {% empty %}
+    <div class="text-center p-3 rounded-lg bg-gray-50">
+      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.recebida|default:"0" }}</div>
+      <div class="text-xs text-gray-500 mt-1">Recebida</div>
+    </div>
+    <div class="text-center p-3 rounded-lg bg-gray-50">
+      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.em_analise|default:"0" }}</div>
+      <div class="text-xs text-gray-500 mt-1">Em Análise</div>
+    </div>
+    <div class="text-center p-3 rounded-lg bg-gray-50">
+      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.em_processamento|default:"0" }}</div>
+      <div class="text-xs text-gray-500 mt-1">Em Processamento</div>
+    </div>
+    <div class="text-center p-3 rounded-lg bg-gray-50">
+      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.concluida|default:"0" }}</div>
+      <div class="text-xs text-gray-500 mt-1">Concluída</div>
+    </div>
+    <div class="text-center p-3 rounded-lg bg-gray-50">
+      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.perdida|default:"0" }}</div>
+      <div class="text-xs text-gray-500 mt-1">Perdida</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Leads Recentes -->
+<div class="card">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Leads Recentes</h2>
+  {% if leads_recentes %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-gray-200 text-left text-gray-500">
+          <th class="pb-3 font-medium">Nome</th>
+          <th class="pb-3 font-medium">Parceiro</th>
+          <th class="pb-3 font-medium">Produto</th>
+          <th class="pb-3 font-medium">Status</th>
+          <th class="pb-3 font-medium">Data</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for lead in leads_recentes %}
+        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{% url 'web:lead-detail' lead.pk %}'">
+          <td class="py-3 font-medium text-gray-900">{{ lead.nome }}</td>
+          <td class="py-3 text-gray-600">{{ lead.parceiro.nome_entidade }}</td>
+          <td class="py-3 text-gray-600">{{ lead.get_produto_interesse_display }}</td>
+          <td class="py-3"><span class="badge-{{ lead.status }}">{{ lead.get_status_display }}</span></td>
+          <td class="py-3 text-gray-500">{{ lead.criado_em|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-sm text-gray-500">Nenhum lead cadastrado ainda.</p>
+  {% endif %}
+</div>
+{% endblock %}

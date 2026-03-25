@@ -1,0 +1,114 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Info do Lead -->
+  <div class="lg:col-span-2 space-y-6">
+    <div class="card">
+      <div class="flex items-start justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">Informações</h2>
+        <span class="badge-{{ lead.status }}">{{ lead.get_status_display }}</span>
+      </div>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <dt class="text-gray-500">Nome</dt>
+          <dd class="font-medium text-gray-900">{{ lead.nome }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Email</dt>
+          <dd class="font-medium text-gray-900">{{ lead.email }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Telefone</dt>
+          <dd class="font-medium text-gray-900">{{ lead.telefone|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Produto</dt>
+          <dd class="font-medium text-gray-900">{{ lead.get_produto_interesse_display }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Parceiro</dt>
+          <dd class="font-medium text-gray-900">{{ lead.parceiro.nome_entidade }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Recebida em</dt>
+          <dd class="font-medium text-gray-900">{{ lead.criado_em|date:"d/m/Y H:i" }}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Timeline</h2>
+      {% if historico %}
+      <div class="space-y-4">
+        {% for h in historico %}
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-3 h-3 rounded-full bg-primary-500 mt-1.5"></div>
+            {% if not forloop.last %}<div class="w-0.5 flex-1 bg-gray-200 mt-1"></div>{% endif %}
+          </div>
+          <div class="flex-1 pb-4">
+            <div class="text-sm font-medium text-gray-900">
+              <span class="badge-{{ h.status_anterior }}">{{ h.get_status_anterior_display }}</span>
+              <span class="mx-1 text-gray-400">→</span>
+              <span class="badge-{{ h.status_novo }}">{{ h.get_status_novo_display }}</span>
+            </div>
+            {% if h.observacao %}
+            <p class="text-sm text-gray-600 mt-1">{{ h.observacao }}</p>
+            {% endif %}
+            <p class="text-xs text-gray-400 mt-1">
+              {{ h.criado_em|date:"d/m/Y H:i" }}
+              {% if h.usuario %}· {{ h.usuario.get_full_name|default:h.usuario.username }}{% else %}· Sistema externo{% endif %}
+            </p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-gray-500">Nenhuma movimentação registrada.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Sidebar: Ações -->
+  <div class="space-y-6">
+    {% if transicoes %}
+    <div class="card">
+      <h3 class="text-sm font-semibold text-gray-800 mb-3">Alterar Status</h3>
+      <form hx-post="{% url 'web:lead-update-status' lead.pk %}"
+            hx-target="#lead-detail-content"
+            hx-swap="innerHTML">
+        {% csrf_token %}
+        <div class="space-y-3">
+          <div>
+            <select name="status" required class="input">
+              {% for value, label in transicoes %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <textarea name="observacao" rows="2" class="input" placeholder="Observação (opcional)"></textarea>
+          </div>
+          <button type="submit" class="btn-primary w-full">Atualizar Status</button>
+        </div>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if lead.status == "concluida" and not lead.cliente %}
+    <div class="card">
+      <h3 class="text-sm font-semibold text-gray-800 mb-3">Converter em Cliente</h3>
+      <p class="text-xs text-gray-500 mb-3">Lead concluída — pronta para conversão.</p>
+      <a href="#" class="btn-success w-full text-center">Converter</a>
+    </div>
+    {% endif %}
+
+    {% if lead.cliente %}
+    <div class="card bg-emerald-50 border-emerald-200">
+      <h3 class="text-sm font-semibold text-emerald-800 mb-1">Cliente Vinculado</h3>
+      <a href="{% url 'web:cliente-detail' lead.cliente.pk %}" class="text-sm text-emerald-700 underline">
+        {{ lead.cliente.nome }}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>

@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
+}
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: colors 150ms;
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary-200);
+  }
+}
+
+@utility btn-primary {
+  @apply btn bg-primary-600 text-white;
+  &:hover { @apply bg-primary-700; }
+}
+
+@utility btn-secondary {
+  @apply btn bg-gray-100 text-gray-700;
+  &:hover { @apply bg-gray-200; }
+}
+
+@utility btn-danger {
+  @apply btn bg-red-600 text-white;
+  &:hover { @apply bg-red-700; }
+}
+
+@utility btn-success {
+  @apply btn bg-emerald-600 text-white;
+  &:hover { @apply bg-emerald-700; }
+}
+
+@utility card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+}
+
+@utility input {
+  @apply block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400;
+  &:focus { @apply border-primary-500 ring-1 ring-primary-500 outline-none; }
+}
+
+@utility label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+@utility badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+@utility badge-recebida {
+  @apply badge bg-blue-100 text-blue-800;
+}
+
+@utility badge-em_analise {
+  @apply badge bg-yellow-100 text-yellow-800;
+}
+
+@utility badge-em_processamento {
+  @apply badge bg-purple-100 text-purple-800;
+}
+
+@utility badge-concluida {
+  @apply badge bg-emerald-100 text-emerald-800;
+}
+
+@utility badge-perdida {
+  @apply badge bg-red-100 text-red-800;
+}

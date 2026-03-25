@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Prometheus RUCH</title>
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+<body class="h-full flex items-center justify-center">
+
+  <div class="w-full max-w-md px-6">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-primary-900 tracking-wide">PROMETHEUS</h1>
+      <p class="mt-2 text-sm text-gray-500">RUCH Digital Technology</p>
+    </div>
+
+    <div class="card">
+      <h2 class="text-xl font-semibold text-gray-800 mb-6">Entrar no sistema</h2>
+
+      {% if form.errors %}
+      <div class="mb-4 px-4 py-3 rounded-lg bg-red-50 text-red-800 border border-red-200 text-sm">
+        Usuário ou senha inválidos.
+      </div>
+      {% endif %}
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label for="id_username" class="label">Usuário</label>
+          <input type="text" name="username" id="id_username" required autofocus class="input"
+                 placeholder="Seu usuário">
+        </div>
+        <div>
+          <label for="id_password" class="label">Senha</label>
+          <input type="password" name="password" id="id_password" required class="input"
+                 placeholder="Sua senha">
+        </div>
+        <button type="submit" class="btn-primary w-full">
+          Entrar
+        </button>
+      </form>
+    </div>
+
+    <p class="mt-6 text-center text-xs text-gray-400">&copy; RUCH Digital Technology</p>
+  </div>
+
+</body>
+</html>

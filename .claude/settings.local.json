@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(tailwindcss -i static/src/input.css -o static/css/output.css --minify)",
+      "Bash(python -m tailwindcss -i static/src/input.css -o static/css/output.css --minify)"
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Leads{% endblock %}
+{% block page_title %}Leads{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'web:lead-create' %}" class="btn-primary">+ Novo Lead</a>
+{% endblock %}
+
+{% block content %}
+<!-- Filtros -->
+<div class="card mb-6">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" value="{{ current_search }}" placeholder="Nome ou email..."
+             class="input"
+             hx-get="{% url 'web:leads' %}"
+             hx-target="#leads-table"
+             hx-trigger="input changed delay:300ms"
+             hx-include="[name='status'],[name='produto']"
+             hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Status</label>
+      <select name="status" class="input"
+              hx-get="{% url 'web:leads' %}"
+              hx-target="#leads-table"
+              hx-include="[name='q'],[name='produto']"
+              hx-push-url="true">
+        <option value="">Todos</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="label">Produto</label>
+      <select name="produto" class="input"
+              hx-get="{% url 'web:leads' %}"
+              hx-target="#leads-table"
+              hx-include="[name='q'],[name='status']"
+              hx-push-url="true">
+        <option value="">Todos</option>
+        {% for value, label in produto_choices %}
+        <option value="{{ value }}" {% if current_produto == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Tabela -->
+<div class="card" id="leads-table">
+  {% include "leads/_table.html" %}
+</div>
+{% endblock %}

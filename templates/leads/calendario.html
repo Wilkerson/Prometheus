@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Calendário{% endblock %}
+{% block page_title %}Calendário de Leads{% endblock %}
+
+{% block content %}
+<div class="card">
+  <!-- Navegação do mês -->
+  <div class="flex items-center justify-between mb-6">
+    <a href="?mes={{ prev_mes }}" class="btn-secondary text-xs">&larr; Anterior</a>
+    <h2 class="text-lg font-semibold text-gray-800 capitalize">{{ mes_nome }} {{ ano }}</h2>
+    <a href="?mes={{ next_mes }}" class="btn-secondary text-xs">Próximo &rarr;</a>
+  </div>
+
+  <!-- Total -->
+  <p class="text-sm text-gray-500 mb-4">{{ total }} lead{{ total|pluralize }} neste mês</p>
+
+  <!-- Grid do calendário -->
+  <div class="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
+    <!-- Cabeçalho -->
+    {% for day_name in "Seg,Ter,Qua,Qui,Sex,Sáb,Dom"|make_list %}{% endfor %}
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Seg</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Ter</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Qua</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Qui</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Sex</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Sáb</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Dom</div>
+
+    <!-- Dias -->
+    {% for semana in semanas %}
+      {% for dia in semana %}
+      <div class="bg-white min-h-[80px] p-1.5" x-data="{ expanded: false }">
+        {% if dia != 0 %}
+          <div class="text-xs font-medium text-gray-500 mb-1">{{ dia }}</div>
+          {% with leads_dia=dias %}
+          {% if dia in leads_dia %}
+            {% for lead in leads_dia|dictsort:dia %}{% endfor %}
+            <div class="space-y-0.5">
+              {% for lead in dias.items %}
+              {% endfor %}
+            </div>
+            {% with day_leads=dias %}
+            {% for d, llist in day_leads.items %}
+              {% if d == dia %}
+                {% for lead in llist %}
+                <div class="text-xs truncate px-1 py-0.5 rounded
+                            {% if lead.status == 'recebida' %}bg-blue-100 text-blue-700
+                            {% elif lead.status == 'em_analise' %}bg-yellow-100 text-yellow-700
+                            {% elif lead.status == 'em_processamento' %}bg-purple-100 text-purple-700
+                            {% elif lead.status == 'concluida' %}bg-emerald-100 text-emerald-700
+                            {% else %}bg-red-100 text-red-700{% endif %}">
+                  <a href="{% url 'web:lead-detail' lead.pk %}">{{ lead.nome }}</a>
+                </div>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+            {% endwith %}
+          {% endif %}
+          {% endwith %}
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

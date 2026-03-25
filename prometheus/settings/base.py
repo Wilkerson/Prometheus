@@ -43,6 +43,7 @@ LOCAL_APPS = [
     "apps.crm",
     "apps.comissoes",
     "apps.integracao",
+    "apps.web",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -74,6 +75,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.web.context_processors.navigation",
             ],
         },
     },
@@ -122,8 +124,15 @@ USE_TZ = True
 # -----------------------------------------------------------------------------
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "mediafiles"
+
+# -----------------------------------------------------------------------------
+# Login
+# -----------------------------------------------------------------------------
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/dashboard/"
 
 # -----------------------------------------------------------------------------
 # Default PK
