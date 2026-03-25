@@ -7,6 +7,7 @@ urlpatterns = [
     # API v1
     path("api/v1/auth/", include("apps.accounts.urls")),
     path("api/v1/", include("apps.crm.urls")),
+    path("api/v1/parceiro/", include("apps.crm.urls_parceiro")),
     path("api/v1/comissoes/", include("apps.comissoes.urls")),
     path("api/v1/integracao/", include("apps.integracao.urls")),
     # Docs
