@@ -119,16 +119,40 @@ Acessar: `http://localhost:8000/login/`
 
 ---
 
-## 3. Perfis de usuário e controle de acesso
+## 3. Controle de acesso (baseado em permissões Django)
 
-| Perfil | Role | Acesso |
-|---|---|---|
-| Super Admin | `super_admin` | Acesso total — CRUD de usuários, parceiros, leads, clientes, comissões |
-| Operador Interno | `operador` | CRM — gerencia leads, converte clientes, altera status, produtos contratados |
-| Entidade Parceira | `parceiro` | Painel restrito — cadastra leads, vê apenas os seus, consulta suas comissões |
-| Sistema Externo | API Key (`X-API-Key`) | Callback de status de leads e inserção de clientes via API |
+O sistema usa o **sistema nativo de permissões do Django** (groups + permissions) para controlar acesso. Cada funcionalidade — tanto na sidebar quanto nas views — é exibida/bloqueada com base nas permissões reais do usuário (`user.has_perm()`), não apenas no campo `perfil`.
 
-O token JWT retorna `perfil`, `nome` e `email` no payload para controle no front-end.
+### Como funciona
+
+- **Superuser** (`is_superuser=True`) tem acesso total automaticamente
+- **Grupos** são criados no Django Admin (`/admin/`) com as permissões desejadas
+- **Sidebar** exibe apenas os itens que o usuário tem permissão de acessar
+- **Views** usam `PermissionRequiredMixin` para bloquear acesso sem permissão
+- **Dashboard** exibe cards/seções condicionalmente (`can_view_leads`, `can_view_comissoes`)
+
+### Mapa de permissões por funcionalidade
+
+| Funcionalidade | Permissão necessária |
+|---|---|
+| Dashboard (leads) | `crm.view_lead` |
+| Dashboard (comissões) | `comissoes.view_comissao` |
+| Ver leads / calendário | `crm.view_lead` |
+| Criar lead | `crm.add_lead` |
+| Pipeline / alterar status | `crm.change_lead` |
+| Ver clientes | `crm.view_cliente` |
+| Ver comissões | `comissoes.view_comissao` |
+| Admin Django | Apenas `is_superuser` |
+
+### Perfis sugeridos (exemplos de grupos)
+
+| Grupo | Permissões |
+|---|---|
+| Entidades Parceiras | `crm.view_lead`, `crm.add_lead`, `comissoes.view_comissao` |
+| Operadores | Todas de `crm.*` + `comissoes.view_comissao` |
+| Administradores | Todas as permissões |
+
+> Grupos e permissões são configurados no Django Admin (`/admin/auth/group/`). O token JWT na API continua retornando `perfil`, `nome` e `email` no payload.
 
 ---
 
@@ -361,7 +385,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 28. [x] Aplicar identidade visual RUCH (paleta de cores extraída do logo)
 29. [x] Implementar landing page pública com seções para parceiros + CTA login
 30. [x] Redesenhar tela de login com branding RUCH (split layout)
-31. [ ] Aplicar design system (JSON) quando fornecido
+31. [x] Refatorar controle de acesso para usar permissoes Django (groups + permissions)
+32. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 

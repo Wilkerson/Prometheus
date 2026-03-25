@@ -1,6 +1,6 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Count, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -11,11 +11,11 @@ from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
 from apps.crm.models import Cliente, EntidadeParceira, Lead, LeadHistorico
 
-from .mixins import HtmxMixin, OperadorRequiredMixin, is_htmx
+from .mixins import HtmxMixin, is_htmx
 
 
 # ---------------------------------------------------------------------------
-# Landing Page (p&uacute;blica)
+# Landing Page (publica)
 # ---------------------------------------------------------------------------
 class HomeView(View):
     def get(self, request):
@@ -67,39 +67,53 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
 
-        if user.perfil == Usuario.Perfil.PARCEIRO and hasattr(user, "parceiro"):
-            parceiro = user.parceiro
-            leads_qs = Lead.objects.filter(parceiro=parceiro)
-            comissoes_qs = Comissao.objects.filter(parceiro=parceiro)
+        # Leads — so mostra se tem permissao de visualizar
+        if user.has_perm("crm.view_lead"):
+            if hasattr(user, "parceiro"):
+                leads_qs = Lead.objects.filter(parceiro=user.parceiro)
+            else:
+                leads_qs = Lead.objects.all()
+
+            stats = leads_qs.values("status").annotate(total=Count("id"))
+            por_status = {item["status"]: item["total"] for item in stats}
+            ctx["leads_total"] = sum(por_status.values())
+            ctx["leads_por_status"] = por_status
+            ctx["leads_recentes"] = leads_qs.select_related("parceiro").order_by("-criado_em")[:10]
+
+            limite = timezone.now() - timezone.timedelta(days=3)
+            ctx["leads_atrasadas"] = (
+                leads_qs.exclude(status__in=[Lead.Status.CONCLUIDA, Lead.Status.PERDIDA])
+                .filter(atualizado_em__lt=limite)
+                .count()
+            )
         else:
-            leads_qs = Lead.objects.all()
-            comissoes_qs = Comissao.objects.all()
+            ctx["leads_total"] = 0
+            ctx["leads_por_status"] = {}
+            ctx["leads_recentes"] = []
+            ctx["leads_atrasadas"] = 0
 
-        # Stats de leads
-        stats = leads_qs.values("status").annotate(total=Count("id"))
-        por_status = {item["status"]: item["total"] for item in stats}
-        ctx["leads_total"] = sum(por_status.values())
-        ctx["leads_por_status"] = por_status
+        # Comissoes — so mostra se tem permissao
+        if user.has_perm("comissoes.view_comissao"):
+            if hasattr(user, "parceiro"):
+                comissoes_qs = Comissao.objects.filter(parceiro=user.parceiro)
+            else:
+                comissoes_qs = Comissao.objects.all()
 
-        # Stats de comissões
-        comissao_stats = comissoes_qs.aggregate(
-            pendente=Sum("valor_comissao", filter=Q(status=Comissao.Status.PENDENTE)),
-            pago=Sum("valor_comissao", filter=Q(status=Comissao.Status.PAGO)),
-            total_count=Count("id"),
-        )
-        ctx["comissao_pendente"] = comissao_stats["pendente"] or 0
-        ctx["comissao_pago"] = comissao_stats["pago"] or 0
+            comissao_stats = comissoes_qs.aggregate(
+                pendente=Sum("valor_comissao", filter=Q(status=Comissao.Status.PENDENTE)),
+                pago=Sum("valor_comissao", filter=Q(status=Comissao.Status.PAGO)),
+                total_count=Count("id"),
+            )
+            ctx["comissao_pendente"] = comissao_stats["pendente"] or 0
+            ctx["comissao_pago"] = comissao_stats["pago"] or 0
+        else:
+            ctx["comissao_pendente"] = 0
+            ctx["comissao_pago"] = 0
 
-        # Leads recentes
-        ctx["leads_recentes"] = leads_qs.select_related("parceiro").order_by("-criado_em")[:10]
-
-        # SLA: leads paradas há mais de 3 dias
-        limite = timezone.now() - timezone.timedelta(days=3)
-        ctx["leads_atrasadas"] = (
-            leads_qs.exclude(status__in=[Lead.Status.CONCLUIDA, Lead.Status.PERDIDA])
-            .filter(atualizado_em__lt=limite)
-            .count()
-        )
+        # Permissoes para controlar o que exibir no template
+        ctx["can_view_leads"] = user.has_perm("crm.view_lead")
+        ctx["can_view_comissoes"] = user.has_perm("comissoes.view_comissao")
+        ctx["can_view_clientes"] = user.has_perm("crm.view_cliente")
 
         return ctx
 
@@ -107,20 +121,20 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 # ---------------------------------------------------------------------------
 # Leads
 # ---------------------------------------------------------------------------
-class LeadListView(LoginRequiredMixin, HtmxMixin, ListView):
+class LeadListView(PermissionRequiredMixin, HtmxMixin, ListView):
     template_name = "leads/list.html"
     partial_template_name = "leads/_table.html"
     context_object_name = "leads"
     paginate_by = 20
+    permission_required = "crm.view_lead"
 
     def get_queryset(self):
         user = self.request.user
         qs = Lead.objects.select_related("parceiro", "operador").order_by("-criado_em")
 
-        if user.perfil == Usuario.Perfil.PARCEIRO and hasattr(user, "parceiro"):
+        if hasattr(user, "parceiro"):
             qs = qs.filter(parceiro=user.parceiro)
 
-        # Filtros
         status_filter = self.request.GET.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
@@ -145,7 +159,9 @@ class LeadListView(LoginRequiredMixin, HtmxMixin, ListView):
         return ctx
 
 
-class LeadCreateView(LoginRequiredMixin, View):
+class LeadCreateView(PermissionRequiredMixin, View):
+    permission_required = "crm.add_lead"
+
     def get(self, request):
         return render(request, "leads/create.html", {
             "produto_choices": Lead.Produto.choices,
@@ -160,7 +176,7 @@ class LeadCreateView(LoginRequiredMixin, View):
             "produto_interesse": request.POST.get("produto_interesse", ""),
         }
 
-        if user.perfil == Usuario.Perfil.PARCEIRO and hasattr(user, "parceiro"):
+        if hasattr(user, "parceiro"):
             lead_data["parceiro"] = user.parceiro
         else:
             parceiro_id = request.POST.get("parceiro")
@@ -174,7 +190,9 @@ class LeadCreateView(LoginRequiredMixin, View):
         return redirect("web:leads")
 
 
-class LeadDetailView(LoginRequiredMixin, View):
+class LeadDetailView(PermissionRequiredMixin, View):
+    permission_required = "crm.view_lead"
+
     def get(self, request, pk):
         lead = get_object_or_404(
             Lead.objects.select_related("parceiro", "operador"),
@@ -182,25 +200,28 @@ class LeadDetailView(LoginRequiredMixin, View):
         )
         historico = lead.historico.select_related("usuario").all()
 
-        # Verifica permissão do parceiro
+        # Parceiro so ve os seus
         if (
-            request.user.perfil == Usuario.Perfil.PARCEIRO
-            and hasattr(request.user, "parceiro")
+            hasattr(request.user, "parceiro")
             and lead.parceiro != request.user.parceiro
         ):
             from django.core.exceptions import PermissionDenied
             raise PermissionDenied
 
-        transicoes = Lead.TRANSICOES_VALIDAS.get(lead.status, ())
+        transicoes = []
+        if request.user.has_perm("crm.change_lead"):
+            transicoes = [(s, Lead.Status(s).label) for s in Lead.TRANSICOES_VALIDAS.get(lead.status, ())]
 
         return render(request, "leads/detail.html", {
             "lead": lead,
             "historico": historico,
-            "transicoes": [(s, Lead.Status(s).label) for s in transicoes],
+            "transicoes": transicoes,
         })
 
 
-class LeadUpdateStatusView(OperadorRequiredMixin, View):
+class LeadUpdateStatusView(PermissionRequiredMixin, View):
+    permission_required = "crm.change_lead"
+
     def post(self, request, pk):
         lead = get_object_or_404(Lead, pk=pk)
         novo_status = request.POST.get("status")
@@ -208,7 +229,7 @@ class LeadUpdateStatusView(OperadorRequiredMixin, View):
 
         if not lead.pode_transitar_para(novo_status):
             return render(request, "leads/_status_error.html", {
-                "error": f"Transição de '{lead.get_status_display()}' para '{novo_status}' não é permitida.",
+                "error": f"Transicao de '{lead.get_status_display()}' para '{novo_status}' nao e permitida.",
             })
 
         status_anterior = lead.status
@@ -223,23 +244,23 @@ class LeadUpdateStatusView(OperadorRequiredMixin, View):
             observacao=observacao,
         )
 
-        # Dispara envio para sistema externo
         if novo_status == Lead.Status.EM_PROCESSAMENTO:
             from apps.crm.tasks import enviar_lead_sistema_externo
             enviar_lead_sistema_externo.delay(lead.id)
 
         historico = lead.historico.select_related("usuario").all()
-        transicoes = Lead.TRANSICOES_VALIDAS.get(lead.status, ())
+        transicoes = [(s, Lead.Status(s).label) for s in Lead.TRANSICOES_VALIDAS.get(lead.status, ())]
 
         return render(request, "leads/_detail_content.html", {
             "lead": lead,
             "historico": historico,
-            "transicoes": [(s, Lead.Status(s).label) for s in transicoes],
+            "transicoes": transicoes,
         })
 
 
-class LeadPipelineView(OperadorRequiredMixin, TemplateView):
+class LeadPipelineView(PermissionRequiredMixin, TemplateView):
     template_name = "leads/pipeline.html"
+    permission_required = "crm.change_lead"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -251,8 +272,9 @@ class LeadPipelineView(OperadorRequiredMixin, TemplateView):
         return ctx
 
 
-class LeadCalendarioView(OperadorRequiredMixin, TemplateView):
+class LeadCalendarioView(PermissionRequiredMixin, TemplateView):
     template_name = "leads/calendario.html"
+    permission_required = "crm.view_lead"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -285,7 +307,6 @@ class LeadCalendarioView(OperadorRequiredMixin, TemplateView):
                 dias[dia] = []
             dias[dia].append(lead)
 
-        # Navegação
         if mes_num == 1:
             prev_mes = f"{ano - 1:04d}-12"
         else:
@@ -309,11 +330,12 @@ class LeadCalendarioView(OperadorRequiredMixin, TemplateView):
 # ---------------------------------------------------------------------------
 # Clientes
 # ---------------------------------------------------------------------------
-class ClienteListView(OperadorRequiredMixin, HtmxMixin, ListView):
+class ClienteListView(PermissionRequiredMixin, HtmxMixin, ListView):
     template_name = "clientes/list.html"
     partial_template_name = "clientes/_table.html"
     context_object_name = "clientes"
     paginate_by = 20
+    permission_required = "crm.view_cliente"
 
     def get_queryset(self):
         qs = Cliente.objects.prefetch_related("produtos").order_by("-ativado_em")
@@ -323,7 +345,9 @@ class ClienteListView(OperadorRequiredMixin, HtmxMixin, ListView):
         return qs
 
 
-class ClienteDetailView(OperadorRequiredMixin, View):
+class ClienteDetailView(PermissionRequiredMixin, View):
+    permission_required = "crm.view_cliente"
+
     def get(self, request, pk):
         cliente = get_object_or_404(
             Cliente.objects.prefetch_related("produtos"),
@@ -333,19 +357,20 @@ class ClienteDetailView(OperadorRequiredMixin, View):
 
 
 # ---------------------------------------------------------------------------
-# Comissões
+# Comissoes
 # ---------------------------------------------------------------------------
-class ComissaoListView(LoginRequiredMixin, HtmxMixin, ListView):
+class ComissaoListView(PermissionRequiredMixin, HtmxMixin, ListView):
     template_name = "comissoes/list.html"
     partial_template_name = "comissoes/_table.html"
     context_object_name = "comissoes"
     paginate_by = 20
+    permission_required = "comissoes.view_comissao"
 
     def get_queryset(self):
         user = self.request.user
         qs = Comissao.objects.select_related("parceiro", "venda").order_by("-gerado_em")
 
-        if user.perfil == Usuario.Perfil.PARCEIRO and hasattr(user, "parceiro"):
+        if hasattr(user, "parceiro"):
             qs = qs.filter(parceiro=user.parceiro)
 
         status_filter = self.request.GET.get("status")
