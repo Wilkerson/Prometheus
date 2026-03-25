@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import ComissaoViewSet
 
 router = DefaultRouter()
-router.register("", ComissaoViewSet)
+router.register("", ComissaoViewSet, basename="comissao")
 
 urlpatterns = [
     path("", include(router.urls)),

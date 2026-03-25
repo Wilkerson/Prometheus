@@ -5,7 +5,7 @@ from .views import ClienteViewSet, EntidadeParceiraViewSet, LeadViewSet, Produto
 
 router = DefaultRouter()
 router.register("parceiros", EntidadeParceiraViewSet)
-router.register("leads", LeadViewSet)
+router.register("leads", LeadViewSet, basename="lead")
 router.register("clientes", ClienteViewSet)
 router.register("produtos-contratados", ProdutoContratadoViewSet)
 
