@@ -105,40 +105,6 @@ class LeadViewSet(viewsets.ModelViewSet):
         serializer = LeadHistoricoSerializer(historico, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["post"], url_path="converter", permission_classes=[IsOperador])
-    def converter_em_cliente(self, request, pk=None):
-        """POST /api/v1/leads/{id}/converter/ — converte lead concluída em cliente."""
-        lead = self.get_object()
-
-        if hasattr(lead, "cliente"):
-            return Response(
-                {"detail": "Este lead já foi convertido em cliente."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if lead.status != Lead.Status.CONCLUIDA:
-            return Response(
-                {"detail": "Somente leads com status 'concluída' podem ser convertidas em cliente."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        cnpj = request.data.get("cnpj", "")
-        if not cnpj:
-            return Response(
-                {"detail": "O campo 'cnpj' é obrigatório."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        cliente = Cliente.objects.create(
-            lead=lead,
-            nome=lead.nome,
-            cnpj=cnpj,
-            documento=request.data.get("documento", ""),
-            email=lead.email,
-            telefone=lead.telefone,
-        )
-        return Response(ClienteSerializer(cliente).data, status=status.HTTP_201_CREATED)
-
 
 class CalendarioLeadsView(APIView):
     """

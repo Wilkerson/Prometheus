@@ -35,9 +35,9 @@ class LeadHistoricoAdmin(admin.ModelAdmin):
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ("nome", "documento", "cnpj", "email", "ativo", "ativado_em")
+    list_display = ("nome", "cnpj", "email", "cep", "ativo", "ativado_em")
     list_filter = ("ativo",)
-    search_fields = ("nome", "documento", "cnpj", "email")
+    search_fields = ("nome", "cnpj", "email", "cep")
 
 
 @admin.register(ProdutoContratado)

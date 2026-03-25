@@ -214,52 +214,23 @@ class CallbackSistemaExternoTestCase(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class ConversaoClienteTestCase(TestCase):
-    """Testa conversão de lead concluída em cliente + comissão."""
+class ClienteComissaoTestCase(TestCase):
+    """Testa criacao de cliente e geracao automatica de comissao."""
 
     def setUp(self):
         self.client = APIClient()
-        self.operador = Usuario.objects.create_user(
-            username="operador", password="TestPass123!", perfil=Usuario.Perfil.OPERADOR,
-        )
         self.parceiro_user = Usuario.objects.create_user(
             username="parceiro", password="TestPass123!", perfil=Usuario.Perfil.PARCEIRO,
         )
         self.parceiro = EntidadeParceira.objects.create(
             usuario=self.parceiro_user,
-            nome_entidade="Parceiro Conversão",
+            nome_entidade="Parceiro Comissao",
             percentual_comissao=Decimal("15.00"),
         )
 
-    def test_converter_lead_concluida(self):
-        lead = Lead.objects.create(
-            parceiro=self.parceiro, nome="Lead Concluída",
-            email="v@v.com", produto_interesse="crm",
-            status=Lead.Status.CONCLUIDA,
-        )
-        self.client.force_authenticate(user=self.operador)
-        resp = self.client.post(
-            f"/api/v1/leads/{lead.id}/converter/",
-            {"cnpj": "12345678000199"},
-        )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(resp.data["cnpj"], "12345678000199")
-
-    def test_converter_lead_nao_concluida_falha(self):
-        lead = Lead.objects.create(
-            parceiro=self.parceiro, nome="Lead Nova",
-            email="n@n.com", produto_interesse="erp",
-        )
-        self.client.force_authenticate(user=self.operador)
-        resp = self.client.post(
-            f"/api/v1/leads/{lead.id}/converter/",
-            {"cnpj": "12345678000199"},
-        )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_comissao_gerada_automaticamente(self):
         lead = Lead.objects.create(
-            parceiro=self.parceiro, nome="Lead Comissão",
+            parceiro=self.parceiro, nome="Lead Comissao",
             email="c@c.com", produto_interesse="saas",
             status=Lead.Status.CONCLUIDA,
         )

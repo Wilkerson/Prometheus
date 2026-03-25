@@ -8,7 +8,7 @@ class ClienteIntegracaoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cliente
-        fields = ("id", "lead", "nome", "documento", "cnpj", "email", "telefone", "ativo", "ativado_em")
+        fields = ("id", "lead", "nome", "cnpj", "email", "telefone", "endereco", "cep", "ativo", "ativado_em")
         read_only_fields = ("id", "ativado_em")
 
 

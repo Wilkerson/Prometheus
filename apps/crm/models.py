@@ -121,7 +121,7 @@ class LeadHistorico(models.Model):
 
 
 def upload_cliente_path(instance, filename):
-    return f"clientes/{instance.documento}/{filename}"
+    return f"clientes/{instance.cnpj}/{filename}"
 
 
 class Cliente(models.Model):
@@ -131,12 +131,13 @@ class Cliente(models.Model):
         related_name="cliente",
     )
     nome = models.CharField(max_length=200)
-    documento = models.CharField("CPF", max_length=14, blank=True)
     cnpj = models.CharField("CNPJ", max_length=18, unique=True)
     email = models.EmailField()
     telefone = models.CharField(max_length=20, blank=True)
+    endereco = models.CharField("Endereco", max_length=300, blank=True)
+    cep = models.CharField("CEP", max_length=9, blank=True)
     arquivo = models.FileField(
-        "Arquivo/Documento",
+        "Produtos ou Servicos",
         upload_to=upload_cliente_path,
         blank=True,
         null=True,

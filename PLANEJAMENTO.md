@@ -229,8 +229,8 @@ LEAD_HISTORICO
   observacao, criado_em
 
 CLIENTE
-  id, lead_id (FK OneToOne), nome, documento (CPF, opcional), cnpj (obrigatório, unique),
-  email, telefone, arquivo (FileField, opcional), ativo, ativado_em
+  id, lead_id (FK OneToOne), nome, cnpj (obrigatório, unique),
+  email, telefone, endereco, cep, arquivo ("Produtos ou Servicos", opcional), ativo, ativado_em
 
 PRODUTO_CONTRATADO
   id, cliente_id (FK), produto, valor, status [ativo|suspenso|cancelado], contratado_em
@@ -269,7 +269,6 @@ perdida         → (status final)
 - `GET  /leads/{id}/` — Detalhe com histórico completo
 - `PATCH /leads/{id}/status/` — Atualiza status com validação de transição (operador/admin)
 - `GET  /leads/{id}/historico/` — Timeline de mudanças de status
-- `POST /leads/{id}/converter/` — Converte lead concluída em cliente (operador)
 - `GET  /leads/calendario/?mes=YYYY-MM` — Leads agrupadas por dia
 - `GET  /leads/sla/?dias=N` — Leads paradas há mais de N dias
 
@@ -386,7 +385,9 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 29. [x] Implementar landing page pública com seções para parceiros + CTA login
 30. [x] Redesenhar tela de login com branding RUCH (split layout)
 31. [x] Refatorar controle de acesso para usar permissoes Django (groups + permissions)
-32. [ ] Aplicar design system (JSON) quando fornecido
+32. [x] Refatorar model Cliente: remover documento, adicionar endereco/cep, arquivo = "Produtos ou Servicos"
+33. [x] Remover modulo de conversao de lead em cliente (lead ja chega convertida do parceiro)
+34. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 

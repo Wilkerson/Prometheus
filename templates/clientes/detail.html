@@ -22,16 +22,20 @@
           <dd class="font-medium text-gray-900">{{ cliente.cnpj }}</dd>
         </div>
         <div>
-          <dt class="text-gray-500">CPF</dt>
-          <dd class="font-medium text-gray-900">{{ cliente.documento|default:"—" }}</dd>
-        </div>
-        <div>
           <dt class="text-gray-500">Email</dt>
           <dd class="font-medium text-gray-900">{{ cliente.email }}</dd>
         </div>
         <div>
           <dt class="text-gray-500">Telefone</dt>
           <dd class="font-medium text-gray-900">{{ cliente.telefone|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Endereco</dt>
+          <dd class="font-medium text-gray-900">{{ cliente.endereco|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">CEP</dt>
+          <dd class="font-medium text-gray-900">{{ cliente.cep|default:"—" }}</dd>
         </div>
         <div>
           <dt class="text-gray-500">Ativado em</dt>
