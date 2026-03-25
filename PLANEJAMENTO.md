@@ -32,11 +32,26 @@ Parceiro envia lead → Recebida → Em Análise → Em Processamento ──→ 
 - **Infra:** Docker + Docker Compose
 - **CI/CD:** GitHub Actions
 - **Monitoramento:** Sentry + Uptime Kuma
+- **Front-end:** Django Templates + HTMX + Alpine.js + Tailwind CSS v4
 - **Testes:** Django TestCase + PostgreSQL
 
 ---
 
-## 2.1. Configuração do PostgreSQL (obrigatório antes de rodar o projeto)
+## 2.1. Identidade visual
+
+Paleta de cores baseada na logo RUCH:
+
+| Token | Hex | Uso |
+|---|---|---|
+| `primary-600` (principal) | `#2d4a3e` | Verde escuro RUCH — botoes, sidebar, links |
+| `primary-500` | `#3d6b5a` | Verde medio — hover, destaques |
+| `primary-900` | `#15241e` | Footer, sidebar escura |
+| `ruch-bg` | `#384f46` | Background escuro (hero, CTA) |
+| `ruch-light` | `#b8bfba` | Cinza suave (textos secundarios) |
+
+---
+
+## 2.2. Configuração do PostgreSQL (obrigatório antes de rodar o projeto)
 
 O projeto **não funciona com SQLite**. O PostgreSQL deve estar instalado e configurado antes de qualquer coisa.
 
@@ -253,6 +268,29 @@ perdida         → (status final)
 
 ---
 
+## 8.1. Páginas Web (rotas do front-end)
+
+### Página pública (sem autenticação)
+- `GET /` — Landing page com info para parceiros, produtos, como funciona e CTA para login
+
+### Autenticação
+- `GET /login/` — Tela de login (split layout com branding RUCH)
+- `POST /logout/` — Logout
+
+### Páginas autenticadas (painel interno)
+- `GET /dashboard/` — Dashboard com stats, pipeline, leads recentes e SLA
+- `GET /leads/` — Listagem de leads com busca/filtros HTMX
+- `GET /leads/novo/` — Formulário de criação de lead
+- `GET /leads/{id}/` — Detalhe do lead com timeline e ações
+- `POST /leads/{id}/status/` — Alteração de status via HTMX
+- `GET /leads/pipeline/` — Kanban por status
+- `GET /leads/calendario/` — Calendário mensal
+- `GET /clientes/` — Listagem de clientes
+- `GET /clientes/{id}/` — Detalhe do cliente + produtos
+- `GET /comissoes/` — Listagem de comissões
+
+---
+
 ## 9. Storage de arquivos
 
 Suporte a 3 providers configuráveis via variável `STORAGE_PROVIDER`:
@@ -320,7 +358,10 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 25. [x] Implementar calendário de leads por mês
 26. [x] Implementar listagem e detalhe de clientes
 27. [x] Implementar listagem de comissões com filtros
-28. [ ] Aplicar design system (JSON) quando fornecido
+28. [x] Aplicar identidade visual RUCH (paleta de cores extraída do logo)
+29. [x] Implementar landing page pública com seções para parceiros + CTA login
+30. [x] Redesenhar tela de login com branding RUCH (split layout)
+31. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 
