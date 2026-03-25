@@ -148,7 +148,7 @@ TOKEN_INTEGRACAO
 > **Regra:** realizar commit do projeto após a implementação ou alteração de cada passo.
 
 1. [x] Criar estrutura do projeto Django
-2. [ ] Configurar ambiente Docker (Dockerfile + docker-compose.yml)
+2. [x] Configurar ambiente Docker (Dockerfile + docker-compose.yml)
 3. [ ] Configurar PostgreSQL e variáveis de ambiente (.env)
 4. [ ] Criar apps Django: `accounts`, `crm`, `comissoes`, `integracao`
 5. [ ] Implementar models conforme planejamento de dados

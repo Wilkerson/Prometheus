@@ -1,0 +1,16 @@
+.git
+.gitignore
+.env
+.venv
+venv
+__pycache__
+*.pyc
+*.sqlite3
+staticfiles
+mediafiles
+.vscode
+.idea
+docker-compose.yml
+docker-compose.override.yml
+nginx
+PLANEJAMENTO.md
