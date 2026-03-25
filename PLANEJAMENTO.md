@@ -24,7 +24,7 @@ Parceiro envia lead → Recebida → Em Análise → Em Processamento ──→ 
 ## 2. Stack tecnológico
 
 - **Backend:** Python 3.12 + Django 5 + Django REST Framework
-- **Banco de dados:** PostgreSQL 15
+- **Banco de dados:** PostgreSQL (obrigatório em todos os ambientes — dev, teste e produção)
 - **Cache / filas:** Redis + Celery
 - **Autenticação:** JWT (djangorestframework-simplejwt) + API Key (sistemas externos)
 - **Storage:** django-storages (AWS S3 / Cloudflare R2 / Google Cloud Storage)
@@ -32,7 +32,75 @@ Parceiro envia lead → Recebida → Em Análise → Em Processamento ──→ 
 - **Infra:** Docker + Docker Compose
 - **CI/CD:** GitHub Actions
 - **Monitoramento:** Sentry + Uptime Kuma
-- **Testes:** Django TestCase + SQLite em memória
+- **Testes:** Django TestCase + PostgreSQL
+
+---
+
+## 2.1. Configuração do PostgreSQL (obrigatório antes de rodar o projeto)
+
+O projeto **não funciona com SQLite**. O PostgreSQL deve estar instalado e configurado antes de qualquer coisa.
+
+### Passo a passo
+
+**1. Instalar o PostgreSQL** (caso não esteja instalado):
+- Windows: baixar de https://www.postgresql.org/download/windows/
+- Linux: `sudo apt install postgresql postgresql-contrib`
+- macOS: `brew install postgresql`
+
+**2. Criar o usuário e banco de dados:**
+
+Abrir o terminal/prompt e conectar como superusuário do PostgreSQL:
+
+```bash
+# Windows (ajustar caminho conforme versão instalada)
+"C:\Program Files\PostgreSQL\<versao>\bin\psql.exe" -h localhost -U postgres
+
+# Linux / macOS
+sudo -u postgres psql
+```
+
+Executar os seguintes comandos SQL:
+
+```sql
+CREATE USER prometheus WITH PASSWORD 'prometheus' CREATEDB;
+CREATE DATABASE prometheus OWNER prometheus;
+\q
+```
+
+> **Nota:** a permissão `CREATEDB` é necessária para que o Django consiga criar o banco de testes automaticamente ao rodar `python manage.py test`.
+
+**3. Configurar o `.env`:**
+
+Copiar o arquivo de exemplo e ajustar se necessário:
+
+```bash
+cp .env.example .env
+```
+
+As variáveis de banco no `.env` devem corresponder ao que foi criado acima:
+
+```
+DB_NAME=prometheus
+DB_USER=prometheus
+DB_PASSWORD=prometheus
+DB_HOST=localhost
+DB_PORT=5432
+```
+
+**4. Aplicar migrações e criar superusuário:**
+
+```bash
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+**5. Rodar o servidor:**
+
+```bash
+python manage.py runserver
+```
+
+Acessar: `http://localhost:8000/login/`
 
 ---
 
