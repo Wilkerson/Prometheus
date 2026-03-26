@@ -1,0 +1,211 @@
+[
+  {"model": "accounts.usuario", "pk": 10, "fields": {
+    "username": "parceiro_sp", "email": "parceiro_sp@ruch.solutions", "first_name": "Carlos", "last_name": "Mendes",
+    "perfil": "parceiro", "is_active": true, "is_staff": false, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2026-01-10T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 11, "fields": {
+    "username": "parceiro_rj", "email": "parceiro_rj@ruch.solutions", "first_name": "Ana", "last_name": "Beatriz",
+    "perfil": "parceiro", "is_active": true, "is_staff": false, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 12, "fields": {
+    "username": "parceiro_mg", "email": "parceiro_mg@ruch.solutions", "first_name": "Roberto", "last_name": "Silva",
+    "perfil": "parceiro", "is_active": true, "is_staff": false, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2026-02-01T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 13, "fields": {
+    "username": "operador1", "email": "operador1@ruch.solutions", "first_name": "Juliana", "last_name": "Torres",
+    "perfil": "operador", "is_active": true, "is_staff": true, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2026-01-05T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 14, "fields": {
+    "username": "operador2", "email": "operador2@ruch.solutions", "first_name": "Felipe", "last_name": "Ramos",
+    "perfil": "operador", "is_active": true, "is_staff": true, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2026-01-05T10:00:00Z"
+  }},
+
+  {"model": "crm.entidadeparceira", "pk": 1, "fields": {
+    "usuario": 10, "nome_entidade": "Sindicato Comercial SP", "percentual_comissao": "12.00", "ativo": true,
+    "criado_em": "2026-01-10T10:00:00Z"
+  }},
+  {"model": "crm.entidadeparceira", "pk": 2, "fields": {
+    "usuario": 11, "nome_entidade": "Associacao Empresarial RJ", "percentual_comissao": "10.00", "ativo": true,
+    "criado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "crm.entidadeparceira", "pk": 3, "fields": {
+    "usuario": 12, "nome_entidade": "Sindicato Industrial MG", "percentual_comissao": "15.00", "ativo": true,
+    "criado_em": "2026-02-01T10:00:00Z"
+  }},
+
+  {"model": "crm.produto", "pk": 1, "fields": {
+    "nome": "Agente de IA", "descricao": "Assistente virtual inteligente para atendimento, vendas e suporte automatizado.",
+    "tier": "avancado", "ativo": true, "criado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "crm.produto", "pk": 2, "fields": {
+    "nome": "CRM", "descricao": "Sistema completo de gestao do relacionamento com clientes.",
+    "tier": "intermediario", "ativo": true, "criado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "crm.produto", "pk": 3, "fields": {
+    "nome": "ERP", "descricao": "Sistema integrado de gestao empresarial para controle financeiro, estoque e operacoes.",
+    "tier": "avancado", "ativo": true, "criado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "crm.produto", "pk": 4, "fields": {
+    "nome": "Site Institucional", "descricao": "Site profissional responsivo com design moderno e otimizado para SEO.",
+    "tier": "basico", "ativo": true, "criado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "crm.produto", "pk": 5, "fields": {
+    "nome": "Landing Page", "descricao": "Pagina de alta conversao para campanhas de marketing digital.",
+    "tier": "basico", "ativo": true, "criado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "crm.produto", "pk": 6, "fields": {
+    "nome": "Consultoria em Automacao", "descricao": "Consultoria especializada em automacao de processos com tecnologia.",
+    "tier": "intermediario", "ativo": true, "criado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "crm.produto", "pk": 7, "fields": {
+    "nome": "SaaS Customizado", "descricao": "Plataforma SaaS desenvolvida sob medida para necessidades especificas.",
+    "tier": "avancado", "ativo": true, "criado_em": "2026-01-01T10:00:00Z"
+  }},
+
+  {"model": "crm.plano", "pk": 1, "fields": {
+    "nome": "Plano Starter SP", "parceiro": 1, "ativo": true, "criado_em": "2026-01-12T10:00:00Z"
+  }},
+  {"model": "crm.plano", "pk": 2, "fields": {
+    "nome": "Plano Premium SP", "parceiro": 1, "ativo": true, "criado_em": "2026-01-12T10:00:00Z"
+  }},
+  {"model": "crm.plano", "pk": 3, "fields": {
+    "nome": "Plano Digital RJ", "parceiro": 2, "ativo": true, "criado_em": "2026-01-18T10:00:00Z"
+  }},
+  {"model": "crm.plano", "pk": 4, "fields": {
+    "nome": "Plano Completo RJ", "parceiro": 2, "ativo": true, "criado_em": "2026-01-18T10:00:00Z"
+  }},
+  {"model": "crm.plano", "pk": 5, "fields": {
+    "nome": "Plano Basico MG", "parceiro": 3, "ativo": true, "criado_em": "2026-02-05T10:00:00Z"
+  }},
+  {"model": "crm.plano", "pk": 6, "fields": {
+    "nome": "Plano Enterprise MG", "parceiro": 3, "ativo": true, "criado_em": "2026-02-05T10:00:00Z"
+  }},
+
+  {"model": "crm.planoproduto", "pk": 1, "fields": {"plano": 1, "produto": 4, "preco": "1200.00"}},
+  {"model": "crm.planoproduto", "pk": 2, "fields": {"plano": 1, "produto": 5, "preco": "800.00"}},
+  {"model": "crm.planoproduto", "pk": 3, "fields": {"plano": 2, "produto": 1, "preco": "3500.00"}},
+  {"model": "crm.planoproduto", "pk": 4, "fields": {"plano": 2, "produto": 2, "preco": "1800.00"}},
+  {"model": "crm.planoproduto", "pk": 5, "fields": {"plano": 2, "produto": 4, "preco": "1200.00"}},
+  {"model": "crm.planoproduto", "pk": 6, "fields": {"plano": 3, "produto": 2, "preco": "1500.00"}},
+  {"model": "crm.planoproduto", "pk": 7, "fields": {"plano": 3, "produto": 6, "preco": "2000.00"}},
+  {"model": "crm.planoproduto", "pk": 8, "fields": {"plano": 4, "produto": 1, "preco": "4000.00"}},
+  {"model": "crm.planoproduto", "pk": 9, "fields": {"plano": 4, "produto": 3, "preco": "5000.00"}},
+  {"model": "crm.planoproduto", "pk": 10, "fields": {"plano": 4, "produto": 7, "preco": "6000.00"}},
+  {"model": "crm.planoproduto", "pk": 11, "fields": {"plano": 5, "produto": 4, "preco": "900.00"}},
+  {"model": "crm.planoproduto", "pk": 12, "fields": {"plano": 5, "produto": 6, "preco": "1500.00"}},
+  {"model": "crm.planoproduto", "pk": 13, "fields": {"plano": 6, "produto": 1, "preco": "3800.00"}},
+  {"model": "crm.planoproduto", "pk": 14, "fields": {"plano": 6, "produto": 2, "preco": "2000.00"}},
+  {"model": "crm.planoproduto", "pk": 15, "fields": {"plano": 6, "produto": 3, "preco": "4500.00"}},
+
+  {"model": "crm.endereco", "pk": 1, "fields": {"cep": "01310-100", "logradouro": "Av. Paulista", "numero": "1578", "complemento": "Sala 1201", "bairro": "Bela Vista", "cidade": "Sao Paulo", "uf": "SP"}},
+  {"model": "crm.endereco", "pk": 2, "fields": {"cep": "01414-001", "logradouro": "Rua Oscar Freire", "numero": "379", "complemento": "", "bairro": "Jardins", "cidade": "Sao Paulo", "uf": "SP"}},
+  {"model": "crm.endereco", "pk": 3, "fields": {"cep": "04543-011", "logradouro": "Av. Engenheiro Luis Carlos Berrini", "numero": "1461", "complemento": "14o andar", "bairro": "Cidade Moncoes", "cidade": "Sao Paulo", "uf": "SP"}},
+  {"model": "crm.endereco", "pk": 4, "fields": {"cep": "20040-020", "logradouro": "Av. Rio Branco", "numero": "156", "complemento": "Sala 801", "bairro": "Centro", "cidade": "Rio de Janeiro", "uf": "RJ"}},
+  {"model": "crm.endereco", "pk": 5, "fields": {"cep": "22041-080", "logradouro": "Rua Barata Ribeiro", "numero": "391", "complemento": "", "bairro": "Copacabana", "cidade": "Rio de Janeiro", "uf": "RJ"}},
+  {"model": "crm.endereco", "pk": 6, "fields": {"cep": "22250-040", "logradouro": "Praia de Botafogo", "numero": "501", "complemento": "Bloco B", "bairro": "Botafogo", "cidade": "Rio de Janeiro", "uf": "RJ"}},
+  {"model": "crm.endereco", "pk": 7, "fields": {"cep": "30130-000", "logradouro": "Av. Afonso Pena", "numero": "1901", "complemento": "Sala 502", "bairro": "Funcionarios", "cidade": "Belo Horizonte", "uf": "MG"}},
+  {"model": "crm.endereco", "pk": 8, "fields": {"cep": "30140-071", "logradouro": "Rua da Bahia", "numero": "1148", "complemento": "", "bairro": "Centro", "cidade": "Belo Horizonte", "uf": "MG"}},
+  {"model": "crm.endereco", "pk": 9, "fields": {"cep": "30110-004", "logradouro": "Praca Sete de Setembro", "numero": "S/N", "complemento": "Ed. Comercial", "bairro": "Centro", "cidade": "Belo Horizonte", "uf": "MG"}},
+  {"model": "crm.endereco", "pk": 10, "fields": {"cep": "01452-001", "logradouro": "Av. Brigadeiro Faria Lima", "numero": "2277", "complemento": "Conj 1801", "bairro": "Jardim Paulistano", "cidade": "Sao Paulo", "uf": "SP"}},
+
+  {"model": "crm.cliente", "pk": 1, "fields": {
+    "parceiro": 1, "operador": 13, "nome": "Tech Solutions Ltda", "cnpj": "12345678000101",
+    "email": "contato@techsolutions.com.br", "telefone": "11987654321", "endereco": 1,
+    "status": "concluida", "arquivo": "", "ativo": true,
+    "criado_em": "2026-01-20T14:00:00Z", "atualizado_em": "2026-02-15T10:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 2, "fields": {
+    "parceiro": 1, "operador": 13, "nome": "Comercio Digital SP Ltda", "cnpj": "23456789000102",
+    "email": "admin@comerciodigitalsp.com.br", "telefone": "11976543210", "endereco": 2,
+    "status": "em_processamento", "arquivo": "", "ativo": true,
+    "criado_em": "2026-02-01T09:00:00Z", "atualizado_em": "2026-03-10T10:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 3, "fields": {
+    "parceiro": 1, "operador": null, "nome": "Industria Paulista SA", "cnpj": "34567890000103",
+    "email": "rh@industriapaulista.com.br", "telefone": "11965432109", "endereco": 3,
+    "status": "em_analise", "arquivo": "", "ativo": true,
+    "criado_em": "2026-03-05T11:00:00Z", "atualizado_em": "2026-03-20T10:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 4, "fields": {
+    "parceiro": 2, "operador": 14, "nome": "Rio Marketing Digital EIRELI", "cnpj": "45678901000104",
+    "email": "contato@riomarketing.com.br", "telefone": "21987654321", "endereco": 4,
+    "status": "concluida", "arquivo": "", "ativo": true,
+    "criado_em": "2026-01-25T15:00:00Z", "atualizado_em": "2026-02-20T10:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 5, "fields": {
+    "parceiro": 2, "operador": 14, "nome": "Copacabana Turismo Ltda", "cnpj": "56789012000105",
+    "email": "reservas@copaturismo.com.br", "telefone": "21976543210", "endereco": 5,
+    "status": "em_processamento", "arquivo": "", "ativo": true,
+    "criado_em": "2026-02-10T08:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 6, "fields": {
+    "parceiro": 2, "operador": null, "nome": "Botafogo Empreendimentos SA", "cnpj": "67890123000106",
+    "email": "diretoria@botafogoempreend.com.br", "telefone": "21965432109", "endereco": 6,
+    "status": "recebida", "arquivo": "", "ativo": true,
+    "criado_em": "2026-03-20T16:00:00Z", "atualizado_em": "2026-03-20T16:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 7, "fields": {
+    "parceiro": 3, "operador": 13, "nome": "Minas Gerais Logistica Ltda", "cnpj": "78901234000107",
+    "email": "operacoes@mglogistica.com.br", "telefone": "31987654321", "endereco": 7,
+    "status": "concluida", "arquivo": "", "ativo": true,
+    "criado_em": "2026-02-08T10:00:00Z", "atualizado_em": "2026-03-01T10:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 8, "fields": {
+    "parceiro": 3, "operador": 14, "nome": "BH Consultoria Empresarial", "cnpj": "89012345000108",
+    "email": "contato@bhconsultoria.com.br", "telefone": "31976543210", "endereco": 8,
+    "status": "em_analise", "arquivo": "", "ativo": true,
+    "criado_em": "2026-03-01T14:00:00Z", "atualizado_em": "2026-03-22T10:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 9, "fields": {
+    "parceiro": 3, "operador": null, "nome": "Centro Comercial Sete Ltda", "cnpj": "90123456000109",
+    "email": "adm@centrosete.com.br", "telefone": "31965432109", "endereco": 9,
+    "status": "recebida", "arquivo": "", "ativo": true,
+    "criado_em": "2026-03-22T09:00:00Z", "atualizado_em": "2026-03-22T09:00:00Z"
+  }},
+  {"model": "crm.cliente", "pk": 10, "fields": {
+    "parceiro": 1, "operador": 13, "nome": "Faria Lima Ventures SA", "cnpj": "01234567000110",
+    "email": "invest@farialima.vc", "telefone": "11954321098", "endereco": 10,
+    "status": "perdida", "arquivo": "", "ativo": false,
+    "criado_em": "2026-01-30T12:00:00Z", "atualizado_em": "2026-02-28T10:00:00Z"
+  }},
+
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 1, "plano": 2}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 2, "plano": 1}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 2, "plano": 2}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 3, "plano": 1}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 4, "plano": 4}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 5, "plano": 3}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 6, "plano": 3}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 7, "plano": 6}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 8, "plano": 5}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 8, "plano": 6}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 9, "plano": 5}},
+  {"model": "crm.Cliente_planos", "pk": null, "fields": {"cliente": 10, "plano": 2}},
+
+  {"model": "crm.clientehistorico", "pk": 1, "fields": {"cliente": 1, "status_anterior": "recebida", "status_novo": "em_analise", "usuario": 13, "observacao": "Dados conferidos", "criado_em": "2026-01-22T10:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 2, "fields": {"cliente": 1, "status_anterior": "em_analise", "status_novo": "em_processamento", "usuario": 13, "observacao": "Enviado para implantacao", "criado_em": "2026-01-28T14:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 3, "fields": {"cliente": 1, "status_anterior": "em_processamento", "status_novo": "concluida", "usuario": null, "observacao": "Implantacao concluida pelo sistema externo", "criado_em": "2026-02-15T10:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 4, "fields": {"cliente": 4, "status_anterior": "recebida", "status_novo": "em_analise", "usuario": 14, "observacao": "", "criado_em": "2026-01-27T09:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 5, "fields": {"cliente": 4, "status_anterior": "em_analise", "status_novo": "em_processamento", "usuario": 14, "observacao": "Cliente aprovado", "criado_em": "2026-02-05T11:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 6, "fields": {"cliente": 4, "status_anterior": "em_processamento", "status_novo": "concluida", "usuario": null, "observacao": "OK via callback", "criado_em": "2026-02-20T10:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 7, "fields": {"cliente": 10, "status_anterior": "recebida", "status_novo": "em_analise", "usuario": 13, "observacao": "", "criado_em": "2026-02-02T10:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 8, "fields": {"cliente": 10, "status_anterior": "em_analise", "status_novo": "perdida", "usuario": 13, "observacao": "Cliente desistiu do projeto", "criado_em": "2026-02-28T10:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 9, "fields": {"cliente": 7, "status_anterior": "recebida", "status_novo": "em_analise", "usuario": 13, "observacao": "Verificando documentacao", "criado_em": "2026-02-12T10:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 10, "fields": {"cliente": 7, "status_anterior": "em_analise", "status_novo": "em_processamento", "usuario": 13, "observacao": "", "criado_em": "2026-02-18T10:00:00Z"}},
+  {"model": "crm.clientehistorico", "pk": 11, "fields": {"cliente": 7, "status_anterior": "em_processamento", "status_novo": "concluida", "usuario": null, "observacao": "Implantacao finalizada", "criado_em": "2026-03-01T10:00:00Z"}},
+
+  {"model": "integracao.tokenintegracao", "pk": 1, "fields": {
+    "nome": "Sistema de Implantacao", "token": "devtoken_abc123def456ghi789jkl012mno345pqr678stu901vw", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z"
+  }}
+]

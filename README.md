@@ -127,7 +127,21 @@ Preencha username, email e senha quando solicitado.
 
 ---
 
-## 8. Compilar o Tailwind CSS
+## 8. Carregar dados de exemplo (opcional)
+
+Para popular o banco com dados realistas de desenvolvimento:
+
+```bash
+python manage.py loaddata fixtures/dev_seed.json
+```
+
+Cria: 5 usuarios, 3 parceiros, 7 produtos, 6 planos com precos, 10 clientes em diferentes status, historico de movimentacoes e 1 token de integracao.
+
+> **Senha dos usuarios de seed:** todos usam `testpass123` (hash pre-gerado).
+
+---
+
+## 9. Compilar Tailwind CSS
 
 O projeto usa Tailwind CSS v4 via `pytailwindcss` (sem Node.js):
 
@@ -145,7 +159,7 @@ python -m pytailwindcss -i static/src/input.css -o static/css/output.css --watch
 
 ---
 
-## 9. Rodar o servidor
+## 10. Rodar o servidor
 
 ```bash
 python manage.py runserver
@@ -160,7 +174,7 @@ Acessar:
 
 ---
 
-## 10. Rodar os testes
+## 11. Rodar os testes
 
 ```bash
 DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps
