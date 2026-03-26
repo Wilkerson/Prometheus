@@ -45,13 +45,25 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4"
+       x-data="{ semNumero: false }">
     <div>
-      <label for="numero" class="label">Numero <span class="text-red-500">*</span></label>
-      <input type="text" name="numero" id="numero" required
+      <label for="numero_input" class="label">Numero <span class="text-red-500">*</span></label>
+      <input type="text" id="numero_input"
              class="input {% if erros.numero %}border-red-500{% endif %}"
              placeholder="123"
-             value="{{ dados.numero|default:'' }}">
+             value="{{ dados.numero|default:'' }}"
+             :readonly="semNumero"
+             :class="semNumero ? 'bg-gray-100 text-gray-400' : ''"
+             x-on:input="$refs.numero_hidden.value = $el.value">
+      <input type="hidden" name="numero" x-ref="numero_hidden" value="{{ dados.numero|default:'' }}">
+      <label class="flex items-center gap-2 mt-1.5 cursor-pointer">
+        <input type="checkbox"
+               x-model="semNumero"
+               @change="if(semNumero) { $refs.numero_hidden.value = 'S/N'; document.getElementById('numero_input').value = 'S/N'; } else { $refs.numero_hidden.value = ''; document.getElementById('numero_input').value = ''; }"
+               class="w-3.5 h-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+        <span class="text-xs text-gray-500">Sem numero</span>
+      </label>
       {% if erros.numero %}<p class="text-xs text-red-600 mt-1">{{ erros.numero }}</p>{% endif %}
     </div>
     <div class="sm:col-span-2">
