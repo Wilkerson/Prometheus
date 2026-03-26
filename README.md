@@ -127,7 +127,21 @@ Preencha username, email e senha quando solicitado.
 
 ---
 
-## 8. Carregar dados de exemplo (opcional)
+## 8. Configurar grupos e permissoes
+
+```bash
+python manage.py setup_groups
+```
+
+Cria automaticamente os grupos:
+- **Entidades Parceiras** — pode ver/criar/editar clientes, ver planos e comissoes
+- **Operadores** — acesso completo a CRM e comissoes
+
+> Atribua os grupos aos usuarios pela pagina de edicao de usuario na dashboard.
+
+---
+
+## 9. Carregar dados de exemplo (opcional)
 
 Para popular o banco com dados realistas de desenvolvimento:
 
@@ -141,7 +155,7 @@ Cria: 5 usuarios, 3 parceiros, 7 produtos, 6 planos com precos, 10 clientes em d
 
 ---
 
-## 9. Compilar Tailwind CSS
+## 10. Compilar Tailwind CSS
 
 O projeto usa Tailwind CSS v4 via `pytailwindcss` (sem Node.js):
 
@@ -159,7 +173,7 @@ python -m pytailwindcss -i static/src/input.css -o static/css/output.css --watch
 
 ---
 
-## 10. Rodar o servidor
+## 11. Rodar o servidor
 
 ```bash
 python manage.py runserver
@@ -174,7 +188,7 @@ Acessar:
 
 ---
 
-## 11. Rodar os testes
+## 12. Rodar os testes
 
 ```bash
 DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps

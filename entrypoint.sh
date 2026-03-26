@@ -18,6 +18,9 @@ echo "[Prometheus] Banco de dados disponivel."
 echo "[Prometheus] Aplicando migracoes..."
 python manage.py migrate --noinput
 
+echo "[Prometheus] Configurando grupos e permissoes..."
+python manage.py setup_groups
+
 echo "[Prometheus] Coletando arquivos estaticos..."
 python manage.py collectstatic --noinput
 
