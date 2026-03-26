@@ -32,11 +32,51 @@
            x-data="{ sidebarOpen: false }">
 
       <!-- User -->
-      <div class="flex items-center gap-2.5 mb-4 px-1">
-        {% with avatar_user=user avatar_size="w-8 h-8" avatar_text="text-[11px]" %}
-          {% include "components/_avatar.html" %}
-        {% endwith %}
-        <div class="text-[13px] font-semibold truncate">{{ user.get_full_name|default:user.username }}</div>
+      <div class="mb-5 px-1" x-data="{ editAvatar: false }">
+        <div class="flex items-center gap-2.5">
+          <div class="relative">
+            {% with avatar_user=user avatar_size="w-10 h-10" avatar_text="text-[13px]" %}
+              {% include "components/_avatar.html" %}
+            {% endwith %}
+            <button @click="editAvatar = !editAvatar"
+                    class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-bg4 border border-bdr flex items-center justify-center text-[10px] text-t2 hover:text-t1 cursor-pointer">
+              &#9998;
+            </button>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold truncate">{{ user.get_full_name|default:user.username }}</div>
+            <div class="text-[11px] text-t3">{{ user.grupo_nome }}</div>
+          </div>
+        </div>
+
+        <!-- Upload avatar -->
+        <div x-show="editAvatar" x-transition class="mt-3 p-2.5 bg-bg3 rounded-lg">
+          <form method="post" action="{% url 'web:avatar-update' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" required
+                   class="block w-full text-[11px] text-t3 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-medium file:bg-bg4 file:text-t2 hover:file:bg-bdr2 mb-2">
+            <div class="flex items-center gap-2 text-[11px]">
+              <button type="submit" class="text-ruch-accent hover:text-t1">Salvar</button>
+              {% if user.avatar %}
+              <span class="text-t3">|</span>
+          </form>
+          <form method="post" action="{% url 'web:avatar-remove' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="text-[11px] text-red-400 hover:text-red-300">Remover</button>
+          </form>
+              {% else %}
+          </form>
+              {% endif %}
+              <span class="text-t3">|</span>
+              <button type="button" @click="editAvatar = false" class="text-t3 hover:text-t1">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Sair -->
+        <form method="post" action="{% url 'web:logout' %}" class="mt-2">
+          {% csrf_token %}
+          <button type="submit" class="text-[11px] text-t3 hover:text-t1 transition">Sair da conta</button>
+        </form>
       </div>
 
       <!-- Search placeholder -->
@@ -185,58 +225,6 @@
         </div>
       </div>
 
-      <!-- User info -->
-      <div class="mb-6">
-        <div class="text-[15px] font-bold mb-3">Minha conta</div>
-        <div class="bg-bg3 rounded-[10px] p-3">
-          <div class="flex items-center gap-2.5 mb-3" x-data="{ editAvatar: false }">
-            <div class="relative">
-              {% with avatar_user=user avatar_size="w-10 h-10" avatar_text="text-[13px]" %}
-                {% include "components/_avatar.html" %}
-              {% endwith %}
-              <button @click="editAvatar = !editAvatar"
-                      class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-bg4 border border-bdr flex items-center justify-center text-[10px] text-t2 hover:text-t1 cursor-pointer">
-                &#9998;
-              </button>
-            </div>
-            <div>
-              <div class="text-[12.5px] font-semibold">{{ user.get_full_name|default:user.username }}</div>
-              <div class="text-[11px] text-t3">{{ user.grupo_nome }}</div>
-            </div>
-          </div>
-
-          <!-- Upload avatar (toggle) -->
-          <div x-data="{ editAvatar: false }">
-            <button @click="editAvatar = !editAvatar" class="text-[11px] text-ruch-accent hover:text-t1 transition mb-2">
-              {% if user.avatar %}Alterar foto{% else %}Adicionar foto{% endif %}
-            </button>
-            <div x-show="editAvatar" x-transition class="space-y-2 mb-2">
-              <form method="post" action="{% url 'web:avatar-update' %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" required
-                       class="block w-full text-[11px] text-t3 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-medium file:bg-bg4 file:text-t2 hover:file:bg-bdr2">
-                <div class="flex gap-2 mt-2">
-                  <button type="submit" class="text-[11px] text-ruch-accent hover:text-t1">Salvar</button>
-                  {% if user.avatar %}
-                  <span class="text-t3">|</span>
-                  </form>
-                  <form method="post" action="{% url 'web:avatar-remove' %}" class="inline">
-                    {% csrf_token %}
-                    <button type="submit" class="text-[11px] text-red-400 hover:text-red-300">Remover</button>
-                  </form>
-                  {% else %}
-                  </form>
-                  {% endif %}
-                </div>
-            </div>
-          </div>
-
-          <form method="post" action="{% url 'web:logout' %}" class="mt-2 pt-2 border-t border-bdr">
-            {% csrf_token %}
-            <button type="submit" class="text-[11px] text-t3 hover:text-t1 transition">Sair da conta</button>
-          </form>
-        </div>
-      </div>
       {% endblock %}
     </aside>
 
