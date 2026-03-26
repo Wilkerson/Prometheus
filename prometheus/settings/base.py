@@ -1,5 +1,5 @@
 """
-Configurações base do projeto Prometheus — RUCH Digital Technology.
+Configuracoes base do projeto Prometheus — RUCH Solutions.
 Compartilhadas entre todos os ambientes.
 """
 
@@ -188,7 +188,7 @@ CELERY_TIMEZONE = TIME_ZONE
 # drf-spectacular (Swagger / OpenAPI)
 # -----------------------------------------------------------------------------
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Prometheus API — RUCH",
+    "TITLE": "Prometheus API — RUCH Solutions",
     "DESCRIPTION": "API de captação e gestão de clientes",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
