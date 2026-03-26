@@ -15,6 +15,7 @@ from django.contrib.auth.models import Group
 from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Plano, PlanoProduto, Produto
+from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
 
 from .mixins import HtmxMixin, is_htmx
@@ -238,6 +239,10 @@ def _validar_cliente_form(post_data, files=None):
     arquivo = files.get("arquivo") if files else None
     if not arquivo:
         erros["arquivo"] = "O arquivo de Produtos ou Servicos e obrigatorio."
+    else:
+        erro_formato = validar_arquivo(arquivo)
+        if erro_formato:
+            erros["arquivo"] = erro_formato
     dados["arquivo"] = arquivo
 
     endereco_dados, endereco_erros = _validar_endereco(post_data)
@@ -259,7 +264,7 @@ class ClienteCreateView(PermissionRequiredMixin, View):
     def get(self, request):
         return render(request, "clientes/create.html", {
             "planos_disponiveis": _get_planos_for_user(request.user),
-            "uf_choices": Endereco.UF_CHOICES,
+            "uf_choices": Endereco.UF_CHOICES, "accept_html": ACCEPT_HTML,
             "erros": {},
             "dados": {},
         })
@@ -270,7 +275,7 @@ class ClienteCreateView(PermissionRequiredMixin, View):
         if erros:
             ctx = {
                 "planos_disponiveis": _get_planos_for_user(request.user),
-                "uf_choices": Endereco.UF_CHOICES,
+                "uf_choices": Endereco.UF_CHOICES, "accept_html": ACCEPT_HTML,
                 "erros": erros,
                 "dados": {**dados, **endereco_dados},
             }
@@ -360,7 +365,11 @@ def _validar_cliente_edit(post_data, files=None, cliente_existente=None):
 
     arquivo = files.get("arquivo") if files else None
     if arquivo:
-        dados["arquivo"] = arquivo
+        erro_formato = validar_arquivo(arquivo)
+        if erro_formato:
+            erros["arquivo"] = erro_formato
+        else:
+            dados["arquivo"] = arquivo
     elif cliente_existente and not cliente_existente.arquivo:
         erros["arquivo"] = "O arquivo de Produtos ou Servicos e obrigatorio."
 
@@ -377,7 +386,7 @@ class ClienteUpdateView(PermissionRequiredMixin, View):
         cliente = get_object_or_404(Cliente.objects.select_related("endereco"), pk=pk)
         return render(request, "clientes/edit.html", {
             "cliente": cliente,
-            "uf_choices": Endereco.UF_CHOICES,
+            "uf_choices": Endereco.UF_CHOICES, "accept_html": ACCEPT_HTML,
             "erros": {},
         })
 
@@ -386,7 +395,7 @@ class ClienteUpdateView(PermissionRequiredMixin, View):
         dados, endereco_dados, erros = _validar_cliente_edit(request.POST, request.FILES, cliente)
 
         if erros:
-            ctx = {"cliente": cliente, "uf_choices": Endereco.UF_CHOICES, "erros": erros}
+            ctx = {"cliente": cliente, "uf_choices": Endereco.UF_CHOICES, "accept_html": ACCEPT_HTML, "erros": erros}
             if is_htmx(request):
                 return render(request, "clientes/_form_errors.html", ctx)
             return render(request, "clientes/edit.html", ctx)

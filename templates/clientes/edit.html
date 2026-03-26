@@ -65,7 +65,7 @@
             <p class="text-xs text-t3 mb-2">Arquivo atual: <a href="{{ cliente.arquivo.url }}" class="text-primary-600 underline" target="_blank">{{ cliente.arquivo.name }}</a></p>
             <p class="text-xs text-t3 mb-1">Envie um novo arquivo para substituir:</p>
             {% endif %}
-            <input type="file" name="arquivo" id="arquivo" {% if not cliente.arquivo %}required{% endif %}
+            <input type="file" name="arquivo" id="arquivo" {% if not cliente.arquivo %}required{% endif %} accept="{{ accept_html }}"
                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 {% if erros.arquivo %}border border-red-500 rounded-lg{% endif %}">
             {% if erros.arquivo %}<p class="text-xs text-red-600 mt-1">{{ erros.arquivo }}</p>{% endif %}
           </div>
