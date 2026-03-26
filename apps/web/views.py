@@ -395,7 +395,7 @@ class ClienteUpdateView(PermissionRequiredMixin, View):
         cliente.cnpj = dados["cnpj"]
         cliente.email = dados["email"]
         cliente.telefone = dados["telefone"]
-        cliente.ativo = request.POST.get("ativo") == "on"
+        cliente.ativo = "ativo" in request.POST
         if "arquivo" in dados:
             cliente.arquivo = dados["arquivo"]
         cliente.save()
@@ -630,7 +630,7 @@ class ProdutoUpdateView(PermissionRequiredMixin, View):
         produto.nome = request.POST.get("nome", produto.nome).strip()
         produto.descricao = request.POST.get("descricao", produto.descricao).strip()
         produto.tier = request.POST.get("tier", produto.tier)
-        produto.ativo = request.POST.get("ativo") == "on"
+        produto.ativo = "ativo" in request.POST
         produto.save()
         return redirect("web:produtos")
 
@@ -751,7 +751,7 @@ class PlanoUpdateView(PermissionRequiredMixin, View):
         parceiro_id = request.POST.get("parceiro")
         if parceiro_id:
             plano.parceiro = get_object_or_404(EntidadeParceira, pk=parceiro_id)
-        plano.ativo = request.POST.get("ativo") == "on"
+        plano.ativo = "ativo" in request.POST
         plano.save()
 
         # Recria itens
@@ -862,7 +862,7 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
         user = Usuario.objects.create_user(
             username=username, email=email, password=password,
             first_name=first_name, last_name=last_name, perfil=perfil,
-            is_staff=request.POST.get("is_staff") == "on",
+            is_staff="is_staff" in request.POST,
         )
         group_ids = request.POST.getlist("groups")
         if group_ids:
@@ -880,6 +880,7 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
             "usuario": usuario,
             "perfil_choices": Usuario.Perfil.choices,
             "groups": Group.objects.all(),
+            "usuario_groups": list(usuario.groups.values_list("id", flat=True)),
             "erros": {},
         })
 
@@ -889,8 +890,8 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
         usuario.last_name = request.POST.get("last_name", "").strip()
         usuario.email = request.POST.get("email", usuario.email).strip()
         usuario.perfil = request.POST.get("perfil", usuario.perfil)
-        usuario.is_active = request.POST.get("is_active") == "on"
-        usuario.is_staff = request.POST.get("is_staff") == "on"
+        usuario.is_active = "is_active" in request.POST
+        usuario.is_staff = "is_staff" in request.POST
         usuario.save()
 
         new_password = request.POST.get("new_password", "").strip()
@@ -987,7 +988,7 @@ class ParceiroUpdateView(PermissionRequiredMixin, View):
         parceiro = get_object_or_404(EntidadeParceira, pk=pk)
         parceiro.nome_entidade = request.POST.get("nome_entidade", parceiro.nome_entidade).strip()
         parceiro.percentual_comissao = request.POST.get("percentual_comissao", parceiro.percentual_comissao)
-        parceiro.ativo = request.POST.get("ativo") == "on"
+        parceiro.ativo = "ativo" in request.POST
         parceiro.save()
         return redirect("web:parceiros")
 
