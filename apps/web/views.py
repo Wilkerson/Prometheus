@@ -304,7 +304,7 @@ class ClienteDetailView(PermissionRequiredMixin, View):
 
     def get(self, request, pk):
         cliente = get_object_or_404(
-            Cliente.objects.select_related("parceiro", "operador").prefetch_related("produtos"),
+            Cliente.objects.select_related("parceiro", "operador", "endereco").prefetch_related("planos"),
             pk=pk,
         )
         historico = cliente.historico.select_related("usuario").all()
