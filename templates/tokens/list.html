@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Tokens de Integracao{% endblock %}
+{% block page_title %}Tokens de Integracao{% endblock %}
+
+{% block page_actions %}
+{% if can_add %}
+<a href="{% url 'web:token-create' %}" class="btn-primary">+ Novo Token</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  {% if tokens %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-bdr text-left text-t3">
+          <th class="pb-3 font-medium">Nome</th>
+          <th class="pb-3 font-medium">Token</th>
+          <th class="pb-3 font-medium">Status</th>
+          <th class="pb-3 font-medium">Criado em</th>
+          <th class="pb-3 font-medium">Acoes</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-bdr">
+        {% for token in tokens %}
+        <tr class="hover:bg-bg3">
+          <td class="py-3 font-medium text-t1">{{ token.nome }}</td>
+          <td class="py-3 text-t2 font-mono text-xs">{{ token.token|truncatechars:20 }}</td>
+          <td class="py-3">
+            {% if token.ativo %}
+            <span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
+            {% else %}
+            <span class="badge bg-bg4 text-t3">Inativo</span>
+            {% endif %}
+          </td>
+          <td class="py-3 text-t3">{{ token.criado_em|date:"d/m/Y H:i" }}</td>
+          <td class="py-3" x-data="{ confirmar: false }">
+            <button @click="confirmar = true" x-show="!confirmar" class="text-red-400 hover:text-red-300 text-[12px] font-medium">Excluir</button>
+            <form method="post" action="{% url 'web:token-delete' token.pk %}" x-show="confirmar" class="flex gap-2 items-center">
+              {% csrf_token %}
+              <button type="submit" class="btn-danger text-xs">Confirmar</button>
+              <button type="button" @click="confirmar = false" class="btn-secondary text-xs">Cancelar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="flex items-center justify-between mt-4 pt-4 border-t border-bdr">
+    <span class="text-sm text-t3">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    <div class="flex gap-2">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}" class="btn-secondary text-xs">Anterior</a>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary text-xs">Proxima</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <p class="text-sm text-t3 py-4">Nenhum token cadastrado.</p>
+  {% endif %}
+</div>
+{% endblock %}

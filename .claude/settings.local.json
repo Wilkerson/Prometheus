@@ -5,7 +5,9 @@
       "Bash(tailwindcss -i static/src/input.css -o static/css/output.css --minify)",
       "Bash(python -m tailwindcss -i static/src/input.css -o static/css/output.css --minify)",
       "Bash(python manage.py migrate)",
-      "Bash(python manage.py shell -c \":*)"
+      "Bash(python manage.py shell -c \":*)",
+      "Bash(source venv/Scripts/activate)",
+      "Bash(DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps --verbosity=1)"
     ]
   }
 }

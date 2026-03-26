@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Parceiros{% endblock %}
+{% block page_title %}Parceiros{% endblock %}
+
+{% block page_actions %}
+{% if can_add %}
+<a href="{% url 'web:parceiro-create' %}" class="btn-primary">+ Novo Parceiro</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card mb-6">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" value="{{ current_search }}" placeholder="Nome da entidade..."
+             class="input"
+             hx-get="{% url 'web:parceiros' %}"
+             hx-target="#parceiros-table"
+             hx-trigger="input changed delay:300ms"
+             hx-push-url="true">
+    </div>
+  </div>
+</div>
+
+<div class="card" id="parceiros-table">
+  {% include "parceiros/_table.html" %}
+</div>
+{% endblock %}

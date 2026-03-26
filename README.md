@@ -216,7 +216,10 @@ Prometheus/
 │   ├── clientes/            # CRUD + pipeline + calendario
 │   ├── produtos/            # CRUD
 │   ├── planos/              # CRUD
-│   ├── comissoes/           # Listagem
+│   ├── comissoes/           # Listagem + acao marcar pago
+│   ├── usuarios/            # CRUD de usuarios
+│   ├── parceiros/           # CRUD de entidades parceiras
+│   ├── tokens/              # CRUD de tokens de integracao
 │   ├── dashboard/           # Dashboard com metricas
 │   └── public/              # Landing page
 └── static/

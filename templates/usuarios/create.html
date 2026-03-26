@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Usuario{% endblock %}
+{% block page_title %}Novo Usuario{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'web:usuarios' %}" class="btn-secondary">Voltar</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card">
+    <form method="post"
+          hx-post="{% url 'web:usuario-create' %}" hx-target="#form-result">
+      {% csrf_token %}
+
+      {% if erros %}
+      <div class="mb-4">
+        {% include "clientes/_form_errors.html" %}
+      </div>
+      {% endif %}
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="username" class="label">Username <span class="text-red-500">*</span></label>
+            <input type="text" name="username" id="username" required class="input {% if erros.username %}border-red-500{% endif %}"
+                   placeholder="nome.usuario" value="{{ dados.username|default:'' }}">
+            {% if erros.username %}<p class="text-xs text-red-600 mt-1">{{ erros.username }}</p>{% endif %}
+          </div>
+          <div>
+            <label for="email" class="label">Email <span class="text-red-500">*</span></label>
+            <input type="email" name="email" id="email" required class="input {% if erros.email %}border-red-500{% endif %}"
+                   placeholder="email@exemplo.com" value="{{ dados.email|default:'' }}">
+            {% if erros.email %}<p class="text-xs text-red-600 mt-1">{{ erros.email }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="label">Senha <span class="text-red-500">*</span></label>
+          <input type="password" name="password" id="password" required class="input {% if erros.password %}border-red-500{% endif %}"
+                 placeholder="Senha segura">
+          {% if erros.password %}<p class="text-xs text-red-600 mt-1">{{ erros.password }}</p>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="first_name" class="label">Nome</label>
+            <input type="text" name="first_name" id="first_name" class="input"
+                   placeholder="Primeiro nome" value="{{ dados.first_name|default:'' }}">
+          </div>
+          <div>
+            <label for="last_name" class="label">Sobrenome</label>
+            <input type="text" name="last_name" id="last_name" class="input"
+                   placeholder="Sobrenome" value="{{ dados.last_name|default:'' }}">
+          </div>
+        </div>
+
+        <div>
+          <label for="perfil" class="label">Perfil</label>
+          <select name="perfil" id="perfil" class="input">
+            {% for value, label in perfil_choices %}
+            <option value="{{ value }}" {% if dados.perfil == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="label">Grupos / Permissoes</label>
+          <div class="mt-2 space-y-2">
+            {% for group in groups %}
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="groups" value="{{ group.id }}"
+                     class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+              <span class="text-sm text-t2">{{ group.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% if not groups %}
+          <p class="text-xs text-t3 mt-2">Nenhum grupo cadastrado.</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="is_staff" value="1"
+                   {% if dados.is_staff %}checked{% endif %}
+                   class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+            <span class="text-sm text-t2">Acesso ao admin (is_staff)</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="form-result" class="mt-4"></div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary">Criar Usuario</button>
+        <a href="{% url 'web:usuarios' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

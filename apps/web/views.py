@@ -10,9 +10,12 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import ListView, TemplateView
 
+from django.contrib.auth.models import Group
+
 from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Plano, PlanoProduto, Produto
+from apps.integracao.models import TokenIntegracao
 
 from .mixins import HtmxMixin, is_htmx
 
@@ -770,3 +773,274 @@ class PlanoDeleteView(PermissionRequiredMixin, View):
         if is_htmx(request):
             return HttpResponse(headers={"HX-Redirect": "/planos/"})
         return redirect("web:planos")
+
+
+# ---------------------------------------------------------------------------
+# Comissao — acao marcar como pago
+# ---------------------------------------------------------------------------
+class ComissaoMarcarPagoView(PermissionRequiredMixin, View):
+    permission_required = "comissoes.change_comissao"
+
+    def post(self, request, pk):
+        comissao = get_object_or_404(Comissao, pk=pk)
+        comissao.status = Comissao.Status.PAGO
+        comissao.save(update_fields=["status"])
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/comissoes/"})
+        return redirect("web:comissoes")
+
+
+# ---------------------------------------------------------------------------
+# Usuarios
+# ---------------------------------------------------------------------------
+class UsuarioListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "usuarios/list.html"
+    partial_template_name = "usuarios/_table.html"
+    context_object_name = "usuarios"
+    paginate_by = 20
+    permission_required = "accounts.view_usuario"
+
+    def get_queryset(self):
+        qs = Usuario.objects.order_by("-date_joined")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(
+                Q(username__icontains=search) | Q(first_name__icontains=search)
+                | Q(last_name__icontains=search) | Q(email__icontains=search)
+            )
+        perfil = self.request.GET.get("perfil")
+        if perfil:
+            qs = qs.filter(perfil=perfil)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["perfil_choices"] = Usuario.Perfil.choices
+        ctx["current_perfil"] = self.request.GET.get("perfil", "")
+        ctx["can_add"] = self.request.user.has_perm("accounts.add_usuario")
+        return ctx
+
+
+class UsuarioCreateView(PermissionRequiredMixin, View):
+    permission_required = "accounts.add_usuario"
+
+    def get(self, request):
+        return render(request, "usuarios/create.html", {
+            "perfil_choices": Usuario.Perfil.choices,
+            "groups": Group.objects.all(),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        username = request.POST.get("username", "").strip()
+        if not username:
+            erros["username"] = "O username e obrigatorio."
+        elif Usuario.objects.filter(username=username).exists():
+            erros["username"] = "Esse username ja esta em uso."
+
+        email = request.POST.get("email", "").strip()
+        if not email:
+            erros["email"] = "O email e obrigatorio."
+
+        password = request.POST.get("password", "")
+        if not password or len(password) < 8:
+            erros["password"] = "A senha deve ter no minimo 8 caracteres."
+
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+        perfil = request.POST.get("perfil", "operador")
+
+        if erros:
+            ctx = {
+                "perfil_choices": Usuario.Perfil.choices,
+                "groups": Group.objects.all(),
+                "erros": erros,
+            }
+            return render(request, "usuarios/create.html", ctx)
+
+        user = Usuario.objects.create_user(
+            username=username, email=email, password=password,
+            first_name=first_name, last_name=last_name, perfil=perfil,
+            is_staff=request.POST.get("is_staff") == "on",
+        )
+        group_ids = request.POST.getlist("groups")
+        if group_ids:
+            user.groups.set(group_ids)
+
+        return redirect("web:usuarios")
+
+
+class UsuarioUpdateView(PermissionRequiredMixin, View):
+    permission_required = "accounts.change_usuario"
+
+    def get(self, request, pk):
+        usuario = get_object_or_404(Usuario, pk=pk)
+        return render(request, "usuarios/edit.html", {
+            "usuario": usuario,
+            "perfil_choices": Usuario.Perfil.choices,
+            "groups": Group.objects.all(),
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        usuario = get_object_or_404(Usuario, pk=pk)
+        usuario.first_name = request.POST.get("first_name", "").strip()
+        usuario.last_name = request.POST.get("last_name", "").strip()
+        usuario.email = request.POST.get("email", usuario.email).strip()
+        usuario.perfil = request.POST.get("perfil", usuario.perfil)
+        usuario.is_active = request.POST.get("is_active") == "on"
+        usuario.is_staff = request.POST.get("is_staff") == "on"
+        usuario.save()
+
+        new_password = request.POST.get("new_password", "").strip()
+        if new_password and len(new_password) >= 8:
+            usuario.set_password(new_password)
+            usuario.save()
+
+        group_ids = request.POST.getlist("groups")
+        usuario.groups.set(group_ids)
+
+        return redirect("web:usuarios")
+
+
+class UsuarioDeleteView(PermissionRequiredMixin, View):
+    permission_required = "accounts.delete_usuario"
+
+    def post(self, request, pk):
+        usuario = get_object_or_404(Usuario, pk=pk)
+        if usuario == request.user:
+            return HttpResponse("Nao e possivel excluir seu proprio usuario.", status=400)
+        usuario.delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/usuarios/"})
+        return redirect("web:usuarios")
+
+
+# ---------------------------------------------------------------------------
+# Entidades Parceiras
+# ---------------------------------------------------------------------------
+class ParceiroListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "parceiros/list.html"
+    partial_template_name = "parceiros/_table.html"
+    context_object_name = "parceiros"
+    paginate_by = 20
+    permission_required = "crm.view_entidadeparceira"
+
+    def get_queryset(self):
+        qs = EntidadeParceira.objects.select_related("usuario").order_by("-criado_em")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(Q(nome_entidade__icontains=search))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("crm.add_entidadeparceira")
+        return ctx
+
+
+class ParceiroCreateView(PermissionRequiredMixin, View):
+    permission_required = "crm.add_entidadeparceira"
+
+    def get(self, request):
+        usuarios_disponiveis = Usuario.objects.filter(
+            perfil=Usuario.Perfil.PARCEIRO
+        ).exclude(parceiro__isnull=False)
+        return render(request, "parceiros/create.html", {
+            "usuarios": usuarios_disponiveis, "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome_entidade", "").strip()
+        if not nome:
+            erros["nome_entidade"] = "O nome e obrigatorio."
+        usuario_id = request.POST.get("usuario")
+        if not usuario_id:
+            erros["usuario"] = "Selecione um usuario."
+        percentual = request.POST.get("percentual_comissao", "10.00")
+
+        if erros:
+            usuarios_disponiveis = Usuario.objects.filter(
+                perfil=Usuario.Perfil.PARCEIRO
+            ).exclude(parceiro__isnull=False)
+            return render(request, "parceiros/create.html", {
+                "usuarios": usuarios_disponiveis, "erros": erros,
+            })
+
+        EntidadeParceira.objects.create(
+            usuario_id=usuario_id, nome_entidade=nome,
+            percentual_comissao=percentual,
+        )
+        return redirect("web:parceiros")
+
+
+class ParceiroUpdateView(PermissionRequiredMixin, View):
+    permission_required = "crm.change_entidadeparceira"
+
+    def get(self, request, pk):
+        parceiro = get_object_or_404(EntidadeParceira.objects.select_related("usuario"), pk=pk)
+        return render(request, "parceiros/edit.html", {"parceiro": parceiro, "erros": {}})
+
+    def post(self, request, pk):
+        parceiro = get_object_or_404(EntidadeParceira, pk=pk)
+        parceiro.nome_entidade = request.POST.get("nome_entidade", parceiro.nome_entidade).strip()
+        parceiro.percentual_comissao = request.POST.get("percentual_comissao", parceiro.percentual_comissao)
+        parceiro.ativo = request.POST.get("ativo") == "on"
+        parceiro.save()
+        return redirect("web:parceiros")
+
+
+class ParceiroDeleteView(PermissionRequiredMixin, View):
+    permission_required = "crm.delete_entidadeparceira"
+
+    def post(self, request, pk):
+        get_object_or_404(EntidadeParceira, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/parceiros/"})
+        return redirect("web:parceiros")
+
+
+# ---------------------------------------------------------------------------
+# Tokens de integracao
+# ---------------------------------------------------------------------------
+class TokenListView(PermissionRequiredMixin, ListView):
+    template_name = "tokens/list.html"
+    context_object_name = "tokens"
+    paginate_by = 20
+    permission_required = "integracao.view_tokenintegracao"
+
+    def get_queryset(self):
+        return TokenIntegracao.objects.order_by("-criado_em")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("integracao.add_tokenintegracao")
+        return ctx
+
+
+class TokenCreateView(PermissionRequiredMixin, View):
+    permission_required = "integracao.add_tokenintegracao"
+
+    def get(self, request):
+        return render(request, "tokens/create.html", {"erros": {}})
+
+    def post(self, request):
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            return render(request, "tokens/create.html", {
+                "erros": {"nome": "O nome e obrigatorio."},
+            })
+        TokenIntegracao.objects.create(nome=nome)
+        return redirect("web:tokens")
+
+
+class TokenDeleteView(PermissionRequiredMixin, View):
+    permission_required = "integracao.delete_tokenintegracao"
+
+    def post(self, request, pk):
+        get_object_or_404(TokenIntegracao, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/tokens/"})
+        return redirect("web:tokens")

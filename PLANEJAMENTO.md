@@ -408,7 +408,12 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 47. [x] Limpar referencias a produto_interesse dos templates
 48. [x] Preparar projeto para deploy: Dockerfile multi-stage, Gunicorn config, health check,
        entrypoint, production settings, CI/CD GitHub Actions, docker-compose atualizado
-49. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+49. [x] CRUD de Usuarios na dashboard (criar, editar, grupos, ativar/desativar, excluir)
+50. [x] CRUD de Entidades Parceiras na dashboard (criar, editar percentual, ativar/desativar)
+51. [x] Acao "Marcar como pago" nas comissoes (sem precisar do admin Django)
+52. [x] CRUD de Tokens de integracao na dashboard (criar, excluir, visualizar token)
+53. [x] Sidebar com secao "Administracao" separada (Usuarios, Parceiros, Tokens API)
+54. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.

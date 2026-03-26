@@ -58,6 +58,20 @@
         {% endfor %}
       </div>
 
+      <!-- Administracao -->
+      {% if admin_items %}
+      <div class="mb-5">
+        <div class="text-[10px] font-bold tracking-widest uppercase text-t3 px-2 pb-2">Administracao</div>
+        {% for item in admin_items %}
+        <a href="{{ item.url }}"
+           class="flex items-center px-2.5 py-2 rounded-[9px] text-[13px] mb-0.5 transition-all duration-150 no-underline
+                  {% if request.path == item.url %}bg-ruch-green text-white font-semibold{% else %}text-t2 hover:bg-bg3 hover:text-t1{% endif %}">
+          {{ item.label }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <!-- Placeholders futuros -->
       <div class="mb-5">
         <div class="text-[10px] font-bold tracking-widest uppercase text-t3 px-2 pb-2">Em breve</div>

@@ -34,4 +34,19 @@ urlpatterns = [
     path("planos/<int:pk>/excluir/", views.PlanoDeleteView.as_view(), name="plano-delete"),
     # Comissoes
     path("comissoes/", views.ComissaoListView.as_view(), name="comissoes"),
+    path("comissoes/<int:pk>/pagar/", views.ComissaoMarcarPagoView.as_view(), name="comissao-pagar"),
+    # Usuarios
+    path("usuarios/", views.UsuarioListView.as_view(), name="usuarios"),
+    path("usuarios/novo/", views.UsuarioCreateView.as_view(), name="usuario-create"),
+    path("usuarios/<int:pk>/editar/", views.UsuarioUpdateView.as_view(), name="usuario-edit"),
+    path("usuarios/<int:pk>/excluir/", views.UsuarioDeleteView.as_view(), name="usuario-delete"),
+    # Entidades Parceiras
+    path("parceiros/", views.ParceiroListView.as_view(), name="parceiros"),
+    path("parceiros/novo/", views.ParceiroCreateView.as_view(), name="parceiro-create"),
+    path("parceiros/<int:pk>/editar/", views.ParceiroUpdateView.as_view(), name="parceiro-edit"),
+    path("parceiros/<int:pk>/excluir/", views.ParceiroDeleteView.as_view(), name="parceiro-delete"),
+    # Tokens de integracao
+    path("tokens/", views.TokenListView.as_view(), name="tokens"),
+    path("tokens/novo/", views.TokenCreateView.as_view(), name="token-create"),
+    path("tokens/<int:pk>/excluir/", views.TokenDeleteView.as_view(), name="token-delete"),
 ]
