@@ -220,12 +220,12 @@ USUARIO (AbstractUser)
 ENTIDADE_PARCEIRA
   id, usuario_id (FK OneToOne), nome_entidade, percentual_comissao, ativo, criado_em
 
-CLIENTE
+CLIENTE (todos os campos obrigatorios, exceto operador)
   id, parceiro_id (FK), operador_id (FK nullable), nome, cnpj (unique),
   email, telefone, endereco, cep,
   produto_interesse [agentes_ia|saas|crm|erp|sites|consultoria],
   status [recebida|em_analise|em_processamento|concluida|perdida],
-  arquivo ("Produtos ou Servicos", opcional), ativo, criado_em, atualizado_em
+  arquivo ("Produtos ou Servicos"), ativo, criado_em, atualizado_em
 
 CLIENTE_HISTORICO
   id, cliente_id (FK), status_anterior, status_novo, usuario_id (FK nullable),
@@ -383,7 +383,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 33. [x] Remover modulo de conversao de lead em cliente (lead ja chega convertida do parceiro)
 34. [x] Implementar CRUD completo de clientes na dashboard (criar, editar, excluir com permissoes)
 35. [x] Eliminar model Lead — unificar pipeline de status no model Cliente
-36. [ ] Aplicar design system (JSON) quando fornecido
+36. [x] Tornar todos os campos do Cliente obrigatorios com validacao e mensagens de erro
+37. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 

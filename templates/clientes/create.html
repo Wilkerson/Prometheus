@@ -10,45 +10,72 @@
 {% block content %}
 <div class="max-w-2xl">
   <div class="card">
-    <form method="post" hx-post="{% url 'web:cliente-create' %}" hx-target="#form-result">
+    <form method="post" enctype="multipart/form-data"
+          hx-post="{% url 'web:cliente-create' %}" hx-target="#form-result" hx-encoding="multipart/form-data">
       {% csrf_token %}
+
+      {% if erros %}
+      <div class="mb-4">
+        {% include "clientes/_form_errors.html" %}
+      </div>
+      {% endif %}
+
       <div class="space-y-4">
         <div>
-          <label for="nome" class="label">Nome / Razao Social</label>
-          <input type="text" name="nome" id="nome" required class="input" placeholder="Nome do cliente">
+          <label for="nome" class="label">Nome / Razao Social <span class="text-red-500">*</span></label>
+          <input type="text" name="nome" id="nome" required class="input {% if erros.nome %}border-red-500{% endif %}"
+                 placeholder="Nome do cliente" value="{{ dados.nome|default:'' }}">
+          {% if erros.nome %}<p class="text-xs text-red-600 mt-1">{{ erros.nome }}</p>{% endif %}
         </div>
         <div>
-          <label for="cnpj" class="label">CNPJ</label>
-          <input type="text" name="cnpj" id="cnpj" required class="input" placeholder="00.000.000/0000-00">
+          <label for="cnpj" class="label">CNPJ <span class="text-red-500">*</span></label>
+          <input type="text" name="cnpj" id="cnpj" required class="input {% if erros.cnpj %}border-red-500{% endif %}"
+                 placeholder="00.000.000/0000-00" value="{{ dados.cnpj|default:'' }}">
+          {% if erros.cnpj %}<p class="text-xs text-red-600 mt-1">{{ erros.cnpj }}</p>{% endif %}
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="email" class="label">Email</label>
-            <input type="email" name="email" id="email" required class="input" placeholder="email@empresa.com">
+            <label for="email" class="label">Email <span class="text-red-500">*</span></label>
+            <input type="email" name="email" id="email" required class="input {% if erros.email %}border-red-500{% endif %}"
+                   placeholder="email@empresa.com" value="{{ dados.email|default:'' }}">
+            {% if erros.email %}<p class="text-xs text-red-600 mt-1">{{ erros.email }}</p>{% endif %}
           </div>
           <div>
-            <label for="telefone" class="label">Telefone</label>
-            <input type="text" name="telefone" id="telefone" class="input" placeholder="(11) 99999-9999">
+            <label for="telefone" class="label">Telefone <span class="text-red-500">*</span></label>
+            <input type="text" name="telefone" id="telefone" required class="input {% if erros.telefone %}border-red-500{% endif %}"
+                   placeholder="(11) 99999-9999" value="{{ dados.telefone|default:'' }}">
+            {% if erros.telefone %}<p class="text-xs text-red-600 mt-1">{{ erros.telefone }}</p>{% endif %}
           </div>
         </div>
         <div>
-          <label for="endereco" class="label">Endereco</label>
-          <input type="text" name="endereco" id="endereco" class="input" placeholder="Rua, numero, bairro, cidade - UF">
+          <label for="endereco" class="label">Endereco <span class="text-red-500">*</span></label>
+          <input type="text" name="endereco" id="endereco" required class="input {% if erros.endereco %}border-red-500{% endif %}"
+                 placeholder="Rua, numero, bairro, cidade - UF" value="{{ dados.endereco|default:'' }}">
+          {% if erros.endereco %}<p class="text-xs text-red-600 mt-1">{{ erros.endereco }}</p>{% endif %}
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="cep" class="label">CEP</label>
-            <input type="text" name="cep" id="cep" class="input" placeholder="00000-000">
+            <label for="cep" class="label">CEP <span class="text-red-500">*</span></label>
+            <input type="text" name="cep" id="cep" required class="input {% if erros.cep %}border-red-500{% endif %}"
+                   placeholder="00000-000" value="{{ dados.cep|default:'' }}">
+            {% if erros.cep %}<p class="text-xs text-red-600 mt-1">{{ erros.cep }}</p>{% endif %}
           </div>
           <div>
-            <label for="produto_interesse" class="label">Produto de interesse</label>
-            <select name="produto_interesse" id="produto_interesse" required class="input">
+            <label for="produto_interesse" class="label">Produto de interesse <span class="text-red-500">*</span></label>
+            <select name="produto_interesse" id="produto_interesse" required class="input {% if erros.produto_interesse %}border-red-500{% endif %}">
               <option value="">Selecione...</option>
               {% for value, label in produto_choices %}
-              <option value="{{ value }}">{{ label }}</option>
+              <option value="{{ value }}" {% if dados.produto_interesse == value %}selected{% endif %}>{{ label }}</option>
               {% endfor %}
             </select>
+            {% if erros.produto_interesse %}<p class="text-xs text-red-600 mt-1">{{ erros.produto_interesse }}</p>{% endif %}
           </div>
+        </div>
+        <div>
+          <label for="arquivo" class="label">Produtos ou Servicos (arquivo) <span class="text-red-500">*</span></label>
+          <input type="file" name="arquivo" id="arquivo" required
+                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 {% if erros.arquivo %}border border-red-500 rounded-lg{% endif %}">
+          {% if erros.arquivo %}<p class="text-xs text-red-600 mt-1">{{ erros.arquivo }}</p>{% endif %}
         </div>
       </div>
 

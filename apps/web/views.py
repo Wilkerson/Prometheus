@@ -158,34 +158,104 @@ class ClienteListView(PermissionRequiredMixin, HtmxMixin, ListView):
         return ctx
 
 
+def _validar_cliente_form(post_data, files=None):
+    """Valida dados do formulario de cliente. Retorna (dados_limpos, erros)."""
+    erros = {}
+    dados = {}
+
+    # Nome
+    nome = post_data.get("nome", "").strip()
+    if not nome:
+        erros["nome"] = "O nome e obrigatorio."
+    dados["nome"] = nome
+
+    # CNPJ
+    cnpj = post_data.get("cnpj", "").strip()
+    if not cnpj:
+        erros["cnpj"] = "O CNPJ e obrigatorio."
+    else:
+        digits = "".join(c for c in cnpj if c.isdigit())
+        if len(digits) != 14:
+            erros["cnpj"] = "CNPJ deve conter 14 digitos."
+    dados["cnpj"] = cnpj
+
+    # Email
+    email = post_data.get("email", "").strip()
+    if not email:
+        erros["email"] = "O email e obrigatorio."
+    elif "@" not in email:
+        erros["email"] = "Informe um email valido."
+    dados["email"] = email
+
+    # Telefone
+    telefone = post_data.get("telefone", "").strip()
+    if not telefone:
+        erros["telefone"] = "O telefone e obrigatorio."
+    dados["telefone"] = telefone
+
+    # Endereco
+    endereco = post_data.get("endereco", "").strip()
+    if not endereco:
+        erros["endereco"] = "O endereco e obrigatorio."
+    dados["endereco"] = endereco
+
+    # CEP
+    cep = post_data.get("cep", "").strip()
+    if not cep:
+        erros["cep"] = "O CEP e obrigatorio."
+    else:
+        digits = "".join(c for c in cep if c.isdigit())
+        if len(digits) != 8:
+            erros["cep"] = "CEP deve conter 8 digitos."
+    dados["cep"] = cep
+
+    # Produto
+    produto = post_data.get("produto_interesse", "")
+    if not produto:
+        erros["produto_interesse"] = "O produto de interesse e obrigatorio."
+    dados["produto_interesse"] = produto
+
+    # Arquivo
+    arquivo = files.get("arquivo") if files else None
+    if not arquivo:
+        erros["arquivo"] = "O arquivo de Produtos ou Servicos e obrigatorio."
+    dados["arquivo"] = arquivo
+
+    return dados, erros
+
+
 class ClienteCreateView(PermissionRequiredMixin, View):
     permission_required = "crm.add_cliente"
 
     def get(self, request):
         return render(request, "clientes/create.html", {
             "produto_choices": Cliente.Produto.choices,
+            "erros": {},
+            "dados": {},
         })
 
     def post(self, request):
-        user = request.user
-        cliente_data = {
-            "nome": request.POST.get("nome", ""),
-            "cnpj": request.POST.get("cnpj", ""),
-            "email": request.POST.get("email", ""),
-            "telefone": request.POST.get("telefone", ""),
-            "endereco": request.POST.get("endereco", ""),
-            "cep": request.POST.get("cep", ""),
-            "produto_interesse": request.POST.get("produto_interesse", ""),
-        }
+        dados, erros = _validar_cliente_form(request.POST, request.FILES)
 
+        if erros:
+            ctx = {
+                "produto_choices": Cliente.Produto.choices,
+                "erros": erros,
+                "dados": dados,
+            }
+            if is_htmx(request):
+                return render(request, "clientes/_form_errors.html", ctx)
+            return render(request, "clientes/create.html", ctx)
+
+        user = request.user
         if hasattr(user, "parceiro"):
-            cliente_data["parceiro"] = user.parceiro
+            dados["parceiro"] = user.parceiro
         else:
             parceiro_id = request.POST.get("parceiro")
             if parceiro_id:
-                cliente_data["parceiro"] = get_object_or_404(EntidadeParceira, id=parceiro_id)
+                dados["parceiro"] = get_object_or_404(EntidadeParceira, id=parceiro_id)
 
-        cliente = Cliente.objects.create(**cliente_data)
+        cliente = Cliente.objects.create(**dados)
 
         if is_htmx(request):
             return render(request, "clientes/_create_success.html", {"cliente": cliente})
@@ -220,22 +290,87 @@ class ClienteDetailView(PermissionRequiredMixin, View):
         return render(request, "clientes/detail.html", ctx)
 
 
+def _validar_cliente_edit(post_data, files=None, cliente_existente=None):
+    """Validacao para edicao — arquivo so obrigatorio se ainda nao tem."""
+    erros = {}
+    dados = {}
+
+    nome = post_data.get("nome", "").strip()
+    if not nome:
+        erros["nome"] = "O nome e obrigatorio."
+    dados["nome"] = nome
+
+    cnpj = post_data.get("cnpj", "").strip()
+    if not cnpj:
+        erros["cnpj"] = "O CNPJ e obrigatorio."
+    else:
+        digits = "".join(c for c in cnpj if c.isdigit())
+        if len(digits) != 14:
+            erros["cnpj"] = "CNPJ deve conter 14 digitos."
+    dados["cnpj"] = cnpj
+
+    email = post_data.get("email", "").strip()
+    if not email:
+        erros["email"] = "O email e obrigatorio."
+    elif "@" not in email:
+        erros["email"] = "Informe um email valido."
+    dados["email"] = email
+
+    telefone = post_data.get("telefone", "").strip()
+    if not telefone:
+        erros["telefone"] = "O telefone e obrigatorio."
+    dados["telefone"] = telefone
+
+    endereco = post_data.get("endereco", "").strip()
+    if not endereco:
+        erros["endereco"] = "O endereco e obrigatorio."
+    dados["endereco"] = endereco
+
+    cep = post_data.get("cep", "").strip()
+    if not cep:
+        erros["cep"] = "O CEP e obrigatorio."
+    else:
+        digits = "".join(c for c in cep if c.isdigit())
+        if len(digits) != 8:
+            erros["cep"] = "CEP deve conter 8 digitos."
+    dados["cep"] = cep
+
+    # Arquivo — na edicao, so obrigatorio se o cliente ainda nao tem
+    arquivo = files.get("arquivo") if files else None
+    if arquivo:
+        dados["arquivo"] = arquivo
+    elif cliente_existente and not cliente_existente.arquivo:
+        erros["arquivo"] = "O arquivo de Produtos ou Servicos e obrigatorio."
+
+    return dados, erros
+
+
 class ClienteUpdateView(PermissionRequiredMixin, View):
     permission_required = "crm.change_cliente"
 
     def get(self, request, pk):
         cliente = get_object_or_404(Cliente, pk=pk)
-        return render(request, "clientes/edit.html", {"cliente": cliente})
+        return render(request, "clientes/edit.html", {"cliente": cliente, "erros": {}})
 
     def post(self, request, pk):
         cliente = get_object_or_404(Cliente, pk=pk)
-        cliente.nome = request.POST.get("nome", cliente.nome)
-        cliente.cnpj = request.POST.get("cnpj", cliente.cnpj)
-        cliente.email = request.POST.get("email", cliente.email)
-        cliente.telefone = request.POST.get("telefone", "")
-        cliente.endereco = request.POST.get("endereco", "")
-        cliente.cep = request.POST.get("cep", "")
+        dados, erros = _validar_cliente_edit(request.POST, request.FILES, cliente)
+
+        if erros:
+            ctx = {"cliente": cliente, "erros": erros}
+            if is_htmx(request):
+                return render(request, "clientes/_form_errors.html", ctx)
+            return render(request, "clientes/edit.html", ctx)
+
+        cliente.nome = dados["nome"]
+        cliente.cnpj = dados["cnpj"]
+        cliente.email = dados["email"]
+        cliente.telefone = dados["telefone"]
+        cliente.endereco = dados["endereco"]
+        cliente.cep = dados["cep"]
         cliente.ativo = request.POST.get("ativo") == "on"
+        if "arquivo" in dados:
+            cliente.arquivo = dados["arquivo"]
         cliente.save()
 
         if is_htmx(request):

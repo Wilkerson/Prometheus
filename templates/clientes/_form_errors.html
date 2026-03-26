@@ -1,0 +1,8 @@
+<div class="px-4 py-3 rounded-lg bg-red-50 text-red-800 border border-red-200 text-sm">
+  <p class="font-medium mb-2">Corrija os erros abaixo:</p>
+  <ul class="list-disc list-inside space-y-1">
+    {% for field, msg in erros.items %}
+    <li>{{ msg }}</li>
+    {% endfor %}
+  </ul>
+</div>

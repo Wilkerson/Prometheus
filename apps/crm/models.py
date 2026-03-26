@@ -67,13 +67,14 @@ class Cliente(models.Model):
         blank=True,
         related_name="clientes_operados",
     )
-    nome = models.CharField(max_length=200)
+    nome = models.CharField("Nome / Razao Social", max_length=200)
     cnpj = models.CharField("CNPJ", max_length=18, unique=True)
-    email = models.EmailField()
-    telefone = models.CharField(max_length=20, blank=True)
-    endereco = models.CharField("Endereco", max_length=300, blank=True)
-    cep = models.CharField("CEP", max_length=9, blank=True)
+    email = models.EmailField("Email")
+    telefone = models.CharField("Telefone", max_length=20)
+    endereco = models.CharField("Endereco", max_length=300)
+    cep = models.CharField("CEP", max_length=9)
     produto_interesse = models.CharField(
+        "Produto de interesse",
         max_length=30,
         choices=Produto.choices,
     )
@@ -85,8 +86,6 @@ class Cliente(models.Model):
     arquivo = models.FileField(
         "Produtos ou Servicos",
         upload_to=upload_cliente_path,
-        blank=True,
-        null=True,
     )
     ativo = models.BooleanField(default=True)
     criado_em = models.DateTimeField(auto_now_add=True)

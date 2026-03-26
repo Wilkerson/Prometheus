@@ -68,10 +68,45 @@ class ClienteSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "criado_em", "atualizado_em")
 
+    def validate_nome(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("O nome e obrigatorio.")
+        return value.strip()
+
     def validate_cnpj(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("O CNPJ e obrigatorio.")
         digits = "".join(c for c in value if c.isdigit())
         if len(digits) != 14:
             raise serializers.ValidationError("CNPJ deve conter 14 digitos.")
+        return value
+
+    def validate_email(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("O email e obrigatorio.")
+        return value
+
+    def validate_telefone(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("O telefone e obrigatorio.")
+        return value
+
+    def validate_endereco(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("O endereco e obrigatorio.")
+        return value.strip()
+
+    def validate_cep(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("O CEP e obrigatorio.")
+        digits = "".join(c for c in value if c.isdigit())
+        if len(digits) != 8:
+            raise serializers.ValidationError("CEP deve conter 8 digitos.")
+        return value
+
+    def validate_produto_interesse(self, value):
+        if not value:
+            raise serializers.ValidationError("O produto de interesse e obrigatorio.")
         return value
 
 
@@ -108,8 +143,10 @@ class ClienteStatusSerializer(serializers.Serializer):
         return value
 
 
-class ClienteCreateParceiroSerializer(serializers.ModelSerializer):
+class ClienteCreateParceiroSerializer(ClienteSerializer):
+    """Herda validacoes do ClienteSerializer. Parceiro nao envia parceiro/operador/status."""
+
     class Meta:
         model = Cliente
-        fields = ("id", "nome", "cnpj", "email", "telefone", "endereco", "cep", "produto_interesse", "status", "criado_em")
+        fields = ("id", "nome", "cnpj", "email", "telefone", "endereco", "cep", "produto_interesse", "arquivo", "status", "criado_em")
         read_only_fields = ("id", "status", "criado_em")

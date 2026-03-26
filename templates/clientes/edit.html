@@ -10,35 +10,55 @@
 {% block content %}
 <div class="max-w-2xl">
   <div class="card">
-    <form method="post" hx-post="{% url 'web:cliente-edit' cliente.pk %}" hx-target="#form-result">
+    <form method="post" enctype="multipart/form-data"
+          hx-post="{% url 'web:cliente-edit' cliente.pk %}" hx-target="#form-result" hx-encoding="multipart/form-data">
       {% csrf_token %}
+
+      {% if erros %}
+      <div class="mb-4">
+        {% include "clientes/_form_errors.html" %}
+      </div>
+      {% endif %}
+
       <div class="space-y-4">
         <div>
-          <label for="nome" class="label">Nome / Razao Social</label>
-          <input type="text" name="nome" id="nome" required class="input" value="{{ cliente.nome }}">
+          <label for="nome" class="label">Nome / Razao Social <span class="text-red-500">*</span></label>
+          <input type="text" name="nome" id="nome" required class="input {% if erros.nome %}border-red-500{% endif %}"
+                 value="{{ cliente.nome }}">
+          {% if erros.nome %}<p class="text-xs text-red-600 mt-1">{{ erros.nome }}</p>{% endif %}
         </div>
         <div>
-          <label for="cnpj" class="label">CNPJ</label>
-          <input type="text" name="cnpj" id="cnpj" required class="input" value="{{ cliente.cnpj }}">
+          <label for="cnpj" class="label">CNPJ <span class="text-red-500">*</span></label>
+          <input type="text" name="cnpj" id="cnpj" required class="input {% if erros.cnpj %}border-red-500{% endif %}"
+                 value="{{ cliente.cnpj }}">
+          {% if erros.cnpj %}<p class="text-xs text-red-600 mt-1">{{ erros.cnpj }}</p>{% endif %}
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="email" class="label">Email</label>
-            <input type="email" name="email" id="email" required class="input" value="{{ cliente.email }}">
+            <label for="email" class="label">Email <span class="text-red-500">*</span></label>
+            <input type="email" name="email" id="email" required class="input {% if erros.email %}border-red-500{% endif %}"
+                   value="{{ cliente.email }}">
+            {% if erros.email %}<p class="text-xs text-red-600 mt-1">{{ erros.email }}</p>{% endif %}
           </div>
           <div>
-            <label for="telefone" class="label">Telefone</label>
-            <input type="text" name="telefone" id="telefone" class="input" value="{{ cliente.telefone }}">
+            <label for="telefone" class="label">Telefone <span class="text-red-500">*</span></label>
+            <input type="text" name="telefone" id="telefone" required class="input {% if erros.telefone %}border-red-500{% endif %}"
+                   value="{{ cliente.telefone }}">
+            {% if erros.telefone %}<p class="text-xs text-red-600 mt-1">{{ erros.telefone }}</p>{% endif %}
           </div>
         </div>
         <div>
-          <label for="endereco" class="label">Endereco</label>
-          <input type="text" name="endereco" id="endereco" class="input" value="{{ cliente.endereco }}">
+          <label for="endereco" class="label">Endereco <span class="text-red-500">*</span></label>
+          <input type="text" name="endereco" id="endereco" required class="input {% if erros.endereco %}border-red-500{% endif %}"
+                 value="{{ cliente.endereco }}">
+          {% if erros.endereco %}<p class="text-xs text-red-600 mt-1">{{ erros.endereco }}</p>{% endif %}
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="cep" class="label">CEP</label>
-            <input type="text" name="cep" id="cep" class="input" value="{{ cliente.cep }}">
+            <label for="cep" class="label">CEP <span class="text-red-500">*</span></label>
+            <input type="text" name="cep" id="cep" required class="input {% if erros.cep %}border-red-500{% endif %}"
+                   value="{{ cliente.cep }}">
+            {% if erros.cep %}<p class="text-xs text-red-600 mt-1">{{ erros.cep }}</p>{% endif %}
           </div>
           <div>
             <label class="label">Status</label>
@@ -48,6 +68,16 @@
               <span class="text-sm text-gray-700">Cliente ativo</span>
             </label>
           </div>
+        </div>
+        <div>
+          <label for="arquivo" class="label">Produtos ou Servicos (arquivo) {% if not cliente.arquivo %}<span class="text-red-500">*</span>{% endif %}</label>
+          {% if cliente.arquivo %}
+          <p class="text-xs text-gray-500 mb-2">Arquivo atual: <a href="{{ cliente.arquivo.url }}" class="text-primary-600 underline" target="_blank">{{ cliente.arquivo.name }}</a></p>
+          <p class="text-xs text-gray-400 mb-1">Envie um novo arquivo para substituir:</p>
+          {% endif %}
+          <input type="file" name="arquivo" id="arquivo" {% if not cliente.arquivo %}required{% endif %}
+                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 {% if erros.arquivo %}border border-red-500 rounded-lg{% endif %}">
+          {% if erros.arquivo %}<p class="text-xs text-red-600 mt-1">{{ erros.arquivo }}</p>{% endif %}
         </div>
       </div>
 
