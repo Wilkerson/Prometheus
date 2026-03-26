@@ -25,9 +25,22 @@
       </thead>
       <tbody class="divide-y divide-bdr">
         {% for token in tokens %}
-        <tr class="hover:bg-bg3">
-          <td class="py-3 font-medium text-t1">{{ token.nome }}</td>
-          <td class="py-3 text-t2 font-mono text-xs">{{ token.token|truncatechars:20 }}</td>
+        <tr class="hover:bg-bg3" x-data="{ mostrar: false }">
+          <td class="py-3 font-medium">
+            <button @click="mostrar = !mostrar" class="text-t1 hover:text-ruch-accent cursor-pointer text-left">
+              {{ token.nome }}
+              <span class="text-[10px] text-t3 ml-1" x-text="mostrar ? '(ocultar)' : '(ver chave)'"></span>
+            </button>
+          </td>
+          <td class="py-3 font-mono text-xs" x-data="{ copiado: false }">
+            <span x-show="!mostrar" class="text-t3">{{ token.token|truncatechars:20 }}</span>
+            <span x-show="mostrar" class="text-t2 select-all break-all">{{ token.token }}</span>
+            <button x-show="mostrar" @click="navigator.clipboard.writeText('{{ token.token }}'); copiado = true; setTimeout(() => copiado = false, 2000)"
+                    class="ml-2 text-[11px] text-ruch-accent hover:text-t1 cursor-pointer">
+              <span x-show="!copiado">Copiar</span>
+              <span x-show="copiado" class="text-emerald-400">Copiado!</span>
+            </button>
+          </td>
           <td class="py-3">
             {% if token.ativo %}
             <span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
