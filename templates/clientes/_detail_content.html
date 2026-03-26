@@ -28,8 +28,14 @@
           <dd class="font-medium text-t1">{{ cliente.endereco }}</dd>
         </div>
         <div>
-          <dt class="text-t3">Produto</dt>
-          <dd class="font-medium text-t1">{{ cliente.get_produto_interesse_display }}</dd>
+          <dt class="text-t3">Planos</dt>
+          <dd class="font-medium text-t1">
+            {% for plano in cliente.planos.all %}
+              {{ plano.nome }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+              Nenhum
+            {% endfor %}
+          </dd>
         </div>
         <div>
           <dt class="text-t3">Parceiro</dt>

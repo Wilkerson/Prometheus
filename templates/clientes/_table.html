@@ -6,7 +6,7 @@
         <th class="pb-3 font-medium">Nome</th>
         <th class="pb-3 font-medium">CNPJ</th>
         <th class="pb-3 font-medium">Parceiro</th>
-        <th class="pb-3 font-medium">Produto</th>
+        <th class="pb-3 font-medium">Planos</th>
         <th class="pb-3 font-medium">Status</th>
         <th class="pb-3 font-medium">Data</th>
       </tr>
@@ -17,7 +17,7 @@
         <td class="py-3 font-medium text-t1">{{ cliente.nome }}</td>
         <td class="py-3 text-t2">{{ cliente.cnpj }}</td>
         <td class="py-3 text-t2">{{ cliente.parceiro.nome_entidade }}</td>
-        <td class="py-3 text-t2">{{ cliente.get_produto_interesse_display }}</td>
+        <td class="py-3 text-t2">{{ cliente.planos.count }} plano{{ cliente.planos.count|pluralize }}</td>
         <td class="py-3"><span class="badge-{{ cliente.status }}">{{ cliente.get_status_display }}</span></td>
         <td class="py-3 text-t3">{{ cliente.criado_em|date:"d/m/Y H:i" }}</td>
       </tr>

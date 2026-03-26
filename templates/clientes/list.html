@@ -35,19 +35,6 @@
         {% endfor %}
       </select>
     </div>
-    <div>
-      <label class="label">Produto</label>
-      <select name="produto" class="input"
-              hx-get="{% url 'web:clientes' %}"
-              hx-target="#clientes-table"
-              hx-include="[name='q'],[name='status']"
-              hx-push-url="true">
-        <option value="">Todos</option>
-        {% for value, label in produto_choices %}
-        <option value="{{ value }}" {% if current_produto == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </div>
   </div>
 </div>
 

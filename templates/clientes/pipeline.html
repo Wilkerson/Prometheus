@@ -18,7 +18,7 @@
            class="block card !p-3 hover:border-bdr2 transition-all no-underline">
           <div class="text-[13px] font-medium text-t1 truncate">{{ cliente.nome }}</div>
           <div class="text-[11px] text-t2 mt-1">{{ cliente.parceiro.nome_entidade }}</div>
-          <div class="text-[11px] text-t3 mt-1">{{ cliente.get_produto_interesse_display }}</div>
+          <div class="text-[11px] text-t3 mt-1">{{ cliente.planos.count }} plano{{ cliente.planos.count|pluralize }}</div>
           <div class="text-[11px] text-t3 mt-0.5">{{ cliente.criado_em|date:"d/m/Y" }}</div>
         </a>
         {% empty %}

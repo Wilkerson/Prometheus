@@ -107,7 +107,7 @@
       <thead>
         <tr class="text-left">
           <th class="text-[11px] font-semibold text-t3 uppercase tracking-wider pb-2.5 border-b border-bdr">Nome</th>
-          <th class="text-[11px] font-semibold text-t3 uppercase tracking-wider pb-2.5 border-b border-bdr">Produto</th>
+          <th class="text-[11px] font-semibold text-t3 uppercase tracking-wider pb-2.5 border-b border-bdr">Planos</th>
           <th class="text-[11px] font-semibold text-t3 uppercase tracking-wider pb-2.5 border-b border-bdr">Parceiro</th>
           <th class="text-[11px] font-semibold text-t3 uppercase tracking-wider pb-2.5 border-b border-bdr">Status</th>
           <th class="text-[11px] font-semibold text-t3 uppercase tracking-wider pb-2.5 border-b border-bdr">Data</th>
@@ -125,7 +125,7 @@
               </div>
             </div>
           </td>
-          <td class="py-2.5 border-b border-bdr text-t2">{{ cliente.get_produto_interesse_display }}</td>
+          <td class="py-2.5 border-b border-bdr text-t2">{{ cliente.planos.count }} plano{{ cliente.planos.count|pluralize }}</td>
           <td class="py-2.5 border-b border-bdr text-t2">{{ cliente.parceiro.nome_entidade }}</td>
           <td class="py-2.5 border-b border-bdr"><span class="badge-{{ cliente.status }}">{{ cliente.get_status_display }}</span></td>
           <td class="py-2.5 border-b border-bdr text-t3 text-[12px]">{{ cliente.criado_em|date:"d/m/Y" }}</td>
