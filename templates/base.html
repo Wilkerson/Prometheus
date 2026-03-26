@@ -4,11 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Tema — DEVE rodar inline antes de qualquer CSS/render
+    (function(){
+      var t = localStorage.getItem('theme');
+      document.documentElement.classList.add(t === 'light' ? 'light' : 'dark');
+    })();
+  </script>
   <title>{% block title %}Prometheus{% endblock %} — RUCH</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
-  <script src="{% static 'js/app.js' %}"></script>
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
   <style>
@@ -192,5 +198,6 @@
     {% block public_content %}{% endblock %}
   {% endif %}
 
+  <script src="{% static 'js/app.js' %}"></script>
 </body>
 </html>
