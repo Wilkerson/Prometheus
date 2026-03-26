@@ -10,8 +10,7 @@
 {% block content %}
 <div class="max-w-2xl">
   <div class="card">
-    <form method="post"
-          hx-post="{% url 'web:token-create' %}" hx-target="#form-result">
+    <form method="post">
       {% csrf_token %}
 
       {% if erros %}
@@ -30,8 +29,6 @@
 
         <p class="text-xs text-t3">O token sera gerado automaticamente apos a criacao.</p>
       </div>
-
-      <div id="form-result" class="mt-4"></div>
 
       <div class="flex gap-3 mt-6">
         <button type="submit" class="btn-primary">Criar Token</button>

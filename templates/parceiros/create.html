@@ -10,8 +10,7 @@
 {% block content %}
 <div class="max-w-2xl">
   <div class="card">
-    <form method="post"
-          hx-post="{% url 'web:parceiro-create' %}" hx-target="#form-result">
+    <form method="post">
       {% csrf_token %}
 
       {% if erros %}
@@ -49,8 +48,6 @@
           {% if erros.percentual_comissao %}<p class="text-xs text-red-600 mt-1">{{ erros.percentual_comissao }}</p>{% endif %}
         </div>
       </div>
-
-      <div id="form-result" class="mt-4"></div>
 
       <div class="flex gap-3 mt-6">
         <button type="submit" class="btn-primary">Criar Parceiro</button>
