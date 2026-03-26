@@ -859,7 +859,6 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
         user = Usuario.objects.create_user(
             username=username, email=email, password=password,
             first_name=first_name, last_name=last_name,
-            is_staff="is_staff" in request.POST,
         )
         group_ids = request.POST.getlist("groups")
         if group_ids:
@@ -886,7 +885,6 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
         usuario.last_name = request.POST.get("last_name", "").strip()
         usuario.email = request.POST.get("email", usuario.email).strip()
         usuario.is_active = "is_active" in request.POST
-        usuario.is_staff = "is_staff" in request.POST
         usuario.save()
 
         new_password = request.POST.get("new_password", "").strip()
