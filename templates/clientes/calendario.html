@@ -7,36 +7,36 @@
 <div class="card">
   <div class="flex items-center justify-between mb-6">
     <a href="?mes={{ prev_mes }}" class="btn-secondary text-xs">&larr; Anterior</a>
-    <h2 class="text-lg font-semibold text-gray-800 capitalize">{{ mes_nome }} {{ ano }}</h2>
+    <h2 class="text-[16px] font-bold text-t1 capitalize">{{ mes_nome }} {{ ano }}</h2>
     <a href="?mes={{ next_mes }}" class="btn-secondary text-xs">Proximo &rarr;</a>
   </div>
 
-  <p class="text-sm text-gray-500 mb-4">{{ total }} cliente{{ total|pluralize }} neste mes</p>
+  <p class="text-[13px] text-t3 mb-4">{{ total }} cliente{{ total|pluralize }} neste mes</p>
 
-  <div class="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
-    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Seg</div>
-    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Ter</div>
-    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Qua</div>
-    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Qui</div>
-    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Sex</div>
-    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Sab</div>
-    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Dom</div>
+  <div class="grid grid-cols-7 gap-px bg-bg4 rounded-lg overflow-hidden">
+    <div class="bg-bg3 py-2 text-center text-[11px] font-medium text-t3">Seg</div>
+    <div class="bg-bg3 py-2 text-center text-[11px] font-medium text-t3">Ter</div>
+    <div class="bg-bg3 py-2 text-center text-[11px] font-medium text-t3">Qua</div>
+    <div class="bg-bg3 py-2 text-center text-[11px] font-medium text-t3">Qui</div>
+    <div class="bg-bg3 py-2 text-center text-[11px] font-medium text-t3">Sex</div>
+    <div class="bg-bg3 py-2 text-center text-[11px] font-medium text-t3">Sab</div>
+    <div class="bg-bg3 py-2 text-center text-[11px] font-medium text-t3">Dom</div>
 
     {% for semana in semanas %}
       {% for dia in semana %}
-      <div class="bg-white min-h-[80px] p-1.5">
+      <div class="bg-bg2 min-h-[80px] p-1.5">
         {% if dia != 0 %}
-          <div class="text-xs font-medium text-gray-500 mb-1">{{ dia }}</div>
+          <div class="text-[11px] font-medium text-t3 mb-1">{{ dia }}</div>
           {% for d, clist in dias.items %}
             {% if d == dia %}
               {% for cliente in clist %}
-              <div class="text-xs truncate px-1 py-0.5 rounded mb-0.5
-                          {% if cliente.status == 'recebida' %}bg-blue-100 text-blue-700
-                          {% elif cliente.status == 'em_analise' %}bg-yellow-100 text-yellow-700
-                          {% elif cliente.status == 'em_processamento' %}bg-purple-100 text-purple-700
-                          {% elif cliente.status == 'concluida' %}bg-emerald-100 text-emerald-700
-                          {% else %}bg-red-100 text-red-700{% endif %}">
-                <a href="{% url 'web:cliente-detail' cliente.pk %}">{{ cliente.nome }}</a>
+              <div class="text-[11px] truncate px-1 py-0.5 rounded mb-0.5
+                          {% if cliente.status == 'recebida' %}bg-blue-500/15 text-blue-400
+                          {% elif cliente.status == 'em_analise' %}bg-amber-500/15 text-amber-400
+                          {% elif cliente.status == 'em_processamento' %}bg-teal-500/15 text-teal-400
+                          {% elif cliente.status == 'concluida' %}bg-emerald-500/15 text-emerald-400
+                          {% else %}bg-red-500/15 text-red-400{% endif %}">
+                <a href="{% url 'web:cliente-detail' cliente.pk %}" class="no-underline text-inherit">{{ cliente.nome }}</a>
               </div>
               {% endfor %}
             {% endif %}
