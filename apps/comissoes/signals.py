@@ -3,36 +3,44 @@ from decimal import Decimal
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from apps.crm.models import ProdutoContratado
+from apps.crm.models import Cliente
 
 from .models import Comissao
 
 
-@receiver(post_save, sender=ProdutoContratado)
-def gerar_comissao(sender, instance, created, **kwargs):
+@receiver(post_save, sender=Cliente)
+def gerar_comissao_ao_concluir(sender, instance, **kwargs):
     """
-    Ao criar um ProdutoContratado, gera automaticamente a comissao
-    para o parceiro do cliente.
+    Ao salvar um Cliente com status 'concluida', gera comissao
+    automaticamente baseada no valor total dos planos contratados.
     """
-    if not created:
+    if instance.status != Cliente.Status.CONCLUIDA:
         return
 
-    cliente = instance.cliente
-    parceiro = cliente.parceiro
+    parceiro = instance.parceiro
 
     if not parceiro.ativo:
         return
 
-    if Comissao.objects.filter(parceiro=parceiro, venda=instance).exists():
+    # Evita duplicacao
+    if Comissao.objects.filter(parceiro=parceiro, cliente=instance).exists():
+        return
+
+    # Valor total dos planos do cliente
+    valor_total = Decimal("0")
+    for plano in instance.planos.prefetch_related("itens").all():
+        valor_total += plano.valor_total
+
+    if valor_total <= 0:
         return
 
     percentual = parceiro.percentual_comissao
-    valor_comissao = (instance.valor * percentual / Decimal("100")).quantize(Decimal("0.01"))
+    valor_comissao = (valor_total * percentual / Decimal("100")).quantize(Decimal("0.01"))
 
     Comissao.objects.create(
         parceiro=parceiro,
-        venda=instance,
-        valor_venda=instance.valor,
+        cliente=instance,
+        valor_venda=valor_total,
         percentual=percentual,
         valor_comissao=valor_comissao,
     )

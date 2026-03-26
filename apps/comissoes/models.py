@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.crm.models import EntidadeParceira, ProdutoContratado
+from apps.crm.models import Cliente, EntidadeParceira
 
 
 class Comissao(models.Model):
@@ -13,8 +13,8 @@ class Comissao(models.Model):
         on_delete=models.CASCADE,
         related_name="comissoes",
     )
-    venda = models.ForeignKey(
-        ProdutoContratado,
+    cliente = models.ForeignKey(
+        Cliente,
         on_delete=models.CASCADE,
         related_name="comissoes",
     )
@@ -29,9 +29,9 @@ class Comissao(models.Model):
     gerado_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Comissão"
-        verbose_name_plural = "Comissões"
+        verbose_name = "Comissao"
+        verbose_name_plural = "Comissoes"
         ordering = ["-gerado_em"]
 
     def __str__(self):
-        return f"Comissão {self.parceiro} — R${self.valor_comissao}"
+        return f"Comissao {self.parceiro} — R${self.valor_comissao}"

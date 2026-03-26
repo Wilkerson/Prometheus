@@ -25,7 +25,7 @@ class ParceiroClienteViewSet(
     """
 
     permission_classes = [IsAuthenticated, IsParceiro]
-    filterset_fields = ["status", "produto_interesse"]
+    filterset_fields = ["status"]
     search_fields = ["nome", "cnpj", "email"]
     ordering_fields = ["criado_em", "status"]
 

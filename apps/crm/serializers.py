@@ -1,6 +1,9 @@
 from rest_framework import serializers
 
-from .models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, ProdutoContratado
+from .models import (
+    Cliente, ClienteHistorico, Endereco, EntidadeParceira,
+    Plano, PlanoProduto, Produto,
+)
 
 
 class EntidadeParceiraSerializer(serializers.ModelSerializer):
@@ -75,37 +78,68 @@ class ClienteHistoricoSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "criado_em")
 
 
-class ProdutoContratadoSerializer(serializers.ModelSerializer):
-    produto_display = serializers.CharField(source="get_produto_display", read_only=True)
+# =========================================================================
+# Produtos e Planos
+# =========================================================================
+class ProdutoSerializer(serializers.ModelSerializer):
+    tier_display = serializers.CharField(source="get_tier_display", read_only=True)
 
     class Meta:
-        model = ProdutoContratado
-        fields = ("id", "cliente", "produto", "produto_display", "valor", "status", "contratado_em")
-        read_only_fields = ("id", "contratado_em")
-
-    def validate_valor(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("O valor deve ser maior que zero.")
-        return value
+        model = Produto
+        fields = ("id", "nome", "descricao", "tier", "tier_display", "ativo", "criado_em")
+        read_only_fields = ("id", "criado_em")
 
 
+class PlanoProdutoSerializer(serializers.ModelSerializer):
+    produto_nome = serializers.CharField(source="produto.nome", read_only=True)
+    produto_tier = serializers.CharField(source="produto.get_tier_display", read_only=True)
+
+    class Meta:
+        model = PlanoProduto
+        fields = ("id", "produto", "produto_nome", "produto_tier", "preco")
+        read_only_fields = ("id",)
+
+
+class PlanoSerializer(serializers.ModelSerializer):
+    parceiro_nome = serializers.CharField(source="parceiro.nome_entidade", read_only=True)
+    itens = PlanoProdutoSerializer(many=True, read_only=True)
+    valor_total = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Plano
+        fields = ("id", "nome", "parceiro", "parceiro_nome", "itens", "valor_total", "ativo", "criado_em")
+        read_only_fields = ("id", "criado_em")
+
+
+class PlanoResumoSerializer(serializers.ModelSerializer):
+    """Serializer enxuto para listagem/selecao."""
+    valor_total = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Plano
+        fields = ("id", "nome", "valor_total", "ativo")
+        read_only_fields = ("id",)
+
+
+# =========================================================================
+# Cliente
+# =========================================================================
 class ClienteSerializer(serializers.ModelSerializer):
     parceiro_nome = serializers.CharField(source="parceiro.nome_entidade", read_only=True)
     status_display = serializers.CharField(source="get_status_display", read_only=True)
-    produto_display = serializers.CharField(source="get_produto_interesse_display", read_only=True)
     endereco = EnderecoSerializer()
+    planos_detail = PlanoResumoSerializer(source="planos", many=True, read_only=True)
     historico = ClienteHistoricoSerializer(many=True, read_only=True)
-    produtos = ProdutoContratadoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Cliente
         fields = (
             "id", "parceiro", "parceiro_nome", "operador",
             "nome", "cnpj", "email", "telefone", "endereco",
-            "produto_interesse", "produto_display",
+            "planos", "planos_detail",
             "status", "status_display", "arquivo",
             "ativo", "criado_em", "atualizado_em",
-            "historico", "produtos",
+            "historico",
         )
         read_only_fields = ("id", "criado_em", "atualizado_em")
 
@@ -127,18 +161,18 @@ class ClienteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("O telefone e obrigatorio.")
         return value
 
-    def validate_produto_interesse(self, value):
-        if not value:
-            raise serializers.ValidationError("O produto de interesse e obrigatorio.")
-        return value
-
     def create(self, validated_data):
         endereco_data = validated_data.pop("endereco")
+        planos = validated_data.pop("planos", [])
         endereco = Endereco.objects.create(**endereco_data)
-        return Cliente.objects.create(endereco=endereco, **validated_data)
+        cliente = Cliente.objects.create(endereco=endereco, **validated_data)
+        if planos:
+            cliente.planos.set(planos)
+        return cliente
 
     def update(self, instance, validated_data):
         endereco_data = validated_data.pop("endereco", None)
+        planos = validated_data.pop("planos", None)
         if endereco_data:
             for attr, val in endereco_data.items():
                 setattr(instance.endereco, attr, val)
@@ -146,20 +180,20 @@ class ClienteSerializer(serializers.ModelSerializer):
         for attr, val in validated_data.items():
             setattr(instance, attr, val)
         instance.save()
+        if planos is not None:
+            instance.planos.set(planos)
         return instance
 
 
 class ClienteListSerializer(serializers.ModelSerializer):
     parceiro_nome = serializers.CharField(source="parceiro.nome_entidade", read_only=True)
     status_display = serializers.CharField(source="get_status_display", read_only=True)
-    produto_display = serializers.CharField(source="get_produto_interesse_display", read_only=True)
 
     class Meta:
         model = Cliente
         fields = (
             "id", "parceiro", "parceiro_nome", "operador",
             "nome", "cnpj", "email", "telefone",
-            "produto_interesse", "produto_display",
             "status", "status_display",
             "criado_em", "atualizado_em",
         )
@@ -185,5 +219,5 @@ class ClienteStatusSerializer(serializers.Serializer):
 class ClienteCreateParceiroSerializer(ClienteSerializer):
     class Meta:
         model = Cliente
-        fields = ("id", "nome", "cnpj", "email", "telefone", "endereco", "produto_interesse", "arquivo", "status", "criado_em")
+        fields = ("id", "nome", "cnpj", "email", "telefone", "endereco", "planos", "arquivo", "status", "criado_em")
         read_only_fields = ("id", "status", "criado_em")

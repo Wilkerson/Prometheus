@@ -224,10 +224,20 @@ ENDERECO
   id, cep, logradouro, numero, complemento (opcional), bairro, cidade, uf
   (CEP auto-preenche logradouro/bairro/cidade/uf via ViaCEP)
 
+PRODUTO (catalogo global — gerenciado pela RUCH)
+  id, nome, descricao, tier [basico|intermediario|avancado], ativo, criado_em
+
+PLANO (vinculado a um parceiro, com precos personalizados)
+  id, nome, parceiro_id (FK), ativo, criado_em
+  → M2M com Produto via PLANO_PRODUTO
+
+PLANO_PRODUTO (tabela intermediaria)
+  id, plano_id (FK), produto_id (FK), preco
+
 CLIENTE (todos os campos obrigatorios, exceto operador e complemento)
   id, parceiro_id (FK), operador_id (FK nullable), nome, cnpj (unique),
   email, telefone, endereco_id (FK OneToOne -> Endereco),
-  produto_interesse [agentes_ia|saas|crm|erp|sites|consultoria],
+  planos (M2M -> Plano),
   status [recebida|em_analise|em_processamento|concluida|perdida],
   arquivo ("Produtos ou Servicos"), ativo, criado_em, atualizado_em
 
@@ -235,11 +245,8 @@ CLIENTE_HISTORICO
   id, cliente_id (FK), status_anterior, status_novo, usuario_id (FK nullable),
   observacao, criado_em
 
-PRODUTO_CONTRATADO
-  id, cliente_id (FK), produto, valor, status [ativo|suspenso|cancelado], contratado_em
-
-COMISSAO
-  id, parceiro_id (FK), venda_id (FK), valor_venda,
+COMISSAO (gerada automaticamente ao concluir cliente — soma dos planos)
+  id, parceiro_id (FK), cliente_id (FK), valor_venda,
   percentual, valor_comissao, status [pendente|pago], gerado_em
 
 TOKEN_INTEGRACAO
@@ -392,7 +399,10 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 38. [x] Implementar auto-preenchimento de endereco via ViaCEP (Alpine.js no front)
 39. [x] Redesenhar area privada com dark theme (layout 3 colunas: sidebar + main + right panel)
 40. [x] Implementar toggle de tema claro/escuro com persistencia no localStorage
-41. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+41. [x] Criar models Produto, Plano e PlanoProduto (catalogo + precos por parceiro)
+42. [x] Refatorar Cliente: remover produto_interesse e ProdutoContratado, adicionar M2M com Plano
+43. [x] Refatorar comissao: gerada ao concluir cliente (soma dos planos), nao por ProdutoContratado
+44. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.

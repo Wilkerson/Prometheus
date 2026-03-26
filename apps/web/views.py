@@ -12,7 +12,7 @@ from django.views.generic import ListView, TemplateView
 
 from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
-from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira
+from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Plano
 
 from .mixins import HtmxMixin, is_htmx
 
@@ -137,10 +137,6 @@ class ClienteListView(PermissionRequiredMixin, HtmxMixin, ListView):
         if status_filter:
             qs = qs.filter(status=status_filter)
 
-        produto_filter = self.request.GET.get("produto")
-        if produto_filter:
-            qs = qs.filter(produto_interesse=produto_filter)
-
         search = self.request.GET.get("q")
         if search:
             qs = qs.filter(Q(nome__icontains=search) | Q(cnpj__icontains=search) | Q(email__icontains=search))
@@ -150,9 +146,7 @@ class ClienteListView(PermissionRequiredMixin, HtmxMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["status_choices"] = Cliente.Status.choices
-        ctx["produto_choices"] = Cliente.Produto.choices
         ctx["current_status"] = self.request.GET.get("status", "")
-        ctx["current_produto"] = self.request.GET.get("produto", "")
         ctx["current_search"] = self.request.GET.get("q", "")
         ctx["can_add"] = self.request.user.has_perm("crm.add_cliente")
         return ctx
@@ -233,10 +227,10 @@ def _validar_cliente_form(post_data, files=None):
         erros["telefone"] = "O telefone e obrigatorio."
     dados["telefone"] = telefone
 
-    produto = post_data.get("produto_interesse", "")
-    if not produto:
-        erros["produto_interesse"] = "O produto de interesse e obrigatorio."
-    dados["produto_interesse"] = produto
+    planos_ids = post_data.getlist("planos")
+    if not planos_ids:
+        erros["planos"] = "Selecione ao menos um plano."
+    dados["planos_ids"] = planos_ids
 
     arquivo = files.get("arquivo") if files else None
     if not arquivo:
@@ -249,12 +243,19 @@ def _validar_cliente_form(post_data, files=None):
     return dados, endereco_dados, erros
 
 
+def _get_planos_for_user(user):
+    """Retorna planos disponiveis para o usuario (parceiro ve os seus)."""
+    if hasattr(user, "parceiro"):
+        return Plano.objects.filter(parceiro=user.parceiro, ativo=True).prefetch_related("itens__produto")
+    return Plano.objects.filter(ativo=True).prefetch_related("itens__produto")
+
+
 class ClienteCreateView(PermissionRequiredMixin, View):
     permission_required = "crm.add_cliente"
 
     def get(self, request):
         return render(request, "clientes/create.html", {
-            "produto_choices": Cliente.Produto.choices,
+            "planos_disponiveis": _get_planos_for_user(request.user),
             "uf_choices": Endereco.UF_CHOICES,
             "erros": {},
             "dados": {},
@@ -265,7 +266,7 @@ class ClienteCreateView(PermissionRequiredMixin, View):
 
         if erros:
             ctx = {
-                "produto_choices": Cliente.Produto.choices,
+                "planos_disponiveis": _get_planos_for_user(request.user),
                 "uf_choices": Endereco.UF_CHOICES,
                 "erros": erros,
                 "dados": {**dados, **endereco_dados},
@@ -275,6 +276,7 @@ class ClienteCreateView(PermissionRequiredMixin, View):
             return render(request, "clientes/create.html", ctx)
 
         user = request.user
+        planos_ids = dados.pop("planos_ids", [])
         endereco = Endereco.objects.create(**endereco_dados)
         dados["endereco"] = endereco
 
@@ -286,6 +288,8 @@ class ClienteCreateView(PermissionRequiredMixin, View):
                 dados["parceiro"] = get_object_or_404(EntidadeParceira, id=parceiro_id)
 
         cliente = Cliente.objects.create(**dados)
+        if planos_ids:
+            cliente.planos.set(planos_ids)
 
         if is_htmx(request):
             return render(request, "clientes/_create_success.html", {"cliente": cliente})

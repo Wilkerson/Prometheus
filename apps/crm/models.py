@@ -59,6 +59,92 @@ class Endereco(models.Model):
         return ", ".join(partes)
 
 
+# =========================================================================
+# Produtos e Planos
+# =========================================================================
+class Produto(models.Model):
+    class Tier(models.TextChoices):
+        BASICO = "basico", "Basico"
+        INTERMEDIARIO = "intermediario", "Intermediario"
+        AVANCADO = "avancado", "Avancado"
+
+    nome = models.CharField("Nome", max_length=200)
+    descricao = models.TextField("Descricao")
+    tier = models.CharField(
+        "Tier",
+        max_length=20,
+        choices=Tier.choices,
+        default=Tier.BASICO,
+    )
+    ativo = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Produto"
+        verbose_name_plural = "Produtos"
+        ordering = ["nome"]
+
+    def __str__(self):
+        return f"{self.nome} ({self.get_tier_display()})"
+
+
+class Plano(models.Model):
+    """Plano vinculado a um parceiro, com produtos e precos personalizados."""
+
+    nome = models.CharField("Nome do plano", max_length=200)
+    parceiro = models.ForeignKey(
+        EntidadeParceira,
+        on_delete=models.CASCADE,
+        related_name="planos",
+    )
+    produtos = models.ManyToManyField(
+        Produto,
+        through="PlanoProduto",
+        related_name="planos",
+    )
+    ativo = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Plano"
+        verbose_name_plural = "Planos"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.nome} — {self.parceiro.nome_entidade}"
+
+    @property
+    def valor_total(self):
+        return self.itens.aggregate(total=models.Sum("preco"))["total"] or 0
+
+
+class PlanoProduto(models.Model):
+    """Tabela intermediaria: produto dentro de um plano com preco personalizado."""
+
+    plano = models.ForeignKey(
+        Plano,
+        on_delete=models.CASCADE,
+        related_name="itens",
+    )
+    produto = models.ForeignKey(
+        Produto,
+        on_delete=models.CASCADE,
+        related_name="plano_itens",
+    )
+    preco = models.DecimalField("Preco", max_digits=12, decimal_places=2)
+
+    class Meta:
+        verbose_name = "Produto do Plano"
+        verbose_name_plural = "Produtos do Plano"
+        unique_together = ("plano", "produto")
+
+    def __str__(self):
+        return f"{self.produto.nome} — R${self.preco}"
+
+
+# =========================================================================
+# Cliente
+# =========================================================================
 def upload_cliente_path(instance, filename):
     return f"clientes/{instance.cnpj}/{filename}"
 
@@ -78,14 +164,6 @@ class Cliente(models.Model):
         Status.CONCLUIDA: (),
         Status.PERDIDA: (),
     }
-
-    class Produto(models.TextChoices):
-        AGENTES_IA = "agentes_ia", "Agentes de IA"
-        SAAS = "saas", "SaaS"
-        CRM = "crm", "CRM"
-        ERP = "erp", "ERP"
-        SITES = "sites", "Sites"
-        CONSULTORIA = "consultoria", "Consultoria"
 
     parceiro = models.ForeignKey(
         EntidadeParceira,
@@ -109,10 +187,10 @@ class Cliente(models.Model):
         related_name="cliente",
         verbose_name="Endereco",
     )
-    produto_interesse = models.CharField(
-        "Produto de interesse",
-        max_length=30,
-        choices=Produto.choices,
+    planos = models.ManyToManyField(
+        Plano,
+        related_name="clientes",
+        verbose_name="Planos contratados",
     )
     status = models.CharField(
         max_length=20,
@@ -165,35 +243,3 @@ class ClienteHistorico(models.Model):
 
     def __str__(self):
         return f"{self.cliente.nome}: {self.status_anterior} -> {self.status_novo}"
-
-
-class ProdutoContratado(models.Model):
-    class Status(models.TextChoices):
-        ATIVO = "ativo", "Ativo"
-        SUSPENSO = "suspenso", "Suspenso"
-        CANCELADO = "cancelado", "Cancelado"
-
-    cliente = models.ForeignKey(
-        Cliente,
-        on_delete=models.CASCADE,
-        related_name="produtos",
-    )
-    produto = models.CharField(
-        max_length=30,
-        choices=Cliente.Produto.choices,
-    )
-    valor = models.DecimalField(max_digits=12, decimal_places=2)
-    status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.ATIVO,
-    )
-    contratado_em = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Produto Contratado"
-        verbose_name_plural = "Produtos Contratados"
-        ordering = ["-contratado_em"]
-
-    def __str__(self):
-        return f"{self.get_produto_display()} — {self.cliente.nome}"

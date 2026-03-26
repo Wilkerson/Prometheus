@@ -5,14 +5,12 @@ from .views import (
     CalendarioClientesView,
     ClienteViewSet,
     EntidadeParceiraViewSet,
-    ProdutoContratadoViewSet,
     SLAClientesView,
 )
 
 router = DefaultRouter()
 router.register("parceiros", EntidadeParceiraViewSet)
 router.register("clientes", ClienteViewSet, basename="cliente")
-router.register("produtos-contratados", ProdutoContratadoViewSet)
 
 urlpatterns = [
     path("clientes/calendario/", CalendarioClientesView.as_view(), name="clientes-calendario"),

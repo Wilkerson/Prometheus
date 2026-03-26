@@ -9,14 +9,13 @@ from rest_framework.views import APIView
 from apps.accounts.models import Usuario
 from apps.accounts.permissions import IsOperador, IsOwnerParceiro, IsSuperAdmin
 
-from .models import Cliente, ClienteHistorico, EntidadeParceira, ProdutoContratado
+from .models import Cliente, ClienteHistorico, EntidadeParceira
 from .serializers import (
     ClienteHistoricoSerializer,
     ClienteListSerializer,
     ClienteSerializer,
     ClienteStatusSerializer,
     EntidadeParceiraSerializer,
-    ProdutoContratadoSerializer,
 )
 from .tasks import enviar_cliente_sistema_externo
 
@@ -37,7 +36,7 @@ class ClienteViewSet(viewsets.ModelViewSet):
     """
 
     permission_classes = [IsAuthenticated, IsOwnerParceiro]
-    filterset_fields = ["status", "produto_interesse", "parceiro"]
+    filterset_fields = ["status", "parceiro"]
     search_fields = ["nome", "cnpj", "email"]
     ordering_fields = ["criado_em", "status"]
 
@@ -133,7 +132,6 @@ class CalendarioClientesView(APIView):
                 "id": cliente.id,
                 "nome": cliente.nome,
                 "parceiro": cliente.parceiro.nome_entidade,
-                "produto_interesse": cliente.produto_interesse,
                 "status": cliente.status,
                 "status_display": cliente.get_status_display(),
                 "criado_em": cliente.criado_em.isoformat(),
@@ -182,8 +180,3 @@ class SLAClientesView(APIView):
         })
 
 
-class ProdutoContratadoViewSet(viewsets.ModelViewSet):
-    queryset = ProdutoContratado.objects.select_related("cliente")
-    serializer_class = ProdutoContratadoSerializer
-    permission_classes = [IsOperador]
-    filterset_fields = ["status", "produto"]
