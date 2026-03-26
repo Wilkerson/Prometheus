@@ -1,0 +1,25 @@
+{% comment %}
+Avatar component. Uso:
+  {% with avatar_user=user avatar_size="w-8 h-8" avatar_text="text-[11px]" %}
+    {% include "components/_avatar.html" %}
+  {% endwith %}
+{% endcomment %}
+
+{% if avatar_user.avatar_url %}
+  <img src="{{ avatar_user.avatar_url }}" alt="{{ avatar_user.iniciais }}"
+       class="{{ avatar_size|default:'w-8 h-8' }} rounded-full object-cover shrink-0">
+{% else %}
+  <div class="{{ avatar_size|default:'w-8 h-8' }} rounded-full bg-ruch-green flex items-center justify-center font-bold {{ avatar_text|default:'text-[11px]' }} text-white shrink-0"
+       x-data="{ gravatar: null, loaded: false }"
+       x-init="
+         const img = new Image();
+         img.onload = () => { gravatar = '{{ avatar_user.gravatar_url }}'; loaded = true; };
+         img.onerror = () => { loaded = true; };
+         img.src = '{{ avatar_user.gravatar_url }}';
+       ">
+    <img x-show="gravatar" :src="gravatar" alt="{{ avatar_user.iniciais }}"
+         class="{{ avatar_size|default:'w-8 h-8' }} rounded-full object-cover" style="display:none"
+         x-bind:style="gravatar ? 'display:block' : 'display:none'">
+    <span x-show="!gravatar">{{ avatar_user.iniciais }}</span>
+  </div>
+{% endif %}

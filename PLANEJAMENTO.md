@@ -418,7 +418,9 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 55. [x] Simplificar atribuicao de grupo na criacao/edicao de usuario (select unico)
 56. [x] Remover campo perfil do model Usuario — controle 100% por grupos/permissoes
 57. [x] Adicionar status falha_implantacao (Zypher NOK) + transicao retry para em_processamento
-58. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+58. [x] Validacao de formato de arquivo no upload de cliente (28 formatos aceitos)
+59. [x] Avatar do usuario: upload local, Gravatar automatico, iniciais como fallback
+60. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.

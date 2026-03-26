@@ -49,6 +49,9 @@ urlpatterns = [
     path("tokens/", views.TokenListView.as_view(), name="tokens"),
     path("tokens/novo/", views.TokenCreateView.as_view(), name="token-create"),
     path("tokens/<int:pk>/excluir/", views.TokenDeleteView.as_view(), name="token-delete"),
+    # Avatar
+    path("perfil/avatar/", views.AvatarUpdateView.as_view(), name="avatar-update"),
+    path("perfil/avatar/remover/", views.AvatarRemoveView.as_view(), name="avatar-remove"),
     # Grupos e permissoes
     path("grupos/", views.GrupoListView.as_view(), name="grupos"),
     path("grupos/novo/", views.GrupoCreateView.as_view(), name="grupo-create"),

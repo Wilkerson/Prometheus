@@ -33,9 +33,9 @@
 
       <!-- User -->
       <div class="flex items-center gap-2.5 mb-4 px-1">
-        <div class="w-8 h-8 rounded-full bg-ruch-green flex items-center justify-center font-bold text-[11px] text-white shrink-0">
-          {{ user.first_name.0 }}{{ user.last_name.0 }}
-        </div>
+        {% with avatar_user=user avatar_size="w-8 h-8" avatar_text="text-[11px]" %}
+          {% include "components/_avatar.html" %}
+        {% endwith %}
         <div class="text-[13px] font-semibold truncate">{{ user.get_full_name|default:user.username }}</div>
       </div>
 
@@ -189,16 +189,49 @@
       <div class="mb-6">
         <div class="text-[15px] font-bold mb-3">Minha conta</div>
         <div class="bg-bg3 rounded-[10px] p-3">
-          <div class="flex items-center gap-2.5 mb-2">
-            <div class="w-8 h-8 rounded-full bg-ruch-green flex items-center justify-center font-bold text-[11px] text-white">
-              {{ user.first_name.0 }}{{ user.last_name.0 }}
+          <div class="flex items-center gap-2.5 mb-3" x-data="{ editAvatar: false }">
+            <div class="relative">
+              {% with avatar_user=user avatar_size="w-10 h-10" avatar_text="text-[13px]" %}
+                {% include "components/_avatar.html" %}
+              {% endwith %}
+              <button @click="editAvatar = !editAvatar"
+                      class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-bg4 border border-bdr flex items-center justify-center text-[10px] text-t2 hover:text-t1 cursor-pointer">
+                &#9998;
+              </button>
             </div>
             <div>
               <div class="text-[12.5px] font-semibold">{{ user.get_full_name|default:user.username }}</div>
               <div class="text-[11px] text-t3">{{ user.grupo_nome }}</div>
             </div>
           </div>
-          <form method="post" action="{% url 'web:logout' %}" class="mt-2">
+
+          <!-- Upload avatar (toggle) -->
+          <div x-data="{ editAvatar: false }">
+            <button @click="editAvatar = !editAvatar" class="text-[11px] text-ruch-accent hover:text-t1 transition mb-2">
+              {% if user.avatar %}Alterar foto{% else %}Adicionar foto{% endif %}
+            </button>
+            <div x-show="editAvatar" x-transition class="space-y-2 mb-2">
+              <form method="post" action="{% url 'web:avatar-update' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="avatar" accept=".jpg,.jpeg,.png,.webp" required
+                       class="block w-full text-[11px] text-t3 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-medium file:bg-bg4 file:text-t2 hover:file:bg-bdr2">
+                <div class="flex gap-2 mt-2">
+                  <button type="submit" class="text-[11px] text-ruch-accent hover:text-t1">Salvar</button>
+                  {% if user.avatar %}
+                  <span class="text-t3">|</span>
+                  </form>
+                  <form method="post" action="{% url 'web:avatar-remove' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="text-[11px] text-red-400 hover:text-red-300">Remover</button>
+                  </form>
+                  {% else %}
+                  </form>
+                  {% endif %}
+                </div>
+            </div>
+          </div>
+
+          <form method="post" action="{% url 'web:logout' %}" class="mt-2 pt-2 border-t border-bdr">
             {% csrf_token %}
             <button type="submit" class="text-[11px] text-t3 hover:text-t1 transition">Sair da conta</button>
           </form>
