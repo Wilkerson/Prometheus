@@ -12,8 +12,8 @@
     </thead>
     <tbody class="divide-y divide-bdr">
       {% for plano in planos %}
-      <tr class="hover:bg-bg3 cursor-pointer" onclick="window.location='{% url 'web:plano-detail' plano.pk %}'">
-        <td class="py-3 font-medium text-t1">{{ plano.nome }}</td>
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium"><a href="{% url 'web:plano-detail' plano.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ plano.nome }}</a></td>
         <td class="py-3 text-t2">{{ plano.parceiro.nome_entidade }}</td>
         <td class="py-3 text-t2">{{ plano.itens.count }} produto{{ plano.itens.count|pluralize }}</td>
         <td class="py-3 font-medium text-t1">R$ {{ plano.valor_total }}</td>

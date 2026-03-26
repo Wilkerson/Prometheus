@@ -12,7 +12,7 @@
     <tbody class="divide-y divide-bdr">
       {% for produto in produtos %}
       <tr class="hover:bg-bg3">
-        <td class="py-3 font-medium text-t1">{{ produto.nome }}</td>
+        <td class="py-3 font-medium"><a href="{% url 'web:produto-edit' produto.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ produto.nome }}</a></td>
         <td class="py-3 text-t2">{{ produto.get_tier_display }}</td>
         <td class="py-3">
           {% if produto.ativo %}

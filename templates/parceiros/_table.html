@@ -13,7 +13,7 @@
     <tbody class="divide-y divide-bdr">
       {% for parceiro in parceiros %}
       <tr class="hover:bg-bg3">
-        <td class="py-3 font-medium text-t1">{{ parceiro.nome_entidade }}</td>
+        <td class="py-3 font-medium"><a href="{% url 'web:parceiro-edit' parceiro.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ parceiro.nome_entidade }}</a></td>
         <td class="py-3 text-t2">{{ parceiro.usuario.get_full_name|default:parceiro.usuario.username }}</td>
         <td class="py-3 text-t2">{{ parceiro.percentual_comissao }}%</td>
         <td class="py-3">

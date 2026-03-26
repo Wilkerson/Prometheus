@@ -14,7 +14,7 @@
     <tbody class="divide-y divide-bdr">
       {% for usuario in usuarios %}
       <tr class="hover:bg-bg3">
-        <td class="py-3 font-medium text-t1">{{ usuario.get_full_name|default:usuario.username }}</td>
+        <td class="py-3 font-medium"><a href="{% url 'web:usuario-edit' usuario.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ usuario.get_full_name|default:usuario.username }}</a></td>
         <td class="py-3 text-t2">{{ usuario.username }}</td>
         <td class="py-3 text-t2">{{ usuario.email }}</td>
         <td class="py-3 text-t2">{{ usuario.grupo_nome }}</td>

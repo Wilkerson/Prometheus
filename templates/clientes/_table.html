@@ -13,8 +13,8 @@
     </thead>
     <tbody class="divide-y divide-bdr">
       {% for cliente in clientes %}
-      <tr class="hover:bg-bg3 cursor-pointer" onclick="window.location='{% url 'web:cliente-detail' cliente.pk %}'">
-        <td class="py-3 font-medium text-t1">{{ cliente.nome }}</td>
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium"><a href="{% url 'web:cliente-detail' cliente.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ cliente.nome }}</a></td>
         <td class="py-3 text-t2">{{ cliente.cnpj }}</td>
         <td class="py-3 text-t2">{{ cliente.parceiro.nome_entidade }}</td>
         <td class="py-3 text-t2">{{ cliente.planos.count }} plano{{ cliente.planos.count|pluralize }}</td>

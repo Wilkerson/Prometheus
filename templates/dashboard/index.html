@@ -115,12 +115,12 @@
       </thead>
       <tbody>
         {% for cliente in clientes_recentes %}
-        <tr class="group cursor-pointer hover:bg-bg3/50 transition-colors" onclick="window.location='{% url 'web:cliente-detail' cliente.pk %}'">
+        <tr class="hover:bg-bg3/50 transition-colors">
           <td class="py-2.5 border-b border-bdr">
             <div class="flex items-center gap-2.5">
               <div class="w-[30px] h-[30px] rounded-full bg-bg4 flex items-center justify-center text-[11px] font-bold text-t2 shrink-0">{{ cliente.nome.0 }}{{ cliente.nome.1 }}</div>
               <div>
-                <div class="text-[13px] font-semibold text-t1">{{ cliente.nome }}</div>
+                <a href="{% url 'web:cliente-detail' cliente.pk %}" class="text-[13px] font-semibold text-t1 hover:text-ruch-accent no-underline">{{ cliente.nome }}</a>
                 <div class="text-[11px] text-t3">{{ cliente.email }}</div>
               </div>
             </div>
