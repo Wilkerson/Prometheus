@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <script src="{% static 'js/app.js' %}"></script>
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
   <style>
@@ -132,6 +133,38 @@
         <div class="text-[12px] text-t3">Feed de atividades recentes sera implementado em breve.</div>
       </div>
 
+      <!-- Tema -->
+      <div class="mb-6" x-data="{
+        dark: localStorage.getItem('theme') !== 'light',
+        toggle() {
+          this.dark = !this.dark;
+          if (this.dark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+            localStorage.setItem('theme', 'dark');
+          } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+          }
+        }
+      }">
+        <div class="text-[15px] font-bold mb-3">Aparencia</div>
+        <div class="flex items-center justify-between bg-bg3 rounded-[10px] p-3">
+          <div class="flex items-center gap-2">
+            <span x-show="dark" class="text-[13px]">&#9790;</span>
+            <span x-show="!dark" class="text-[13px]">&#9788;</span>
+            <span class="text-[12.5px] font-medium" x-text="dark ? 'Tema escuro' : 'Tema claro'"></span>
+          </div>
+          <button @click="toggle()"
+                  class="relative w-10 h-5 rounded-full transition-colors duration-200"
+                  :class="dark ? 'bg-ruch-green' : 'bg-bg4'">
+            <span class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"
+                  :class="dark ? 'translate-x-5' : 'translate-x-0'"></span>
+          </button>
+        </div>
+      </div>
+
       <!-- User info -->
       <div class="mb-6">
         <div class="text-[15px] font-bold mb-3">Minha conta</div>
@@ -159,6 +192,5 @@
     {% block public_content %}{% endblock %}
   {% endif %}
 
-  <script src="{% static 'js/app.js' %}"></script>
 </body>
 </html>

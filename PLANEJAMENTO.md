@@ -391,7 +391,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 37. [x] Criar model Endereco separado (CEP, logradouro, numero, complemento, bairro, cidade, UF)
 38. [x] Implementar auto-preenchimento de endereco via ViaCEP (Alpine.js no front)
 39. [x] Redesenhar area privada com dark theme (layout 3 colunas: sidebar + main + right panel)
-40. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+40. [x] Implementar toggle de tema claro/escuro com persistencia no localStorage
+41. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
