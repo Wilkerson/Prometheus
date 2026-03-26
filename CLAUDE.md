@@ -16,6 +16,7 @@ Ao iniciar uma sessao neste projeto, SEMPRE:
 - **Sempre rodar testes** antes de commitar (`DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps`)
 - **Sempre compilar Tailwind** se templates mudaram (`python -m pytailwindcss -i static/src/input.css -o static/css/output.css --minify`)
 - **Sempre validar Django** (`python manage.py check`)
+- **Sempre usar variaveis de tema** nos templates: `text-t1/t2/t3`, `bg-bg/bg2/bg3/bg4`, `border-bdr/bdr2`, `divide-bdr`. NUNCA usar `text-gray-*`, `bg-gray-*`, `bg-white`, `border-gray-*` em paginas autenticadas. O sistema tem tema claro/escuro.
 - **Push** precisa ser feito pelo Wilkerson no terminal dele (SSH com passphrase)
 
 ## Stack
