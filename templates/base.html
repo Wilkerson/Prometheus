@@ -79,11 +79,35 @@
         </form>
       </div>
 
-      <!-- Search placeholder -->
-      <div class="flex items-center gap-2 bg-bg3 border border-bdr rounded-lg px-3 py-1.5 mb-5">
-        <svg width="13" height="13" fill="none" viewBox="0 0 16 16" class="text-t3 shrink-0"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <span class="text-t3 text-[12px]">Buscar...</span>
-        <span class="ml-auto text-[10px] bg-bg4 border border-bdr2 rounded px-1.5 py-0.5 text-t3">Ctrl+K</span>
+      <!-- Tema claro/escuro -->
+      <div class="mb-5" x-data="{
+        dark: localStorage.getItem('theme') !== 'light',
+        toggle() {
+          this.dark = !this.dark;
+          if (this.dark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+            localStorage.setItem('theme', 'dark');
+          } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+          }
+        }
+      }">
+        <div class="flex items-center justify-between bg-bg3 border border-bdr rounded-lg px-3 py-1.5">
+          <div class="flex items-center gap-2">
+            <span x-show="dark" class="text-[12px]">&#9790;</span>
+            <span x-show="!dark" class="text-[12px]">&#9788;</span>
+            <span class="text-[12px] text-t2" x-text="dark ? 'Escuro' : 'Claro'"></span>
+          </div>
+          <button @click="toggle()"
+                  class="relative w-8 h-4 rounded-full transition-colors duration-200"
+                  :class="dark ? 'bg-ruch-green' : 'bg-bg4'">
+            <span class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform duration-200"
+                  :class="dark ? 'translate-x-4' : 'translate-x-0'"></span>
+          </button>
+        </div>
       </div>
 
       <!-- Nav -->
@@ -191,38 +215,6 @@
       <div class="mb-6">
         <div class="text-[15px] font-bold mb-3">Atividades</div>
         <div class="text-[12px] text-t3">Feed de atividades recentes sera implementado em breve.</div>
-      </div>
-
-      <!-- Tema -->
-      <div class="mb-6" x-data="{
-        dark: localStorage.getItem('theme') !== 'light',
-        toggle() {
-          this.dark = !this.dark;
-          if (this.dark) {
-            document.documentElement.classList.add('dark');
-            document.documentElement.classList.remove('light');
-            localStorage.setItem('theme', 'dark');
-          } else {
-            document.documentElement.classList.add('light');
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-          }
-        }
-      }">
-        <div class="text-[15px] font-bold mb-3">Aparencia</div>
-        <div class="flex items-center justify-between bg-bg3 rounded-[10px] p-3">
-          <div class="flex items-center gap-2">
-            <span x-show="dark" class="text-[13px]">&#9790;</span>
-            <span x-show="!dark" class="text-[13px]">&#9788;</span>
-            <span class="text-[12.5px] font-medium" x-text="dark ? 'Tema escuro' : 'Tema claro'"></span>
-          </div>
-          <button @click="toggle()"
-                  class="relative w-10 h-5 rounded-full transition-colors duration-200"
-                  :class="dark ? 'bg-ruch-green' : 'bg-bg4'">
-            <span class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"
-                  :class="dark ? 'translate-x-5' : 'translate-x-0'"></span>
-          </button>
-        </div>
       </div>
 
       {% endblock %}
