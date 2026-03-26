@@ -10,6 +10,7 @@ Ao iniciar uma sessao neste projeto, SEMPRE:
 
 ## Regras do projeto
 
+- **Sempre ativar o virtualenv** antes de qualquer comando (`source venv/Scripts/activate`). Verificar com `echo $VIRTUAL_ENV` que aponta para o venv do projeto
 - **Sempre atualizar PLANEJAMENTO.md** ao fazer qualquer alteracao no projeto
 - **Sempre commitar** apos cada passo implementado
 - **Sempre rodar testes** antes de commitar (`DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps`)
