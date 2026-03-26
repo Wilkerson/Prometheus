@@ -27,6 +27,38 @@ class EntidadeParceira(models.Model):
         return self.nome_entidade
 
 
+class Endereco(models.Model):
+    UF_CHOICES = [
+        ("AC", "AC"), ("AL", "AL"), ("AP", "AP"), ("AM", "AM"), ("BA", "BA"),
+        ("CE", "CE"), ("DF", "DF"), ("ES", "ES"), ("GO", "GO"), ("MA", "MA"),
+        ("MT", "MT"), ("MS", "MS"), ("MG", "MG"), ("PA", "PA"), ("PB", "PB"),
+        ("PR", "PR"), ("PE", "PE"), ("PI", "PI"), ("RJ", "RJ"), ("RN", "RN"),
+        ("RS", "RS"), ("RO", "RO"), ("RR", "RR"), ("SC", "SC"), ("SP", "SP"),
+        ("SE", "SE"), ("TO", "TO"),
+    ]
+
+    cep = models.CharField("CEP", max_length=9)
+    logradouro = models.CharField("Logradouro", max_length=200)
+    numero = models.CharField("Numero", max_length=20)
+    complemento = models.CharField("Complemento", max_length=100, blank=True)
+    bairro = models.CharField("Bairro", max_length=100)
+    cidade = models.CharField("Cidade", max_length=100)
+    uf = models.CharField("UF", max_length=2, choices=UF_CHOICES)
+
+    class Meta:
+        verbose_name = "Endereco"
+        verbose_name_plural = "Enderecos"
+
+    def __str__(self):
+        partes = [self.logradouro, self.numero]
+        if self.complemento:
+            partes.append(self.complemento)
+        partes.append(self.bairro)
+        partes.append(f"{self.cidade} - {self.uf}")
+        partes.append(f"CEP {self.cep}")
+        return ", ".join(partes)
+
+
 def upload_cliente_path(instance, filename):
     return f"clientes/{instance.cnpj}/{filename}"
 
@@ -71,8 +103,12 @@ class Cliente(models.Model):
     cnpj = models.CharField("CNPJ", max_length=18, unique=True)
     email = models.EmailField("Email")
     telefone = models.CharField("Telefone", max_length=20)
-    endereco = models.CharField("Endereco", max_length=300)
-    cep = models.CharField("CEP", max_length=9)
+    endereco = models.OneToOneField(
+        Endereco,
+        on_delete=models.CASCADE,
+        related_name="cliente",
+        verbose_name="Endereco",
+    )
     produto_interesse = models.CharField(
         "Produto de interesse",
         max_length=30,

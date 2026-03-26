@@ -220,9 +220,13 @@ USUARIO (AbstractUser)
 ENTIDADE_PARCEIRA
   id, usuario_id (FK OneToOne), nome_entidade, percentual_comissao, ativo, criado_em
 
-CLIENTE (todos os campos obrigatorios, exceto operador)
+ENDERECO
+  id, cep, logradouro, numero, complemento (opcional), bairro, cidade, uf
+  (CEP auto-preenche logradouro/bairro/cidade/uf via ViaCEP)
+
+CLIENTE (todos os campos obrigatorios, exceto operador e complemento)
   id, parceiro_id (FK), operador_id (FK nullable), nome, cnpj (unique),
-  email, telefone, endereco, cep,
+  email, telefone, endereco_id (FK OneToOne -> Endereco),
   produto_interesse [agentes_ia|saas|crm|erp|sites|consultoria],
   status [recebida|em_analise|em_processamento|concluida|perdida],
   arquivo ("Produtos ou Servicos"), ativo, criado_em, atualizado_em
@@ -384,7 +388,9 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 34. [x] Implementar CRUD completo de clientes na dashboard (criar, editar, excluir com permissoes)
 35. [x] Eliminar model Lead — unificar pipeline de status no model Cliente
 36. [x] Tornar todos os campos do Cliente obrigatorios com validacao e mensagens de erro
-37. [ ] Aplicar design system (JSON) quando fornecido
+37. [x] Criar model Endereco separado (CEP, logradouro, numero, complemento, bairro, cidade, UF)
+38. [x] Implementar auto-preenchimento de endereco via ViaCEP (Alpine.js no front)
+39. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 

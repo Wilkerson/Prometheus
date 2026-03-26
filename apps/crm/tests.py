@@ -9,27 +9,40 @@ from rest_framework.test import APIClient
 from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
 
-from .models import Cliente, ClienteHistorico, EntidadeParceira, ProdutoContratado
-
-# Dados padrao para criar cliente valido
-CLIENTE_DEFAULTS = {
-    "nome": "Empresa Teste",
-    "cnpj": "99999999000199",
-    "email": "teste@empresa.com",
-    "telefone": "11999999999",
-    "endereco": "Rua Teste 123, Centro, Sao Paulo - SP",
-    "cep": "01000-000",
-    "produto_interesse": "saas",
-}
+from .models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, ProdutoContratado
 
 
 def make_file():
     return SimpleUploadedFile("servicos.pdf", b"conteudo fake", content_type="application/pdf")
 
 
+def make_endereco(**overrides):
+    defaults = {
+        "cep": "01000-000",
+        "logradouro": "Rua Teste",
+        "numero": "123",
+        "complemento": "",
+        "bairro": "Centro",
+        "cidade": "Sao Paulo",
+        "uf": "SP",
+    }
+    defaults.update(overrides)
+    return Endereco.objects.create(**defaults)
+
+
 def make_cliente(parceiro, **overrides):
     """Helper para criar cliente com todos os campos obrigatorios."""
-    data = {**CLIENTE_DEFAULTS, "parceiro": parceiro, "arquivo": make_file()}
+    endereco = overrides.pop("endereco", None) or make_endereco()
+    data = {
+        "nome": "Empresa Teste",
+        "cnpj": "99999999000199",
+        "email": "teste@empresa.com",
+        "telefone": "11999999999",
+        "produto_interesse": "saas",
+        "parceiro": parceiro,
+        "endereco": endereco,
+        "arquivo": make_file(),
+    }
     data.update(overrides)
     return Cliente.objects.create(**data)
 
@@ -56,8 +69,12 @@ class ClienteFlowTestCase(TestCase):
             "cnpj": "12345678000199",
             "email": "abc@email.com",
             "telefone": "11999999999",
-            "endereco": "Rua A 100, Bairro X, Cidade - UF",
-            "cep": "01234-567",
+            "endereco.cep": "01234567",
+            "endereco.logradouro": "Rua A",
+            "endereco.numero": "100",
+            "endereco.bairro": "Centro",
+            "endereco.cidade": "Sao Paulo",
+            "endereco.uf": "SP",
             "produto_interesse": "saas",
             "arquivo": make_file(),
         }, format="multipart")

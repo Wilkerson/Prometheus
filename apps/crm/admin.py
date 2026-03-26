@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cliente, ClienteHistorico, EntidadeParceira, ProdutoContratado
+from .models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, ProdutoContratado
 
 
 class ClienteHistoricoInline(admin.TabularInline):
@@ -14,6 +14,13 @@ class EntidadeParceiraAdmin(admin.ModelAdmin):
     list_display = ("nome_entidade", "usuario", "percentual_comissao", "ativo")
     list_filter = ("ativo",)
     search_fields = ("nome_entidade",)
+
+
+@admin.register(Endereco)
+class EnderecoAdmin(admin.ModelAdmin):
+    list_display = ("cep", "logradouro", "numero", "bairro", "cidade", "uf")
+    search_fields = ("cep", "logradouro", "cidade")
+    list_filter = ("uf",)
 
 
 @admin.register(Cliente)

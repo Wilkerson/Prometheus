@@ -1,0 +1,94 @@
+<!-- Bloco de endereco com busca CEP via ViaCEP -->
+<div x-data="{
+    cepLoading: false,
+    async buscarCep() {
+        const cep = document.getElementById('cep').value.replace(/\D/g, '');
+        if (cep.length !== 8) return;
+        this.cepLoading = true;
+        try {
+            const resp = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
+            const data = await resp.json();
+            if (!data.erro) {
+                document.getElementById('logradouro').value = data.logradouro || '';
+                document.getElementById('bairro').value = data.bairro || '';
+                document.getElementById('cidade').value = data.localidade || '';
+                document.getElementById('uf').value = data.uf || '';
+            }
+        } catch (e) {}
+        this.cepLoading = false;
+    }
+}">
+  <h3 class="text-sm font-semibold text-gray-800 mb-3 mt-6">Endereco</h3>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div>
+      <label for="cep" class="label">CEP <span class="text-red-500">*</span></label>
+      <div class="relative">
+        <input type="text" name="cep" id="cep" required
+               class="input {% if erros.cep %}border-red-500{% endif %}"
+               placeholder="00000-000"
+               value="{{ dados.cep|default:'' }}"
+               @blur="buscarCep()">
+        <div x-show="cepLoading" class="absolute right-3 top-2.5">
+          <div class="w-4 h-4 border-2 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+        </div>
+      </div>
+      {% if erros.cep %}<p class="text-xs text-red-600 mt-1">{{ erros.cep }}</p>{% endif %}
+    </div>
+    <div class="sm:col-span-2">
+      <label for="logradouro" class="label">Logradouro <span class="text-red-500">*</span></label>
+      <input type="text" name="logradouro" id="logradouro" required
+             class="input {% if erros.logradouro %}border-red-500{% endif %}"
+             placeholder="Rua, Avenida, etc."
+             value="{{ dados.logradouro|default:'' }}">
+      {% if erros.logradouro %}<p class="text-xs text-red-600 mt-1">{{ erros.logradouro }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+    <div>
+      <label for="numero" class="label">Numero <span class="text-red-500">*</span></label>
+      <input type="text" name="numero" id="numero" required
+             class="input {% if erros.numero %}border-red-500{% endif %}"
+             placeholder="123"
+             value="{{ dados.numero|default:'' }}">
+      {% if erros.numero %}<p class="text-xs text-red-600 mt-1">{{ erros.numero }}</p>{% endif %}
+    </div>
+    <div class="sm:col-span-2">
+      <label for="complemento" class="label">Complemento</label>
+      <input type="text" name="complemento" id="complemento"
+             class="input"
+             placeholder="Sala 101, Bloco A (opcional)"
+             value="{{ dados.complemento|default:'' }}">
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+    <div>
+      <label for="bairro" class="label">Bairro <span class="text-red-500">*</span></label>
+      <input type="text" name="bairro" id="bairro" required
+             class="input {% if erros.bairro %}border-red-500{% endif %}"
+             placeholder="Bairro"
+             value="{{ dados.bairro|default:'' }}">
+      {% if erros.bairro %}<p class="text-xs text-red-600 mt-1">{{ erros.bairro }}</p>{% endif %}
+    </div>
+    <div>
+      <label for="cidade" class="label">Cidade <span class="text-red-500">*</span></label>
+      <input type="text" name="cidade" id="cidade" required
+             class="input {% if erros.cidade %}border-red-500{% endif %}"
+             placeholder="Cidade"
+             value="{{ dados.cidade|default:'' }}">
+      {% if erros.cidade %}<p class="text-xs text-red-600 mt-1">{{ erros.cidade }}</p>{% endif %}
+    </div>
+    <div>
+      <label for="uf" class="label">UF <span class="text-red-500">*</span></label>
+      <select name="uf" id="uf" required class="input {% if erros.uf %}border-red-500{% endif %}">
+        <option value="">UF</option>
+        {% for value, label in uf_choices %}
+        <option value="{{ value }}" {% if dados.uf == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if erros.uf %}<p class="text-xs text-red-600 mt-1">{{ erros.uf }}</p>{% endif %}
+    </div>
+  </div>
+</div>

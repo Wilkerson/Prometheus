@@ -12,7 +12,7 @@ from django.views.generic import ListView, TemplateView
 
 from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
-from apps.crm.models import Cliente, ClienteHistorico, EntidadeParceira
+from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira
 
 from .mixins import HtmxMixin, is_htmx
 
@@ -158,48 +158,11 @@ class ClienteListView(PermissionRequiredMixin, HtmxMixin, ListView):
         return ctx
 
 
-def _validar_cliente_form(post_data, files=None):
-    """Valida dados do formulario de cliente. Retorna (dados_limpos, erros)."""
+def _validar_endereco(post_data):
+    """Valida campos de endereco. Retorna (dados_endereco, erros)."""
     erros = {}
     dados = {}
 
-    # Nome
-    nome = post_data.get("nome", "").strip()
-    if not nome:
-        erros["nome"] = "O nome e obrigatorio."
-    dados["nome"] = nome
-
-    # CNPJ
-    cnpj = post_data.get("cnpj", "").strip()
-    if not cnpj:
-        erros["cnpj"] = "O CNPJ e obrigatorio."
-    else:
-        digits = "".join(c for c in cnpj if c.isdigit())
-        if len(digits) != 14:
-            erros["cnpj"] = "CNPJ deve conter 14 digitos."
-    dados["cnpj"] = cnpj
-
-    # Email
-    email = post_data.get("email", "").strip()
-    if not email:
-        erros["email"] = "O email e obrigatorio."
-    elif "@" not in email:
-        erros["email"] = "Informe um email valido."
-    dados["email"] = email
-
-    # Telefone
-    telefone = post_data.get("telefone", "").strip()
-    if not telefone:
-        erros["telefone"] = "O telefone e obrigatorio."
-    dados["telefone"] = telefone
-
-    # Endereco
-    endereco = post_data.get("endereco", "").strip()
-    if not endereco:
-        erros["endereco"] = "O endereco e obrigatorio."
-    dados["endereco"] = endereco
-
-    # CEP
     cep = post_data.get("cep", "").strip()
     if not cep:
         erros["cep"] = "O CEP e obrigatorio."
@@ -209,19 +172,81 @@ def _validar_cliente_form(post_data, files=None):
             erros["cep"] = "CEP deve conter 8 digitos."
     dados["cep"] = cep
 
-    # Produto
+    logradouro = post_data.get("logradouro", "").strip()
+    if not logradouro:
+        erros["logradouro"] = "O logradouro e obrigatorio."
+    dados["logradouro"] = logradouro
+
+    numero = post_data.get("numero", "").strip()
+    if not numero:
+        erros["numero"] = "O numero e obrigatorio."
+    dados["numero"] = numero
+
+    dados["complemento"] = post_data.get("complemento", "").strip()
+
+    bairro = post_data.get("bairro", "").strip()
+    if not bairro:
+        erros["bairro"] = "O bairro e obrigatorio."
+    dados["bairro"] = bairro
+
+    cidade = post_data.get("cidade", "").strip()
+    if not cidade:
+        erros["cidade"] = "A cidade e obrigatoria."
+    dados["cidade"] = cidade
+
+    uf = post_data.get("uf", "").strip().upper()
+    if not uf:
+        erros["uf"] = "O UF e obrigatorio."
+    dados["uf"] = uf
+
+    return dados, erros
+
+
+def _validar_cliente_form(post_data, files=None):
+    """Valida dados do formulario de cliente + endereco. Retorna (dados, endereco_dados, erros)."""
+    erros = {}
+    dados = {}
+
+    nome = post_data.get("nome", "").strip()
+    if not nome:
+        erros["nome"] = "O nome e obrigatorio."
+    dados["nome"] = nome
+
+    cnpj = post_data.get("cnpj", "").strip()
+    if not cnpj:
+        erros["cnpj"] = "O CNPJ e obrigatorio."
+    else:
+        digits = "".join(c for c in cnpj if c.isdigit())
+        if len(digits) != 14:
+            erros["cnpj"] = "CNPJ deve conter 14 digitos."
+    dados["cnpj"] = cnpj
+
+    email = post_data.get("email", "").strip()
+    if not email:
+        erros["email"] = "O email e obrigatorio."
+    elif "@" not in email:
+        erros["email"] = "Informe um email valido."
+    dados["email"] = email
+
+    telefone = post_data.get("telefone", "").strip()
+    if not telefone:
+        erros["telefone"] = "O telefone e obrigatorio."
+    dados["telefone"] = telefone
+
     produto = post_data.get("produto_interesse", "")
     if not produto:
         erros["produto_interesse"] = "O produto de interesse e obrigatorio."
     dados["produto_interesse"] = produto
 
-    # Arquivo
     arquivo = files.get("arquivo") if files else None
     if not arquivo:
         erros["arquivo"] = "O arquivo de Produtos ou Servicos e obrigatorio."
     dados["arquivo"] = arquivo
 
-    return dados, erros
+    endereco_dados, endereco_erros = _validar_endereco(post_data)
+    erros.update(endereco_erros)
+
+    return dados, endereco_dados, erros
 
 
 class ClienteCreateView(PermissionRequiredMixin, View):
@@ -230,24 +255,29 @@ class ClienteCreateView(PermissionRequiredMixin, View):
     def get(self, request):
         return render(request, "clientes/create.html", {
             "produto_choices": Cliente.Produto.choices,
+            "uf_choices": Endereco.UF_CHOICES,
             "erros": {},
             "dados": {},
         })
 
     def post(self, request):
-        dados, erros = _validar_cliente_form(request.POST, request.FILES)
+        dados, endereco_dados, erros = _validar_cliente_form(request.POST, request.FILES)
 
         if erros:
             ctx = {
                 "produto_choices": Cliente.Produto.choices,
+                "uf_choices": Endereco.UF_CHOICES,
                 "erros": erros,
-                "dados": dados,
+                "dados": {**dados, **endereco_dados},
             }
             if is_htmx(request):
                 return render(request, "clientes/_form_errors.html", ctx)
             return render(request, "clientes/create.html", ctx)
 
         user = request.user
+        endereco = Endereco.objects.create(**endereco_dados)
+        dados["endereco"] = endereco
+
         if hasattr(user, "parceiro"):
             dados["parceiro"] = user.parceiro
         else:
@@ -291,7 +321,7 @@ class ClienteDetailView(PermissionRequiredMixin, View):
 
 
 def _validar_cliente_edit(post_data, files=None, cliente_existente=None):
-    """Validacao para edicao — arquivo so obrigatorio se ainda nao tem."""
+    """Validacao para edicao — arquivo so obrigatorio se cliente ainda nao tem."""
     erros = {}
     dados = {}
 
@@ -321,43 +351,35 @@ def _validar_cliente_edit(post_data, files=None, cliente_existente=None):
         erros["telefone"] = "O telefone e obrigatorio."
     dados["telefone"] = telefone
 
-    endereco = post_data.get("endereco", "").strip()
-    if not endereco:
-        erros["endereco"] = "O endereco e obrigatorio."
-    dados["endereco"] = endereco
-
-    cep = post_data.get("cep", "").strip()
-    if not cep:
-        erros["cep"] = "O CEP e obrigatorio."
-    else:
-        digits = "".join(c for c in cep if c.isdigit())
-        if len(digits) != 8:
-            erros["cep"] = "CEP deve conter 8 digitos."
-    dados["cep"] = cep
-
-    # Arquivo — na edicao, so obrigatorio se o cliente ainda nao tem
     arquivo = files.get("arquivo") if files else None
     if arquivo:
         dados["arquivo"] = arquivo
     elif cliente_existente and not cliente_existente.arquivo:
         erros["arquivo"] = "O arquivo de Produtos ou Servicos e obrigatorio."
 
-    return dados, erros
+    endereco_dados, endereco_erros = _validar_endereco(post_data)
+    erros.update(endereco_erros)
+
+    return dados, endereco_dados, erros
 
 
 class ClienteUpdateView(PermissionRequiredMixin, View):
     permission_required = "crm.change_cliente"
 
     def get(self, request, pk):
-        cliente = get_object_or_404(Cliente, pk=pk)
-        return render(request, "clientes/edit.html", {"cliente": cliente, "erros": {}})
+        cliente = get_object_or_404(Cliente.objects.select_related("endereco"), pk=pk)
+        return render(request, "clientes/edit.html", {
+            "cliente": cliente,
+            "uf_choices": Endereco.UF_CHOICES,
+            "erros": {},
+        })
 
     def post(self, request, pk):
-        cliente = get_object_or_404(Cliente, pk=pk)
-        dados, erros = _validar_cliente_edit(request.POST, request.FILES, cliente)
+        cliente = get_object_or_404(Cliente.objects.select_related("endereco"), pk=pk)
+        dados, endereco_dados, erros = _validar_cliente_edit(request.POST, request.FILES, cliente)
 
         if erros:
-            ctx = {"cliente": cliente, "erros": erros}
+            ctx = {"cliente": cliente, "uf_choices": Endereco.UF_CHOICES, "erros": erros}
             if is_htmx(request):
                 return render(request, "clientes/_form_errors.html", ctx)
             return render(request, "clientes/edit.html", ctx)
@@ -366,12 +388,16 @@ class ClienteUpdateView(PermissionRequiredMixin, View):
         cliente.cnpj = dados["cnpj"]
         cliente.email = dados["email"]
         cliente.telefone = dados["telefone"]
-        cliente.endereco = dados["endereco"]
-        cliente.cep = dados["cep"]
         cliente.ativo = request.POST.get("ativo") == "on"
         if "arquivo" in dados:
             cliente.arquivo = dados["arquivo"]
         cliente.save()
+
+        # Atualiza endereco
+        end = cliente.endereco
+        for attr, val in endereco_dados.items():
+            setattr(end, attr, val)
+        end.save()
 
         if is_htmx(request):
             return render(request, "clientes/_edit_success.html", {"cliente": cliente})

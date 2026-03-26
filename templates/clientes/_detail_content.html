@@ -23,13 +23,9 @@
           <dt class="text-gray-500">Telefone</dt>
           <dd class="font-medium text-gray-900">{{ cliente.telefone|default:"—" }}</dd>
         </div>
-        <div>
+        <div class="sm:col-span-2">
           <dt class="text-gray-500">Endereco</dt>
-          <dd class="font-medium text-gray-900">{{ cliente.endereco|default:"—" }}</dd>
-        </div>
-        <div>
-          <dt class="text-gray-500">CEP</dt>
-          <dd class="font-medium text-gray-900">{{ cliente.cep|default:"—" }}</dd>
+          <dd class="font-medium text-gray-900">{{ cliente.endereco }}</dd>
         </div>
         <div>
           <dt class="text-gray-500">Produto</dt>

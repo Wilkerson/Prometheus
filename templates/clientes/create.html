@@ -47,19 +47,10 @@
             {% if erros.telefone %}<p class="text-xs text-red-600 mt-1">{{ erros.telefone }}</p>{% endif %}
           </div>
         </div>
-        <div>
-          <label for="endereco" class="label">Endereco <span class="text-red-500">*</span></label>
-          <input type="text" name="endereco" id="endereco" required class="input {% if erros.endereco %}border-red-500{% endif %}"
-                 placeholder="Rua, numero, bairro, cidade - UF" value="{{ dados.endereco|default:'' }}">
-          {% if erros.endereco %}<p class="text-xs text-red-600 mt-1">{{ erros.endereco }}</p>{% endif %}
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="cep" class="label">CEP <span class="text-red-500">*</span></label>
-            <input type="text" name="cep" id="cep" required class="input {% if erros.cep %}border-red-500{% endif %}"
-                   placeholder="00000-000" value="{{ dados.cep|default:'' }}">
-            {% if erros.cep %}<p class="text-xs text-red-600 mt-1">{{ erros.cep }}</p>{% endif %}
-          </div>
+
+        {% include "clientes/_form_endereco.html" %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <div>
             <label for="produto_interesse" class="label">Produto de interesse <span class="text-red-500">*</span></label>
             <select name="produto_interesse" id="produto_interesse" required class="input {% if erros.produto_interesse %}border-red-500{% endif %}">
@@ -70,12 +61,12 @@
             </select>
             {% if erros.produto_interesse %}<p class="text-xs text-red-600 mt-1">{{ erros.produto_interesse }}</p>{% endif %}
           </div>
-        </div>
-        <div>
-          <label for="arquivo" class="label">Produtos ou Servicos (arquivo) <span class="text-red-500">*</span></label>
-          <input type="file" name="arquivo" id="arquivo" required
-                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 {% if erros.arquivo %}border border-red-500 rounded-lg{% endif %}">
-          {% if erros.arquivo %}<p class="text-xs text-red-600 mt-1">{{ erros.arquivo }}</p>{% endif %}
+          <div>
+            <label for="arquivo" class="label">Produtos ou Servicos (arquivo) <span class="text-red-500">*</span></label>
+            <input type="file" name="arquivo" id="arquivo" required
+                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 {% if erros.arquivo %}border border-red-500 rounded-lg{% endif %}">
+            {% if erros.arquivo %}<p class="text-xs text-red-600 mt-1">{{ erros.arquivo }}</p>{% endif %}
+          </div>
         </div>
       </div>
 
