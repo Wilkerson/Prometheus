@@ -56,15 +56,6 @@
         </div>
 
         <div>
-          <label for="perfil" class="label">Perfil</label>
-          <select name="perfil" id="perfil" class="input">
-            {% for value, label in perfil_choices %}
-            <option value="{{ value }}" {% if dados.perfil == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div>
           <label for="groups" class="label">Grupo</label>
           <select name="groups" id="groups" class="input">
             <option value="">Sem grupo</option>

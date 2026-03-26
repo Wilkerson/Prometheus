@@ -14,24 +14,24 @@
   <div class="flex flex-wrap gap-3 items-end">
     <div class="flex-1 min-w-[200px]">
       <label class="label">Buscar</label>
-      <input type="text" name="q" value="{{ current_search }}" placeholder="Nome, username ou email..."
+      <input type="text" name="q" placeholder="Nome, username ou email..."
              class="input"
              hx-get="{% url 'web:usuarios' %}"
              hx-target="#usuarios-table"
              hx-trigger="input changed delay:300ms"
-             hx-include="[name='perfil']"
+             hx-include="[name='grupo']"
              hx-push-url="true">
     </div>
     <div>
-      <label class="label">Perfil</label>
-      <select name="perfil" class="input"
+      <label class="label">Grupo</label>
+      <select name="grupo" class="input"
               hx-get="{% url 'web:usuarios' %}"
               hx-target="#usuarios-table"
               hx-include="[name='q']"
               hx-push-url="true">
         <option value="">Todos</option>
-        {% for value, label in perfil_choices %}
-        <option value="{{ value }}" {% if current_perfil == value %}selected{% endif %}>{{ label }}</option>
+        {% for g in grupos_filter %}
+        <option value="{{ g.id }}" {% if current_grupo == g.id|stringformat:"d" %}selected{% endif %}>{{ g.name }}</option>
         {% endfor %}
       </select>
     </div>

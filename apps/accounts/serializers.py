@@ -5,28 +5,32 @@ from .models import Usuario
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """Token JWT customizado com dados do perfil."""
+    """Token JWT customizado com dados do usuario."""
 
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token["perfil"] = user.perfil
         token["nome"] = user.get_full_name() or user.username
         token["email"] = user.email
+        token["is_parceiro"] = user.is_parceiro
+        token["grupo"] = user.grupo_nome
         return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        data["perfil"] = self.user.perfil
         data["nome"] = self.user.get_full_name() or self.user.username
         data["email"] = self.user.email
+        data["is_parceiro"] = self.user.is_parceiro
+        data["grupo"] = self.user.grupo_nome
         return data
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
+    grupo = serializers.CharField(source="grupo_nome", read_only=True)
+
     class Meta:
         model = Usuario
-        fields = ("id", "username", "email", "first_name", "last_name", "perfil", "is_active")
+        fields = ("id", "username", "email", "first_name", "last_name", "grupo", "is_active")
         read_only_fields = ("id",)
 
 
@@ -35,7 +39,7 @@ class UsuarioCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ("id", "username", "email", "first_name", "last_name", "perfil", "password")
+        fields = ("id", "username", "email", "first_name", "last_name", "password")
         read_only_fields = ("id",)
 
     def create(self, validated_data):
@@ -47,9 +51,9 @@ class UsuarioCreateSerializer(serializers.ModelSerializer):
 
 
 class MeSerializer(serializers.ModelSerializer):
-    """Dados do usuário logado."""
+    grupo = serializers.CharField(source="grupo_nome", read_only=True)
 
     class Meta:
         model = Usuario
-        fields = ("id", "username", "email", "first_name", "last_name", "perfil", "date_joined")
+        fields = ("id", "username", "email", "first_name", "last_name", "grupo", "date_joined")
         read_only_fields = fields

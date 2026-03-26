@@ -6,8 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.models import Usuario
-from apps.accounts.permissions import IsOperador, IsOwnerParceiro, IsSuperAdmin
+from apps.accounts.permissions import IsOwnerParceiro, IsSuperUser
 
 from .models import Cliente, ClienteHistorico, EntidadeParceira
 from .serializers import (
@@ -25,15 +24,11 @@ class EntidadeParceiraViewSet(viewsets.ModelViewSet):
 
     queryset = EntidadeParceira.objects.select_related("usuario")
     serializer_class = EntidadeParceiraSerializer
-    permission_classes = [IsSuperAdmin]
+    permission_classes = [IsSuperUser]
 
 
 class ClienteViewSet(viewsets.ModelViewSet):
-    """
-    Clientes:
-    - Super Admin / Operador: veem todos, podem alterar status
-    - Parceiro: ve e cria apenas os seus
-    """
+    """Clientes: parceiro ve apenas os seus, demais veem todos."""
 
     permission_classes = [IsAuthenticated, IsOwnerParceiro]
     filterset_fields = ["status", "parceiro"]
@@ -49,18 +44,18 @@ class ClienteViewSet(viewsets.ModelViewSet):
         user = self.request.user
         qs = Cliente.objects.select_related("parceiro", "operador").prefetch_related("historico")
 
-        if user.perfil == Usuario.Perfil.PARCEIRO and hasattr(user, "parceiro"):
+        if user.is_parceiro:
             return qs.filter(parceiro=user.parceiro)
         return qs
 
     def perform_create(self, serializer):
         user = self.request.user
-        if user.perfil == Usuario.Perfil.PARCEIRO and hasattr(user, "parceiro"):
+        if user.is_parceiro:
             serializer.save(parceiro=user.parceiro)
         else:
             serializer.save()
 
-    @action(detail=True, methods=["patch"], url_path="status", permission_classes=[IsOperador])
+    @action(detail=True, methods=["patch"], url_path="status", permission_classes=[IsAuthenticated])
     def update_status(self, request, pk=None):
         """PATCH /api/v1/clientes/{id}/status/ — atualiza status."""
         cliente = self.get_object()
@@ -100,7 +95,7 @@ class ClienteViewSet(viewsets.ModelViewSet):
 class CalendarioClientesView(APIView):
     """GET /api/v1/clientes/calendario/?mes=YYYY-MM"""
 
-    permission_classes = [IsAuthenticated, IsOperador]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         mes = request.query_params.get("mes", "")
@@ -147,7 +142,7 @@ class CalendarioClientesView(APIView):
 class SLAClientesView(APIView):
     """GET /api/v1/clientes/sla/?dias=3"""
 
-    permission_classes = [IsAuthenticated, IsOperador]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         dias = int(request.query_params.get("dias", 3))

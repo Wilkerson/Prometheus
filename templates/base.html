@@ -195,7 +195,7 @@
             </div>
             <div>
               <div class="text-[12.5px] font-semibold">{{ user.get_full_name|default:user.username }}</div>
-              <div class="text-[11px] text-t3 capitalize">{{ user.get_perfil_display }}</div>
+              <div class="text-[11px] text-t3">{{ user.grupo_nome }}</div>
             </div>
           </div>
           <form method="post" action="{% url 'web:logout' %}" class="mt-2">

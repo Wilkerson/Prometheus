@@ -6,8 +6,5 @@ from .models import Usuario
 
 @admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
-    list_display = ("username", "email", "perfil", "is_active")
-    list_filter = ("perfil", "is_active")
-    fieldsets = UserAdmin.fieldsets + (
-        ("Perfil", {"fields": ("perfil",)}),
-    )
+    list_display = ("username", "email", "grupo_nome", "is_active")
+    list_filter = ("is_active", "groups")

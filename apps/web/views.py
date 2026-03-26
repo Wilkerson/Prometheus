@@ -808,15 +808,15 @@ class UsuarioListView(PermissionRequiredMixin, HtmxMixin, ListView):
                 Q(username__icontains=search) | Q(first_name__icontains=search)
                 | Q(last_name__icontains=search) | Q(email__icontains=search)
             )
-        perfil = self.request.GET.get("perfil")
-        if perfil:
-            qs = qs.filter(perfil=perfil)
+        grupo = self.request.GET.get("grupo")
+        if grupo:
+            qs = qs.filter(groups__id=grupo)
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["perfil_choices"] = Usuario.Perfil.choices
-        ctx["current_perfil"] = self.request.GET.get("perfil", "")
+        ctx["grupos_filter"] = Group.objects.all()
+        ctx["current_grupo"] = self.request.GET.get("grupo", "")
         ctx["can_add"] = self.request.user.has_perm("accounts.add_usuario")
         return ctx
 
@@ -826,7 +826,6 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
 
     def get(self, request):
         return render(request, "usuarios/create.html", {
-            "perfil_choices": Usuario.Perfil.choices,
             "groups": Group.objects.all(),
             "erros": {},
         })
@@ -849,11 +848,9 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
 
         first_name = request.POST.get("first_name", "").strip()
         last_name = request.POST.get("last_name", "").strip()
-        perfil = request.POST.get("perfil", "operador")
 
         if erros:
             ctx = {
-                "perfil_choices": Usuario.Perfil.choices,
                 "groups": Group.objects.all(),
                 "erros": erros,
             }
@@ -861,7 +858,7 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
 
         user = Usuario.objects.create_user(
             username=username, email=email, password=password,
-            first_name=first_name, last_name=last_name, perfil=perfil,
+            first_name=first_name, last_name=last_name,
             is_staff="is_staff" in request.POST,
         )
         group_ids = request.POST.getlist("groups")
@@ -878,7 +875,6 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
         usuario = get_object_or_404(Usuario, pk=pk)
         return render(request, "usuarios/edit.html", {
             "usuario": usuario,
-            "perfil_choices": Usuario.Perfil.choices,
             "groups": Group.objects.all(),
             "usuario_groups": list(usuario.groups.values_list("id", flat=True)),
             "erros": {},
@@ -889,7 +885,6 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
         usuario.first_name = request.POST.get("first_name", "").strip()
         usuario.last_name = request.POST.get("last_name", "").strip()
         usuario.email = request.POST.get("email", usuario.email).strip()
-        usuario.perfil = request.POST.get("perfil", usuario.perfil)
         usuario.is_active = "is_active" in request.POST
         usuario.is_staff = "is_staff" in request.POST
         usuario.save()
@@ -946,7 +941,7 @@ class ParceiroCreateView(PermissionRequiredMixin, View):
 
     def get(self, request):
         usuarios_disponiveis = Usuario.objects.filter(
-            perfil=Usuario.Perfil.PARCEIRO
+            is_active=True
         ).exclude(parceiro__isnull=False)
         return render(request, "parceiros/create.html", {
             "usuarios": usuarios_disponiveis, "erros": {},

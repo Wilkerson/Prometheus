@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import Usuario
-from .permissions import IsSuperAdmin
+from .permissions import IsSuperUser
 from .serializers import (
     CustomTokenObtainPairSerializer,
     MeSerializer,
@@ -13,13 +13,13 @@ from .serializers import (
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
-    """Login com JWT customizado — retorna perfil, nome e email."""
+    """Login com JWT customizado — retorna grupo, nome e email."""
 
     serializer_class = CustomTokenObtainPairSerializer
 
 
 class MeView(generics.RetrieveAPIView):
-    """GET /api/v1/auth/me/ — dados do usuário logado."""
+    """GET /api/v1/auth/me/ — dados do usuario logado."""
 
     serializer_class = MeSerializer
     permission_classes = [IsAuthenticated]
@@ -29,10 +29,10 @@ class MeView(generics.RetrieveAPIView):
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
-    """CRUD de usuários — somente Super Admin."""
+    """CRUD de usuarios — somente superusuario."""
 
     queryset = Usuario.objects.all()
-    permission_classes = [IsSuperAdmin]
+    permission_classes = [IsSuperUser]
 
     def get_serializer_class(self):
         if self.action == "create":

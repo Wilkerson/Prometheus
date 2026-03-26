@@ -1,31 +1,31 @@
 [
   {"model": "accounts.usuario", "pk": 10, "fields": {
     "username": "parceiro_sp", "email": "parceiro_sp@ruch.solutions", "first_name": "Carlos", "last_name": "Mendes",
-    "perfil": "parceiro", "is_active": true, "is_staff": false, "is_superuser": false,
+    "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
     "date_joined": "2026-01-10T10:00:00Z"
   }},
   {"model": "accounts.usuario", "pk": 11, "fields": {
     "username": "parceiro_rj", "email": "parceiro_rj@ruch.solutions", "first_name": "Ana", "last_name": "Beatriz",
-    "perfil": "parceiro", "is_active": true, "is_staff": false, "is_superuser": false,
+    "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
     "date_joined": "2026-01-15T10:00:00Z"
   }},
   {"model": "accounts.usuario", "pk": 12, "fields": {
     "username": "parceiro_mg", "email": "parceiro_mg@ruch.solutions", "first_name": "Roberto", "last_name": "Silva",
-    "perfil": "parceiro", "is_active": true, "is_staff": false, "is_superuser": false,
+    "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
     "date_joined": "2026-02-01T10:00:00Z"
   }},
   {"model": "accounts.usuario", "pk": 13, "fields": {
     "username": "administrador1", "email": "adm@ruch.solutions", "first_name": "Juliana", "last_name": "Torres",
-    "perfil": "operador", "is_active": true, "is_staff": false, "is_superuser": false,
+    "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
     "date_joined": "2026-01-05T10:00:00Z"
   }},
   {"model": "accounts.usuario", "pk": 14, "fields": {
     "username": "comercial1", "email": "comercial@ruch.solutions", "first_name": "Felipe", "last_name": "Ramos",
-    "perfil": "operador", "is_active": true, "is_staff": false, "is_superuser": false,
+    "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
     "date_joined": "2026-01-05T10:00:00Z"
   }},

@@ -6,7 +6,7 @@
         <th class="pb-3 font-medium">Nome</th>
         <th class="pb-3 font-medium">Username</th>
         <th class="pb-3 font-medium">Email</th>
-        <th class="pb-3 font-medium">Perfil</th>
+        <th class="pb-3 font-medium">Grupo</th>
         <th class="pb-3 font-medium">Status</th>
         <th class="pb-3 font-medium">Acoes</th>
       </tr>
@@ -17,7 +17,7 @@
         <td class="py-3 font-medium text-t1">{{ usuario.get_full_name|default:usuario.username }}</td>
         <td class="py-3 text-t2">{{ usuario.username }}</td>
         <td class="py-3 text-t2">{{ usuario.email }}</td>
-        <td class="py-3 text-t2">{{ usuario.get_perfil_display }}</td>
+        <td class="py-3 text-t2">{{ usuario.grupo_nome }}</td>
         <td class="py-3">
           {% if usuario.is_active %}
           <span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>

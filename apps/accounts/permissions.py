@@ -1,56 +1,25 @@
 from rest_framework.permissions import BasePermission
 
-from .models import Usuario
 
-
-class IsSuperAdmin(BasePermission):
-    """Acesso exclusivo para Super Admin."""
+class IsSuperUser(BasePermission):
+    """Acesso exclusivo para superusuario."""
 
     def has_permission(self, request, view):
-        return (
-            request.user.is_authenticated
-            and request.user.perfil == Usuario.Perfil.SUPER_ADMIN
-        )
-
-
-class IsOperador(BasePermission):
-    """Acesso para Operador Interno ou superior."""
-
-    def has_permission(self, request, view):
-        return (
-            request.user.is_authenticated
-            and request.user.perfil in (
-                Usuario.Perfil.SUPER_ADMIN,
-                Usuario.Perfil.OPERADOR,
-            )
-        )
+        return request.user.is_authenticated and request.user.is_superuser
 
 
 class IsParceiro(BasePermission):
-    """Acesso para Entidade Parceira."""
+    """Acesso para usuario com EntidadeParceira vinculada."""
 
     def has_permission(self, request, view):
-        return (
-            request.user.is_authenticated
-            and request.user.perfil == Usuario.Perfil.PARCEIRO
-        )
-
-
-class IsParceiroOrAdmin(BasePermission):
-    """Acesso para Parceiro, Operador ou Super Admin."""
-
-    def has_permission(self, request, view):
-        return request.user.is_authenticated
+        return request.user.is_authenticated and request.user.is_parceiro
 
 
 class IsOwnerParceiro(BasePermission):
-    """Parceiro só acessa seus próprios recursos."""
+    """Parceiro so acessa seus proprios recursos."""
 
     def has_object_permission(self, request, view, obj):
-        if request.user.perfil in (
-            Usuario.Perfil.SUPER_ADMIN,
-            Usuario.Perfil.OPERADOR,
-        ):
+        if not request.user.is_parceiro:
             return True
 
         if hasattr(obj, "parceiro"):

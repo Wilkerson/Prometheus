@@ -59,7 +59,7 @@ class ClienteFlowTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.parceiro_user = Usuario.objects.create_user(
-            username="parceiro", password="TestPass123!", perfil=Usuario.Perfil.PARCEIRO,
+            username="parceiro", password="TestPass123!",
         )
         self.parceiro = EntidadeParceira.objects.create(
             usuario=self.parceiro_user, nome_entidade="Parceiro Teste",
@@ -88,7 +88,7 @@ class ClienteFlowTestCase(TestCase):
     def test_parceiro_ve_apenas_seus_clientes(self):
         make_cliente(self.parceiro, cnpj="11111111000111")
         outro_user = Usuario.objects.create_user(
-            username="outro", password="TestPass123!", perfil=Usuario.Perfil.PARCEIRO,
+            username="outro", password="TestPass123!",
         )
         outro_parceiro = EntidadeParceira.objects.create(
             usuario=outro_user, nome_entidade="Outro", percentual_comissao=Decimal("10"),
@@ -105,10 +105,10 @@ class StatusTransicaoTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.operador = Usuario.objects.create_user(
-            username="operador", password="TestPass123!", perfil=Usuario.Perfil.OPERADOR,
+            username="operador", password="TestPass123!",
         )
         self.parceiro_user = Usuario.objects.create_user(
-            username="parceiro", password="TestPass123!", perfil=Usuario.Perfil.PARCEIRO,
+            username="parceiro", password="TestPass123!",
         )
         self.parceiro = EntidadeParceira.objects.create(
             usuario=self.parceiro_user, nome_entidade="Parceiro Teste",
@@ -161,7 +161,7 @@ class CallbackTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.parceiro_user = Usuario.objects.create_user(
-            username="parceiro", password="TestPass123!", perfil=Usuario.Perfil.PARCEIRO,
+            username="parceiro", password="TestPass123!",
         )
         self.parceiro = EntidadeParceira.objects.create(
             usuario=self.parceiro_user, nome_entidade="Parceiro CB",
@@ -197,7 +197,7 @@ class CallbackTestCase(TestCase):
 class ComissaoTestCase(TestCase):
     def setUp(self):
         self.parceiro_user = Usuario.objects.create_user(
-            username="parceiro", password="TestPass123!", perfil=Usuario.Perfil.PARCEIRO,
+            username="parceiro", password="TestPass123!",
         )
         self.parceiro = EntidadeParceira.objects.create(
             usuario=self.parceiro_user, nome_entidade="Parceiro Com",
@@ -228,7 +228,7 @@ class DashboardTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.parceiro_user = Usuario.objects.create_user(
-            username="parceiro", password="TestPass123!", perfil=Usuario.Perfil.PARCEIRO,
+            username="parceiro", password="TestPass123!",
         )
         self.parceiro = EntidadeParceira.objects.create(
             usuario=self.parceiro_user, nome_entidade="Parceiro Dash",
