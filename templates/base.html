@@ -44,9 +44,8 @@
         <div class="text-[10px] font-bold tracking-widest uppercase text-t3 px-2 pb-2">Menu</div>
         {% for item in nav_items %}
         <a href="{{ item.url }}"
-           class="flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] text-[13px] mb-0.5 transition-all duration-150 no-underline
+           class="flex items-center px-2.5 py-2 rounded-[9px] text-[13px] mb-0.5 transition-all duration-150 no-underline
                   {% if request.path == item.url %}bg-ruch-green text-white font-semibold{% else %}text-t2 hover:bg-bg3 hover:text-t1{% endif %}">
-          <span class="w-4 h-4 flex items-center justify-center text-[10px]">&#9679;</span>
           {{ item.label }}
         </a>
         {% endfor %}
@@ -55,16 +54,13 @@
       <!-- Placeholders futuros -->
       <div class="mb-5">
         <div class="text-[10px] font-bold tracking-widest uppercase text-t3 px-2 pb-2">Em breve</div>
-        <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default opacity-40">
-          <span class="w-4 h-4 flex items-center justify-center text-[10px]">&#9679;</span>
+        <div class="flex items-center px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default opacity-40">
           Mensagens
         </div>
-        <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default opacity-40">
-          <span class="w-4 h-4 flex items-center justify-center text-[10px]">&#9679;</span>
+        <div class="flex items-center px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default opacity-40">
           Analises
         </div>
-        <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default opacity-40">
-          <span class="w-4 h-4 flex items-center justify-center text-[10px]">&#9679;</span>
+        <div class="flex items-center px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default opacity-40">
           Configuracoes
         </div>
       </div>
