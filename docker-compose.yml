@@ -5,7 +5,6 @@ services:
     restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    env_file: .env
     environment:
       POSTGRES_DB: ${DB_NAME:-prometheus}
       POSTGRES_USER: ${DB_USER:-prometheus}
@@ -34,14 +33,10 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      DJANGO_SETTINGS_MODULE: prometheus.settings.dev
+      DJANGO_SETTINGS_MODULE: prometheus.settings.production
       DB_HOST: db
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
-    volumes:
-      - .:/app
-      - static_files:/app/staticfiles
-      - media_files:/app/mediafiles
     ports:
       - "8000:8000"
     depends_on:
@@ -49,37 +44,38 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: gunicorn prometheus.wsgi:application --bind 0.0.0.0:8000 --workers 3 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
 
   celery:
     build: .
     restart: unless-stopped
     env_file: .env
     environment:
-      DJANGO_SETTINGS_MODULE: prometheus.settings.dev
+      DJANGO_SETTINGS_MODULE: prometheus.settings.production
       DB_HOST: db
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
-    volumes:
-      - .:/app
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: celery -A prometheus worker -l info
+    command: celery -A prometheus worker -l info --concurrency=2
 
   celery-beat:
     build: .
     restart: unless-stopped
     env_file: .env
     environment:
-      DJANGO_SETTINGS_MODULE: prometheus.settings.dev
+      DJANGO_SETTINGS_MODULE: prometheus.settings.production
       DB_HOST: db
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/1
-    volumes:
-      - .:/app
     depends_on:
       db:
         condition: service_healthy
@@ -87,19 +83,5 @@ services:
         condition: service_healthy
     command: celery -A prometheus beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
-  nginx:
-    image: nginx:alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - static_files:/app/staticfiles:ro
-      - media_files:/app/mediafiles:ro
-    depends_on:
-      - web
-
 volumes:
   postgres_data:
-  static_files:
-  media_files:

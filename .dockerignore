@@ -1,6 +1,9 @@
 .git
 .gitignore
+.github
 .env
+.env.*
+!.env.example
 .venv
 venv
 __pycache__
@@ -10,7 +13,11 @@ staticfiles
 mediafiles
 .vscode
 .idea
+.claude
 docker-compose.yml
 docker-compose.override.yml
-nginx
 PLANEJAMENTO.md
+CLAUDE.md
+README.md
+*.md
+!requirements.txt

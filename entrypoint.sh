@@ -1,26 +1,25 @@
 #!/bin/sh
 set -e
 
-echo "Aguardando banco de dados..."
-while ! python -c "
-import psycopg
-conn = psycopg.connect(
-    dbname='${DB_NAME}',
-    user='${DB_USER}',
-    password='${DB_PASSWORD}',
-    host='${DB_HOST}',
-    port='${DB_PORT}'
-)
-conn.close()
+echo "[Prometheus] Aguardando banco de dados..."
+until python -c "
+import django
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'prometheus.settings.production')
+django.setup()
+from django.db import connection
+connection.ensure_connection()
 " 2>/dev/null; do
-    sleep 1
+    echo "[Prometheus] DB nao disponivel, tentando em 2s..."
+    sleep 2
 done
-echo "Banco de dados disponível."
+echo "[Prometheus] Banco de dados disponivel."
 
-echo "Aplicando migrações..."
+echo "[Prometheus] Aplicando migracoes..."
 python manage.py migrate --noinput
 
-echo "Coletando arquivos estáticos..."
+echo "[Prometheus] Coletando arquivos estaticos..."
 python manage.py collectstatic --noinput
 
+echo "[Prometheus] Iniciando aplicacao..."
 exec "$@"

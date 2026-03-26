@@ -1,8 +1,21 @@
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+
+def health_check(request):
+    """Endpoint para load balancer / Easypanel verificar se o app esta vivo."""
+    from django.db import connection
+    try:
+        connection.ensure_connection()
+        return JsonResponse({"status": "ok", "db": "connected"})
+    except Exception:
+        return JsonResponse({"status": "error", "db": "disconnected"}, status=503)
+
+
 urlpatterns = [
+    path("health/", health_check, name="health-check"),
     path("admin/", admin.site.urls),
     # API v1
     path("api/v1/auth/", include("apps.accounts.urls")),

@@ -289,7 +289,7 @@ python manage.py shell
 
 ---
 
-## Docker (opcional)
+## Docker (desenvolvimento local)
 
 Para subir o ambiente completo com Docker:
 
@@ -297,7 +297,65 @@ Para subir o ambiente completo com Docker:
 docker compose up -d --build
 ```
 
-Servicos: PostgreSQL, Redis, Django (Gunicorn), Celery worker, Celery beat, Nginx.
+Servicos: PostgreSQL, Redis, Django (Gunicorn), Celery worker, Celery beat.
+
+---
+
+## Deploy em producao (VPS + Easypanel)
+
+### Fluxo de deploy
+
+```
+Dev faz push pro GitHub (branch main)
+    |
+GitHub Actions roda testes + builda imagem Docker
+    |
+Push da imagem pro GitHub Container Registry (ghcr.io)
+    |
+Easypanel puxa nova imagem e faz rolling update (zero downtime)
+```
+
+### Configurar o Easypanel
+
+1. Instalar Easypanel na VPS: `curl -sSL https://get.easypanel.io | sh`
+2. Criar um projeto no painel
+3. Adicionar servico **App** apontando para `ghcr.io/wilkerson/prometheus:latest`
+4. Adicionar servico **PostgreSQL** e **Redis** no mesmo projeto
+5. Configurar variaveis de ambiente no painel:
+
+```
+DJANGO_SETTINGS_MODULE=prometheus.settings.production
+SECRET_KEY=<chave-segura-gerada>
+ALLOWED_HOSTS=seudominio.com.br
+CSRF_TRUSTED_ORIGINS=https://seudominio.com.br
+DB_HOST=<host-do-postgres-easypanel>
+DB_NAME=prometheus
+DB_USER=prometheus
+DB_PASSWORD=<senha-segura>
+REDIS_URL=redis://<host-do-redis-easypanel>:6379/0
+CELERY_BROKER_URL=redis://<host-do-redis-easypanel>:6379/1
+SECURE_SSL_REDIRECT=True
+```
+
+6. Configurar dominio e SSL (automatico via Let's Encrypt)
+7. Health check: `/health/` (retorna JSON com status do DB)
+
+### CI/CD (GitHub Actions)
+
+O workflow `.github/workflows/ci.yml` roda automaticamente a cada push em `main`:
+
+1. **test** — roda testes com PostgreSQL no GitHub Actions
+2. **build** — builda imagem Docker e envia pro GitHub Container Registry
+
+Para o Easypanel atualizar automaticamente, configure um webhook ou use polling de imagem.
+
+### Health check
+
+```
+GET /health/
+→ {"status": "ok", "db": "connected"}     (200)
+→ {"status": "error", "db": "disconnected"} (503)
+```
 
 ---
 
@@ -308,6 +366,7 @@ Servicos: PostgreSQL, Redis, Django (Gunicorn), Celery worker, Celery beat, Ngin
 3. Rode os testes antes de commitar
 4. Compile o Tailwind se alterou templates
 5. Abra um PR para `main`
+6. Apos merge, o CI/CD builda e publica a imagem automaticamente
 
 ---
 
