@@ -1045,3 +1045,141 @@ class TokenDeleteView(PermissionRequiredMixin, View):
         if is_htmx(request):
             return HttpResponse(headers={"HX-Redirect": "/tokens/"})
         return redirect("web:tokens")
+
+
+# ---------------------------------------------------------------------------
+# Grupos e Permissoes
+# ---------------------------------------------------------------------------
+
+# Modulos expostos na matriz de permissoes (label amigavel + app_label.model)
+MODULOS_PERMISSOES = [
+    {"label": "Clientes", "app": "crm", "model": "cliente"},
+    {"label": "Produtos", "app": "crm", "model": "produto"},
+    {"label": "Planos", "app": "crm", "model": "plano"},
+    {"label": "Comissoes", "app": "comissoes", "model": "comissao"},
+    {"label": "Usuarios", "app": "accounts", "model": "usuario"},
+    {"label": "Parceiros", "app": "crm", "model": "entidadeparceira"},
+    {"label": "Tokens API", "app": "integracao", "model": "tokenintegracao"},
+]
+
+ACOES = [
+    {"key": "view", "label": "Ver"},
+    {"key": "add", "label": "Criar"},
+    {"key": "change", "label": "Editar"},
+    {"key": "delete", "label": "Excluir"},
+]
+
+
+def _build_permission_matrix(group=None):
+    """Monta a matriz de modulos x acoes com estado checked."""
+    from django.contrib.auth.models import Permission
+
+    group_perm_codenames = set()
+    if group:
+        group_perm_codenames = set(group.permissions.values_list("codename", flat=True))
+
+    matrix = []
+    for mod in MODULOS_PERMISSOES:
+        row = {"label": mod["label"], "acoes": []}
+        for acao in ACOES:
+            codename = f"{acao['key']}_{mod['model']}"
+            perm = Permission.objects.filter(
+                codename=codename,
+                content_type__app_label=mod["app"],
+            ).first()
+            row["acoes"].append({
+                "label": acao["label"],
+                "perm_id": perm.id if perm else None,
+                "codename": codename,
+                "checked": codename in group_perm_codenames,
+            })
+        matrix.append(row)
+    return matrix
+
+
+class GrupoListView(LoginRequiredMixin, ListView):
+    template_name = "grupos/list.html"
+    context_object_name = "grupos"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Group.objects.prefetch_related("permissions").order_by("name")
+
+
+class GrupoCreateView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        return render(request, "grupos/create.html", {
+            "matrix": _build_permission_matrix(),
+            "erros": {},
+        })
+
+    def post(self, request):
+        nome = request.POST.get("name", "").strip()
+        if not nome:
+            return render(request, "grupos/create.html", {
+                "matrix": _build_permission_matrix(),
+                "erros": {"name": "O nome do grupo e obrigatorio."},
+            })
+        if Group.objects.filter(name=nome).exists():
+            return render(request, "grupos/create.html", {
+                "matrix": _build_permission_matrix(),
+                "erros": {"name": "Ja existe um grupo com esse nome."},
+            })
+
+        group = Group.objects.create(name=nome)
+        perm_ids = request.POST.getlist("permissions")
+        if perm_ids:
+            group.permissions.set(perm_ids)
+        return redirect("web:grupos")
+
+
+class GrupoUpdateView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, pk):
+        group = get_object_or_404(Group, pk=pk)
+        return render(request, "grupos/edit.html", {
+            "grupo": group,
+            "matrix": _build_permission_matrix(group),
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        group = get_object_or_404(Group, pk=pk)
+        nome = request.POST.get("name", "").strip()
+        if nome:
+            group.name = nome
+            group.save()
+
+        perm_ids = request.POST.getlist("permissions")
+        group.permissions.set(perm_ids)
+        return redirect("web:grupos")
+
+
+class GrupoDeleteView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, pk):
+        get_object_or_404(Group, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/grupos/"})
+        return redirect("web:grupos")

@@ -413,7 +413,9 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 51. [x] Acao "Marcar como pago" nas comissoes (sem precisar do admin Django)
 52. [x] CRUD de Tokens de integracao na dashboard (criar, excluir, visualizar token)
 53. [x] Sidebar com secao "Administracao" separada (Usuarios, Parceiros, Tokens API)
-54. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+54. [x] CRUD de Grupos com matriz visual de permissoes (modulo x CRUD checkboxes)
+55. [x] Simplificar atribuicao de grupo na criacao/edicao de usuario (select unico)
+56. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.

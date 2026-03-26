@@ -32,6 +32,7 @@ def navigation(request):
                 admin_items.append(entry)
 
     if user.is_superuser:
+        admin_items.append({"url": "/grupos/", "label": "Grupos"})
         admin_items.append({"url": "/admin/", "label": "Admin Django"})
 
     return {

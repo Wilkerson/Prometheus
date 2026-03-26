@@ -65,19 +65,15 @@
         </div>
 
         <div>
-          <label class="label">Grupos / Permissoes</label>
-          <div class="mt-2 space-y-2">
+          <label for="groups" class="label">Grupo</label>
+          <select name="groups" id="groups" class="input">
+            <option value="">Sem grupo</option>
             {% for group in groups %}
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="groups" value="{{ group.id }}"
-                     {% if group.id in usuario_groups %}checked{% endif %}
-                     class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
-              <span class="text-sm text-t2">{{ group.name }}</span>
-            </label>
+            <option value="{{ group.id }}" {% if group.id in usuario_groups %}selected{% endif %}>{{ group.name }}</option>
             {% endfor %}
-          </div>
+          </select>
           {% if not groups %}
-          <p class="text-xs text-t3 mt-2">Nenhum grupo cadastrado.</p>
+          <p class="text-xs text-t3 mt-2">Nenhum grupo cadastrado. <a href="{% url 'web:grupo-create' %}" class="text-ruch-accent no-underline">Criar grupo</a></p>
           {% endif %}
         </div>
 

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ grupo.name }}{% endblock %}
+{% block page_title %}Editar Grupo{% endblock %}
+{% block page_actions %}
+<a href="{% url 'web:grupos' %}" class="btn-secondary">Voltar</a>
+{% endblock %}
+{% block content %}
+<div class="max-w-3xl">
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+
+      {% if erros %}
+      <div class="mb-4">
+        {% include "clientes/_form_errors.html" %}
+      </div>
+      {% endif %}
+
+      <div class="space-y-6">
+        <div>
+          <label for="name" class="label">Nome do grupo <span class="text-red-500">*</span></label>
+          <input type="text" name="name" id="name" required class="input"
+                 value="{{ grupo.name }}">
+        </div>
+
+        <div>
+          <label class="label">Permissoes</label>
+          <p class="text-[11px] text-t3 mb-3">Selecione o que os usuarios deste grupo poderao acessar.</p>
+          {% include "grupos/_form_matrix.html" %}
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary">Salvar Alteracoes</button>
+        <a href="{% url 'web:grupos' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Excluir -->
+  <div class="card mt-4" x-data="{ confirmar: false }">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-t1">Excluir grupo</p>
+        <p class="text-xs text-t3 mt-1">Usuarios do grupo perderao essas permissoes.</p>
+      </div>
+      <div>
+        <button @click="confirmar = true" x-show="!confirmar" class="btn-danger text-xs">Excluir</button>
+        <form method="post" action="{% url 'web:grupo-delete' grupo.pk %}" x-show="confirmar" class="flex gap-2">
+          {% csrf_token %}
+          <button type="submit" class="btn-danger text-xs">Confirmar</button>
+          <button type="button" @click="confirmar = false" class="btn-secondary text-xs">Cancelar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

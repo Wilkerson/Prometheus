@@ -1,0 +1,41 @@
+<!-- Matriz de permissoes: modulos x acoes CRUD -->
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left">
+        <th class="pb-3 font-medium text-t1 w-40">Modulo</th>
+        {% for acao in matrix.0.acoes %}
+        <th class="pb-3 font-medium text-t3 text-center w-20">{{ acao.label }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for row in matrix %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium text-t1">{{ row.label }}</td>
+        {% for acao in row.acoes %}
+        <td class="py-3 text-center">
+          {% if acao.perm_id %}
+          <input type="checkbox" name="permissions" value="{{ acao.perm_id }}"
+                 {% if acao.checked %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green cursor-pointer">
+          {% else %}
+          <span class="text-t3">-</span>
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Atalhos -->
+<div class="flex gap-3 mt-3" x-data="{
+  selectAll() { document.querySelectorAll('input[name=permissions]').forEach(c => c.checked = true) },
+  deselectAll() { document.querySelectorAll('input[name=permissions]').forEach(c => c.checked = false) }
+}">
+  <button type="button" @click="selectAll()" class="text-[12px] text-ruch-accent hover:text-t1">Selecionar tudo</button>
+  <span class="text-t3">|</span>
+  <button type="button" @click="deselectAll()" class="text-[12px] text-t3 hover:text-t1">Desmarcar tudo</button>
+</div>
