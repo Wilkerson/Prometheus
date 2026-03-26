@@ -390,7 +390,9 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 36. [x] Tornar todos os campos do Cliente obrigatorios com validacao e mensagens de erro
 37. [x] Criar model Endereco separado (CEP, logradouro, numero, complemento, bairro, cidade, UF)
 38. [x] Implementar auto-preenchimento de endereco via ViaCEP (Alpine.js no front)
-39. [ ] Aplicar design system (JSON) quando fornecido
+39. [x] Redesenhar area privada com dark theme (layout 3 colunas: sidebar + main + right panel)
+40. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 

@@ -1,22 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paleta RUCH — extraída da identidade visual */
-  --color-primary-50: #f0f5f3;
-  --color-primary-100: #dce8e2;
-  --color-primary-200: #b8d1c5;
-  --color-primary-300: #8db5a3;
-  --color-primary-400: #629880;
-  --color-primary-500: #3d6b5a;
-  --color-primary-600: #2d4a3e;
-  --color-primary-700: #243d33;
-  --color-primary-800: #1c3029;
-  --color-primary-900: #15241e;
-  --color-primary-950: #0d1714;
+  /* Dark theme base */
+  --color-bg: #141414;
+  --color-bg2: #1c1c1c;
+  --color-bg3: #222222;
+  --color-bg4: #2a2a2a;
 
+  /* RUCH brand */
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #a3e635;
+  --color-primary-600: #84cc16;
+  --color-primary-700: #65a30d;
+  --color-primary-800: #3f6212;
+  --color-primary-900: #1a2e05;
+  --color-primary-950: #0f1f05;
+
+  --color-ruch-green: #a3e635;
+  --color-ruch-green2: #84cc16;
   --color-ruch-dark: #2d4a3e;
-  --color-ruch-bg: #384f46;
-  --color-ruch-light: #b8bfba;
+
+  /* Text */
+  --color-t1: #f5f5f5;
+  --color-t2: #a0a0a0;
+  --color-t3: #555555;
+
+  /* Borders */
+  --color-bdr: rgba(255,255,255,0.07);
+  --color-bdr2: rgba(255,255,255,0.12);
 }
 
 @utility btn {
@@ -27,21 +42,25 @@
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 0.5rem;
-  transition: colors 150ms;
+  transition: all 150ms;
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px var(--color-primary-200);
+    box-shadow: 0 0 0 2px rgba(163,230,53,0.3);
   }
 }
 
 @utility btn-primary {
-  @apply btn bg-primary-600 text-white;
-  &:hover { @apply bg-primary-700; }
+  @apply btn text-black font-semibold;
+  background: var(--color-ruch-green);
+  &:hover { background: var(--color-ruch-green2); }
 }
 
 @utility btn-secondary {
-  @apply btn bg-gray-100 text-gray-700;
-  &:hover { @apply bg-gray-200; }
+  @apply btn;
+  background: var(--color-bg3);
+  color: var(--color-t1);
+  border: 1px solid var(--color-bdr);
+  &:hover { background: var(--color-bg4); }
 }
 
 @utility btn-danger {
@@ -54,44 +73,58 @@
   &:hover { @apply bg-emerald-700; }
 }
 
-@utility btn-outline {
-  @apply btn border-2 border-white text-white bg-transparent;
-  &:hover { background: rgba(255,255,255,0.1); }
-}
-
 @utility card {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+  background: var(--color-bg2);
+  border: 1px solid var(--color-bdr);
+  border-radius: 14px;
+  padding: 1.25rem;
+  &:hover { border-color: var(--color-bdr2); }
 }
 
 @utility input {
-  @apply block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400;
-  &:focus { @apply border-primary-500 ring-1 ring-primary-500 outline-none; }
+  @apply block w-full rounded-lg px-3 py-2 text-sm;
+  background: var(--color-bg3);
+  border: 1px solid var(--color-bdr);
+  color: var(--color-t1);
+  &::placeholder { color: var(--color-t3); }
+  &:focus { border-color: var(--color-ruch-green); outline: none; box-shadow: 0 0 0 1px rgba(163,230,53,0.3); }
 }
 
 @utility label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
+  @apply block text-sm font-medium mb-1;
+  color: var(--color-t2);
 }
 
 @utility badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
 }
 
 @utility badge-recebida {
-  @apply badge bg-blue-100 text-blue-800;
+  @apply badge;
+  background: rgba(79,124,255,0.12);
+  color: #7da4ff;
 }
 
 @utility badge-em_analise {
-  @apply badge bg-yellow-100 text-yellow-800;
+  @apply badge;
+  background: rgba(163,230,53,0.12);
+  color: #a3e635;
 }
 
 @utility badge-em_processamento {
-  @apply badge bg-purple-100 text-purple-800;
+  @apply badge;
+  background: rgba(45,212,191,0.12);
+  color: #2dd4bf;
 }
 
 @utility badge-concluida {
-  @apply badge bg-emerald-100 text-emerald-800;
+  @apply badge;
+  background: rgba(34,197,94,0.12);
+  color: #4ade80;
 }
 
 @utility badge-perdida {
-  @apply badge bg-red-100 text-red-800;
+  @apply badge;
+  background: rgba(248,113,113,0.12);
+  color: #f87171;
 }

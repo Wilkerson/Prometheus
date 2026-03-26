@@ -5,65 +5,60 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — Prometheus RUCH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
 </head>
-<body class="h-full flex">
+<body class="h-full flex bg-bg text-t1">
 
-  <!-- Lado esquerdo — branding -->
-  <div class="hidden lg:flex lg:w-1/2 bg-primary-600 text-white flex-col justify-center items-center p-12">
+  <!-- Branding -->
+  <div class="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12" style="background:linear-gradient(135deg,#1a2a0a,#0f1f05);">
     <div class="max-w-md text-center">
-      <h1 class="text-5xl font-bold tracking-wider mb-4">RUCH</h1>
-      <p class="text-sm tracking-[0.3em] text-primary-200 uppercase mb-8">Digital Technology</p>
-      <p class="text-primary-100 text-lg leading-relaxed">
-        Plataforma Prometheus: gerencie leads, acompanhe o pipeline e receba comiss&otilde;es em tempo real.
+      <h1 class="text-5xl font-extrabold tracking-wider mb-4 text-ruch-green">RUCH</h1>
+      <p class="text-[11px] tracking-[0.3em] text-t3 uppercase mb-8">Digital Technology</p>
+      <p class="text-t2 text-lg leading-relaxed">
+        Plataforma Prometheus: gerencie clientes, acompanhe o pipeline e receba comissoes em tempo real.
       </p>
     </div>
   </div>
 
-  <!-- Lado direito — formulario -->
-  <div class="flex-1 flex items-center justify-center p-6 bg-gray-50">
+  <!-- Form -->
+  <div class="flex-1 flex items-center justify-center p-6 bg-bg">
     <div class="w-full max-w-md">
-      <!-- Logo mobile -->
       <div class="lg:hidden text-center mb-8">
-        <h1 class="text-3xl font-bold text-primary-600 tracking-wider">RUCH</h1>
-        <p class="text-xs tracking-[0.2em] text-gray-400 uppercase mt-1">Digital Technology</p>
+        <h1 class="text-3xl font-extrabold text-ruch-green tracking-wider">RUCH</h1>
+        <p class="text-[11px] tracking-[0.2em] text-t3 uppercase mt-1">Digital Technology</p>
       </div>
 
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-1">Entrar no sistema</h2>
-        <p class="text-sm text-gray-500 mb-6">Acesse sua conta para gerenciar leads e comiss&otilde;es.</p>
+      <div class="card !p-8">
+        <h2 class="text-xl font-bold text-t1 mb-1">Entrar no sistema</h2>
+        <p class="text-[13px] text-t3 mb-6">Acesse sua conta para gerenciar clientes e comissoes.</p>
 
         {% if form.errors %}
-        <div class="mb-4 px-4 py-3 rounded-lg bg-red-50 text-red-800 border border-red-200 text-sm">
-          Usu&aacute;rio ou senha inv&aacute;lidos.
+        <div class="mb-4 px-4 py-3 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 text-sm">
+          Usuario ou senha invalidos.
         </div>
         {% endif %}
 
         <form method="post" class="space-y-4">
           {% csrf_token %}
           <div>
-            <label for="id_username" class="label">Usu&aacute;rio</label>
-            <input type="text" name="username" id="id_username" required autofocus class="input"
-                   placeholder="Seu usu&aacute;rio">
+            <label for="id_username" class="label">Usuario</label>
+            <input type="text" name="username" id="id_username" required autofocus class="input" placeholder="Seu usuario">
           </div>
           <div>
             <label for="id_password" class="label">Senha</label>
-            <input type="password" name="password" id="id_password" required class="input"
-                   placeholder="Sua senha">
+            <input type="password" name="password" id="id_password" required class="input" placeholder="Sua senha">
           </div>
-          <button type="submit" class="btn-primary w-full py-2.5">
-            Entrar
-          </button>
+          <button type="submit" class="btn-primary w-full py-2.5">Entrar</button>
         </form>
       </div>
 
       <div class="mt-6 text-center">
-        <a href="{% url 'web:home' %}" class="text-sm text-primary-600 hover:text-primary-700 transition">
-          &larr; Voltar para a p&aacute;gina inicial
-        </a>
+        <a href="{% url 'web:home' %}" class="text-[13px] text-t3 hover:text-ruch-green transition">&larr; Voltar para a pagina inicial</a>
       </div>
-
-      <p class="mt-8 text-center text-xs text-gray-400">&copy; {% now "Y" %} RUCH Digital Technology</p>
+      <p class="mt-8 text-center text-[11px] text-t3">&copy; {% now "Y" %} RUCH Digital Technology</p>
     </div>
   </div>
 

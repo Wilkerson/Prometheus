@@ -1,105 +1,166 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-br" class="h-full bg-gray-50">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Prometheus{% endblock %} — RUCH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
 </head>
-<body class="h-full" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body class="h-screen bg-bg text-t1 text-[13px] overflow-hidden" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
   {% if user.is_authenticated %}
-  <div class="flex h-full" x-data="{ sidebarOpen: false }">
+  <div class="grid h-screen overflow-hidden" style="grid-template-columns:220px 1fr 280px; grid-template-rows:52px 1fr;"
+       x-data="{ sidebarOpen: false }">
 
-    <!-- Overlay mobile -->
-    <div x-show="sidebarOpen" x-transition:enter="transition-opacity duration-300"
-         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition-opacity duration-300"
-         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         @click="sidebarOpen = false"
-         class="fixed inset-0 z-30 bg-black/50 lg:hidden"></div>
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="row-span-2 bg-bg2 border-r border-bdr flex flex-col py-4 px-3.5 overflow-y-auto"
+           style="scrollbar-width:none;">
 
-    <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-           class="fixed inset-y-0 left-0 z-40 w-64 bg-primary-900 text-white transform transition-transform duration-200 lg:translate-x-0 lg:static lg:inset-0 flex flex-col">
+      <!-- User -->
+      <div class="flex items-center gap-2.5 mb-4 px-1">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-ruch-green to-emerald-600 flex items-center justify-center font-bold text-[11px] text-black shrink-0">
+          {{ user.first_name.0 }}{{ user.last_name.0 }}
+        </div>
+        <div class="text-[13px] font-semibold truncate">{{ user.get_full_name|default:user.username }}</div>
+      </div>
 
-      <!-- Logo -->
-      <div class="flex items-center h-16 px-6 border-b border-primary-800">
-        <span class="text-xl font-bold tracking-wider">RUCH</span>
-        <span class="text-xs text-primary-300 ml-2 tracking-wide">Prometheus</span>
+      <!-- Search placeholder -->
+      <div class="flex items-center gap-2 bg-bg3 border border-bdr rounded-lg px-3 py-1.5 mb-5">
+        <svg width="13" height="13" fill="none" viewBox="0 0 16 16" class="text-t3 shrink-0"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span class="text-t3 text-[12px]">Buscar...</span>
+        <span class="ml-auto text-[10px] bg-bg4 border border-bdr2 rounded px-1.5 py-0.5 text-t3">Ctrl+K</span>
       </div>
 
       <!-- Nav -->
-      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <div class="mb-5">
+        <div class="text-[10px] font-bold tracking-widest uppercase text-t3 px-2 pb-2">Menu</div>
         {% for item in nav_items %}
         <a href="{{ item.url }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  {% if request.path == item.url %}bg-primary-800 text-white{% else %}text-primary-200 hover:bg-primary-800 hover:text-white{% endif %}">
-          <span class="w-5 h-5 flex items-center justify-center text-xs">●</span>
+           class="flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] text-[13px] mb-0.5 transition-all duration-150
+                  {% if request.path == item.url %}bg-ruch-green text-black font-semibold{% else %}text-t2 hover:bg-bg3 hover:text-t1{% endif %}">
+          <span class="w-4 h-4 flex items-center justify-center text-[10px]">&#9679;</span>
           {{ item.label }}
         </a>
         {% endfor %}
-      </nav>
+      </div>
 
-      <!-- User -->
-      <div class="px-4 py-4 border-t border-primary-800">
-        <div class="text-sm font-medium truncate">{{ user.get_full_name|default:user.username }}</div>
-        <div class="text-xs text-primary-300 capitalize">{{ user.get_perfil_display }}</div>
-        <form method="post" action="{% url 'web:logout' %}" class="mt-3">
-          {% csrf_token %}
-          <button type="submit" class="text-xs text-primary-300 hover:text-white transition-colors">
-            Sair
-          </button>
-        </form>
+      <!-- Placeholders futuros -->
+      <div class="mb-5">
+        <div class="text-[10px] font-bold tracking-widest uppercase text-t3 px-2 pb-2">Em breve</div>
+        <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default">
+          <span class="w-4 h-4 flex items-center justify-center text-[10px]">&#9679;</span>
+          Mensagens
+        </div>
+        <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default">
+          <span class="w-4 h-4 flex items-center justify-center text-[10px]">&#9679;</span>
+          Analises
+        </div>
+        <div class="flex items-center gap-2.5 px-2.5 py-2 rounded-[9px] text-[13px] text-t3 mb-0.5 cursor-default">
+          <span class="w-4 h-4 flex items-center justify-center text-[10px]">&#9679;</span>
+          Configuracoes
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-auto flex items-center gap-2 pt-3 px-2 border-t border-bdr">
+        <div class="w-7 h-7 bg-ruch-green rounded-[7px] flex items-center justify-center font-extrabold text-[11px] text-black">R</div>
+        <div class="text-[13px] font-bold">RUCH</div>
       </div>
     </aside>
 
-    <!-- Main -->
-    <div class="flex-1 flex flex-col min-w-0">
-      <!-- Topbar -->
-      <header class="flex items-center h-16 px-4 bg-white border-b border-gray-200 lg:px-8">
-        <button @click="sidebarOpen = true" class="lg:hidden p-2 -ml-2 text-gray-500 hover:text-gray-700">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-800 ml-2 lg:ml-0">{% block page_title %}Dashboard{% endblock %}</h1>
+    <!-- ==================== TOPBAR ==================== -->
+    <header class="flex items-center px-6 border-b border-bdr gap-2">
+      <div class="flex items-center gap-1.5 text-t2 text-[13px]">
+        Dashboard <span class="text-t3">/</span> <span class="text-t1 font-medium">{% block page_title %}Visao geral{% endblock %}</span>
+      </div>
 
-        <!-- Loading indicator -->
-        <div id="loading-indicator" class="hidden ml-3">
-          <div class="w-5 h-5 border-2 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
-        </div>
+      <!-- Loading -->
+      <div id="loading-indicator" class="hidden ml-3">
+        <div class="w-4 h-4 border-2 border-bg4 border-t-ruch-green rounded-full animate-spin"></div>
+      </div>
 
-        <div class="ml-auto">
-          {% block page_actions %}{% endblock %}
-        </div>
-      </header>
+      <div class="ml-auto flex items-center gap-1.5">
+        {% block page_actions %}{% endblock %}
+      </div>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="overflow-y-auto p-6 flex flex-col gap-3.5" style="scrollbar-width:thin; scrollbar-color: #2a2a2a transparent;">
 
       <!-- Messages -->
       {% if messages %}
-      <div class="px-4 lg:px-8 pt-4 space-y-2">
+      <div class="space-y-2">
         {% for message in messages %}
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
              x-transition:leave="transition duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
              class="flex items-center gap-2 px-4 py-3 rounded-lg text-sm
-               {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200
-               {% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200
-               {% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+               {% if message.tags == 'success' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+               {% elif message.tags == 'error' %}bg-red-500/10 text-red-400 border border-red-500/20
+               {% else %}bg-blue-500/10 text-blue-400 border border-blue-500/20{% endif %}">
           <span>{{ message }}</span>
-          <button @click="show = false" class="ml-auto text-current opacity-50 hover:opacity-100">&times;</button>
+          <button @click="show = false" class="ml-auto opacity-50 hover:opacity-100">&times;</button>
         </div>
         {% endfor %}
       </div>
       {% endif %}
 
-      <!-- Content -->
-      <main class="flex-1 p-4 lg:p-8 overflow-y-auto">
-        {% block content %}{% endblock %}
-      </main>
-    </div>
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- ==================== RIGHT PANEL ==================== -->
+    <aside class="row-span-2 bg-bg2 border-l border-bdr overflow-y-auto p-4" style="scrollbar-width:none;">
+      {% block right_panel %}
+      <!-- Notifications placeholder -->
+      <div class="mb-6">
+        <div class="text-[15px] font-bold mb-3">Notificacoes</div>
+        <div class="space-y-0">
+          <div class="flex items-start gap-2.5 py-2.5 border-b border-bdr">
+            <div class="w-8 h-8 rounded-full bg-bg3 border border-bdr flex items-center justify-center text-[13px] shrink-0">&#128293;</div>
+            <div>
+              <div class="text-[12.5px] font-medium">Modulo em desenvolvimento</div>
+              <div class="text-[11px] text-t3 mt-0.5">Notificacoes em tempo real em breve</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity placeholder -->
+      <div class="mb-6">
+        <div class="text-[15px] font-bold mb-3">Atividades</div>
+        <div class="text-[12px] text-t3">Feed de atividades recentes sera implementado em breve.</div>
+      </div>
+
+      <!-- User info -->
+      <div class="mb-6">
+        <div class="text-[15px] font-bold mb-3">Minha conta</div>
+        <div class="bg-bg3 rounded-[10px] p-3">
+          <div class="flex items-center gap-2.5 mb-2">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-ruch-green to-emerald-600 flex items-center justify-center font-bold text-[11px] text-black">
+              {{ user.first_name.0 }}{{ user.last_name.0 }}
+            </div>
+            <div>
+              <div class="text-[12.5px] font-semibold">{{ user.get_full_name|default:user.username }}</div>
+              <div class="text-[11px] text-t3 capitalize">{{ user.get_perfil_display }}</div>
+            </div>
+          </div>
+          <form method="post" action="{% url 'web:logout' %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="text-[11px] text-t3 hover:text-t1 transition">Sair da conta</button>
+          </form>
+        </div>
+      </div>
+      {% endblock %}
+    </aside>
+
   </div>
   {% else %}
     {% block public_content %}{% endblock %}
