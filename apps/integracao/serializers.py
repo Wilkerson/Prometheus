@@ -17,6 +17,6 @@ class ClienteCallbackSerializer(serializers.Serializer):
     cliente_id = serializers.IntegerField()
     status = serializers.ChoiceField(choices=[
         (Cliente.Status.CONCLUIDA, "Concluida"),
-        (Cliente.Status.PERDIDA, "Perdida"),
+        (Cliente.Status.FALHA_IMPLANTACAO, "Falha na Implantacao"),
     ])
     observacao = serializers.CharField(required=False, default="", allow_blank=True)

@@ -13,9 +13,9 @@ SISTEMA_EXTERNO_API_KEY = config("SISTEMA_EXTERNO_API_KEY", default="")
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def enviar_cliente_sistema_externo(self, cliente_id):
     """
-    Envia os dados do cliente para o sistema externo quando o status
-    muda para 'em_processamento'. O sistema externo processara
-    a implantacao e retornara o status via callback.
+    Envia os dados do cliente para o Zypher quando o status muda
+    para 'em_processamento'. O Zypher processara a implantacao e
+    retornara via callback: concluida ou falha_implantacao.
     """
     from .models import Cliente
 

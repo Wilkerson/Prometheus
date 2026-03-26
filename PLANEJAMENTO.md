@@ -256,11 +256,12 @@ TOKEN_INTEGRACAO
 ### Transicoes validas de status do Cliente
 
 ```
-recebida        → em_analise, perdida
-em_analise      → em_processamento, perdida
-em_processamento → concluida, perdida  (concluida vem via callback do sistema externo)
-concluida       → (status final)
-perdida         → (status final)
+recebida           → em_analise, perdida
+em_analise         → em_processamento, perdida
+em_processamento   → concluida, falha_implantacao  (via callback do Zypher)
+concluida          → (status final)
+falha_implantacao  → em_processamento  (pode retentar envio ao Zypher)
+perdida            → (status final)
 ```
 
 ---
@@ -416,7 +417,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 54. [x] CRUD de Grupos com matriz visual de permissoes (modulo x CRUD checkboxes)
 55. [x] Simplificar atribuicao de grupo na criacao/edicao de usuario (select unico)
 56. [x] Remover campo perfil do model Usuario — controle 100% por grupos/permissoes
-57. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+57. [x] Adicionar status falha_implantacao (Zypher NOK) + transicao retry para em_processamento
+58. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.

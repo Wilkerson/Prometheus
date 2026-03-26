@@ -155,13 +155,15 @@ class Cliente(models.Model):
         EM_ANALISE = "em_analise", "Em Analise"
         EM_PROCESSAMENTO = "em_processamento", "Em Processamento"
         CONCLUIDA = "concluida", "Concluida"
+        FALHA_IMPLANTACAO = "falha_implantacao", "Falha na Implantacao"
         PERDIDA = "perdida", "Perdida"
 
     TRANSICOES_VALIDAS = {
         Status.RECEBIDA: (Status.EM_ANALISE, Status.PERDIDA),
         Status.EM_ANALISE: (Status.EM_PROCESSAMENTO, Status.PERDIDA),
-        Status.EM_PROCESSAMENTO: (Status.CONCLUIDA, Status.PERDIDA),
+        Status.EM_PROCESSAMENTO: (Status.CONCLUIDA, Status.FALHA_IMPLANTACAO),
         Status.CONCLUIDA: (),
+        Status.FALHA_IMPLANTACAO: (Status.EM_PROCESSAMENTO,),
         Status.PERDIDA: (),
     }
 
