@@ -1,7 +1,10 @@
+import calendar
+
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Count, Q, Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views import View
@@ -9,7 +12,7 @@ from django.views.generic import ListView, TemplateView
 
 from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
-from apps.crm.models import Cliente, EntidadeParceira, Lead, LeadHistorico
+from apps.crm.models import Cliente, ClienteHistorico, EntidadeParceira
 
 from .mixins import HtmxMixin, is_htmx
 
@@ -67,32 +70,30 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
 
-        # Leads — so mostra se tem permissao de visualizar
-        if user.has_perm("crm.view_lead"):
+        if user.has_perm("crm.view_cliente"):
             if hasattr(user, "parceiro"):
-                leads_qs = Lead.objects.filter(parceiro=user.parceiro)
+                clientes_qs = Cliente.objects.filter(parceiro=user.parceiro)
             else:
-                leads_qs = Lead.objects.all()
+                clientes_qs = Cliente.objects.all()
 
-            stats = leads_qs.values("status").annotate(total=Count("id"))
+            stats = clientes_qs.values("status").annotate(total=Count("id"))
             por_status = {item["status"]: item["total"] for item in stats}
-            ctx["leads_total"] = sum(por_status.values())
-            ctx["leads_por_status"] = por_status
-            ctx["leads_recentes"] = leads_qs.select_related("parceiro").order_by("-criado_em")[:10]
+            ctx["clientes_total"] = sum(por_status.values())
+            ctx["clientes_por_status"] = por_status
+            ctx["clientes_recentes"] = clientes_qs.select_related("parceiro").order_by("-criado_em")[:10]
 
             limite = timezone.now() - timezone.timedelta(days=3)
-            ctx["leads_atrasadas"] = (
-                leads_qs.exclude(status__in=[Lead.Status.CONCLUIDA, Lead.Status.PERDIDA])
+            ctx["clientes_atrasados"] = (
+                clientes_qs.exclude(status__in=[Cliente.Status.CONCLUIDA, Cliente.Status.PERDIDA])
                 .filter(atualizado_em__lt=limite)
                 .count()
             )
         else:
-            ctx["leads_total"] = 0
-            ctx["leads_por_status"] = {}
-            ctx["leads_recentes"] = []
-            ctx["leads_atrasadas"] = 0
+            ctx["clientes_total"] = 0
+            ctx["clientes_por_status"] = {}
+            ctx["clientes_recentes"] = []
+            ctx["clientes_atrasados"] = 0
 
-        # Comissoes — so mostra se tem permissao
         if user.has_perm("comissoes.view_comissao"):
             if hasattr(user, "parceiro"):
                 comissoes_qs = Comissao.objects.filter(parceiro=user.parceiro)
@@ -102,7 +103,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             comissao_stats = comissoes_qs.aggregate(
                 pendente=Sum("valor_comissao", filter=Q(status=Comissao.Status.PENDENTE)),
                 pago=Sum("valor_comissao", filter=Q(status=Comissao.Status.PAGO)),
-                total_count=Count("id"),
             )
             ctx["comissao_pendente"] = comissao_stats["pendente"] or 0
             ctx["comissao_pago"] = comissao_stats["pago"] or 0
@@ -110,220 +110,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             ctx["comissao_pendente"] = 0
             ctx["comissao_pago"] = 0
 
-        # Permissoes para controlar o que exibir no template
-        ctx["can_view_leads"] = user.has_perm("crm.view_lead")
-        ctx["can_view_comissoes"] = user.has_perm("comissoes.view_comissao")
         ctx["can_view_clientes"] = user.has_perm("crm.view_cliente")
+        ctx["can_view_comissoes"] = user.has_perm("comissoes.view_comissao")
 
-        return ctx
-
-
-# ---------------------------------------------------------------------------
-# Leads
-# ---------------------------------------------------------------------------
-class LeadListView(PermissionRequiredMixin, HtmxMixin, ListView):
-    template_name = "leads/list.html"
-    partial_template_name = "leads/_table.html"
-    context_object_name = "leads"
-    paginate_by = 20
-    permission_required = "crm.view_lead"
-
-    def get_queryset(self):
-        user = self.request.user
-        qs = Lead.objects.select_related("parceiro", "operador").order_by("-criado_em")
-
-        if hasattr(user, "parceiro"):
-            qs = qs.filter(parceiro=user.parceiro)
-
-        status_filter = self.request.GET.get("status")
-        if status_filter:
-            qs = qs.filter(status=status_filter)
-
-        produto_filter = self.request.GET.get("produto")
-        if produto_filter:
-            qs = qs.filter(produto_interesse=produto_filter)
-
-        search = self.request.GET.get("q")
-        if search:
-            qs = qs.filter(Q(nome__icontains=search) | Q(email__icontains=search))
-
-        return qs
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["status_choices"] = Lead.Status.choices
-        ctx["produto_choices"] = Lead.Produto.choices
-        ctx["current_status"] = self.request.GET.get("status", "")
-        ctx["current_produto"] = self.request.GET.get("produto", "")
-        ctx["current_search"] = self.request.GET.get("q", "")
-        return ctx
-
-
-class LeadCreateView(PermissionRequiredMixin, View):
-    permission_required = "crm.add_lead"
-
-    def get(self, request):
-        return render(request, "leads/create.html", {
-            "produto_choices": Lead.Produto.choices,
-        })
-
-    def post(self, request):
-        user = request.user
-        lead_data = {
-            "nome": request.POST.get("nome", ""),
-            "email": request.POST.get("email", ""),
-            "telefone": request.POST.get("telefone", ""),
-            "produto_interesse": request.POST.get("produto_interesse", ""),
-        }
-
-        if hasattr(user, "parceiro"):
-            lead_data["parceiro"] = user.parceiro
-        else:
-            parceiro_id = request.POST.get("parceiro")
-            if parceiro_id:
-                lead_data["parceiro"] = get_object_or_404(EntidadeParceira, id=parceiro_id)
-
-        Lead.objects.create(**lead_data)
-
-        if is_htmx(request):
-            return render(request, "leads/_create_success.html")
-        return redirect("web:leads")
-
-
-class LeadDetailView(PermissionRequiredMixin, View):
-    permission_required = "crm.view_lead"
-
-    def get(self, request, pk):
-        lead = get_object_or_404(
-            Lead.objects.select_related("parceiro", "operador"),
-            pk=pk,
-        )
-        historico = lead.historico.select_related("usuario").all()
-
-        # Parceiro so ve os seus
-        if (
-            hasattr(request.user, "parceiro")
-            and lead.parceiro != request.user.parceiro
-        ):
-            from django.core.exceptions import PermissionDenied
-            raise PermissionDenied
-
-        transicoes = []
-        if request.user.has_perm("crm.change_lead"):
-            transicoes = [(s, Lead.Status(s).label) for s in Lead.TRANSICOES_VALIDAS.get(lead.status, ())]
-
-        return render(request, "leads/detail.html", {
-            "lead": lead,
-            "historico": historico,
-            "transicoes": transicoes,
-        })
-
-
-class LeadUpdateStatusView(PermissionRequiredMixin, View):
-    permission_required = "crm.change_lead"
-
-    def post(self, request, pk):
-        lead = get_object_or_404(Lead, pk=pk)
-        novo_status = request.POST.get("status")
-        observacao = request.POST.get("observacao", "")
-
-        if not lead.pode_transitar_para(novo_status):
-            return render(request, "leads/_status_error.html", {
-                "error": f"Transicao de '{lead.get_status_display()}' para '{novo_status}' nao e permitida.",
-            })
-
-        status_anterior = lead.status
-        lead.status = novo_status
-        lead.save(update_fields=["status", "atualizado_em"])
-
-        LeadHistorico.objects.create(
-            lead=lead,
-            status_anterior=status_anterior,
-            status_novo=novo_status,
-            usuario=request.user,
-            observacao=observacao,
-        )
-
-        if novo_status == Lead.Status.EM_PROCESSAMENTO:
-            from apps.crm.tasks import enviar_lead_sistema_externo
-            enviar_lead_sistema_externo.delay(lead.id)
-
-        historico = lead.historico.select_related("usuario").all()
-        transicoes = [(s, Lead.Status(s).label) for s in Lead.TRANSICOES_VALIDAS.get(lead.status, ())]
-
-        return render(request, "leads/_detail_content.html", {
-            "lead": lead,
-            "historico": historico,
-            "transicoes": transicoes,
-        })
-
-
-class LeadPipelineView(PermissionRequiredMixin, TemplateView):
-    template_name = "leads/pipeline.html"
-    permission_required = "crm.change_lead"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        leads = Lead.objects.select_related("parceiro").order_by("-criado_em")
-        ctx["colunas"] = [
-            {"status": s.value, "label": s.label, "leads": leads.filter(status=s.value)}
-            for s in Lead.Status
-        ]
-        return ctx
-
-
-class LeadCalendarioView(PermissionRequiredMixin, TemplateView):
-    template_name = "leads/calendario.html"
-    permission_required = "crm.view_lead"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        mes = self.request.GET.get("mes", "")
-
-        if mes:
-            try:
-                partes = mes.split("-")
-                ano, mes_num = int(partes[0]), int(partes[1])
-            except (ValueError, IndexError):
-                hoje = timezone.now()
-                ano, mes_num = hoje.year, hoje.month
-        else:
-            hoje = timezone.now()
-            ano, mes_num = hoje.year, hoje.month
-
-        leads = (
-            Lead.objects.filter(criado_em__year=ano, criado_em__month=mes_num)
-            .select_related("parceiro")
-            .order_by("criado_em")
-        )
-
-        import calendar
-        cal = calendar.monthcalendar(ano, mes_num)
-
-        dias = {}
-        for lead in leads:
-            dia = lead.criado_em.day
-            if dia not in dias:
-                dias[dia] = []
-            dias[dia].append(lead)
-
-        if mes_num == 1:
-            prev_mes = f"{ano - 1:04d}-12"
-        else:
-            prev_mes = f"{ano:04d}-{mes_num - 1:02d}"
-        if mes_num == 12:
-            next_mes = f"{ano + 1:04d}-01"
-        else:
-            next_mes = f"{ano:04d}-{mes_num + 1:02d}"
-
-        ctx["ano"] = ano
-        ctx["mes_num"] = mes_num
-        ctx["mes_nome"] = calendar.month_name[mes_num]
-        ctx["semanas"] = cal
-        ctx["dias"] = dias
-        ctx["total"] = leads.count()
-        ctx["prev_mes"] = prev_mes
-        ctx["next_mes"] = next_mes
         return ctx
 
 
@@ -338,14 +127,33 @@ class ClienteListView(PermissionRequiredMixin, HtmxMixin, ListView):
     permission_required = "crm.view_cliente"
 
     def get_queryset(self):
-        qs = Cliente.objects.prefetch_related("produtos").order_by("-ativado_em")
+        user = self.request.user
+        qs = Cliente.objects.select_related("parceiro", "operador").order_by("-criado_em")
+
+        if hasattr(user, "parceiro"):
+            qs = qs.filter(parceiro=user.parceiro)
+
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
+
+        produto_filter = self.request.GET.get("produto")
+        if produto_filter:
+            qs = qs.filter(produto_interesse=produto_filter)
+
         search = self.request.GET.get("q")
         if search:
             qs = qs.filter(Q(nome__icontains=search) | Q(cnpj__icontains=search) | Q(email__icontains=search))
+
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx["status_choices"] = Cliente.Status.choices
+        ctx["produto_choices"] = Cliente.Produto.choices
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["current_produto"] = self.request.GET.get("produto", "")
+        ctx["current_search"] = self.request.GET.get("q", "")
         ctx["can_add"] = self.request.user.has_perm("crm.add_cliente")
         return ctx
 
@@ -354,24 +162,30 @@ class ClienteCreateView(PermissionRequiredMixin, View):
     permission_required = "crm.add_cliente"
 
     def get(self, request):
-        leads = Lead.objects.filter(status=Lead.Status.CONCLUIDA).exclude(
-            cliente__isnull=False
-        ).select_related("parceiro")
-        return render(request, "clientes/create.html", {"leads": leads})
+        return render(request, "clientes/create.html", {
+            "produto_choices": Cliente.Produto.choices,
+        })
 
     def post(self, request):
-        lead_id = request.POST.get("lead")
-        lead = get_object_or_404(Lead, pk=lead_id) if lead_id else None
+        user = request.user
+        cliente_data = {
+            "nome": request.POST.get("nome", ""),
+            "cnpj": request.POST.get("cnpj", ""),
+            "email": request.POST.get("email", ""),
+            "telefone": request.POST.get("telefone", ""),
+            "endereco": request.POST.get("endereco", ""),
+            "cep": request.POST.get("cep", ""),
+            "produto_interesse": request.POST.get("produto_interesse", ""),
+        }
 
-        cliente = Cliente.objects.create(
-            lead=lead,
-            nome=request.POST.get("nome", ""),
-            cnpj=request.POST.get("cnpj", ""),
-            email=request.POST.get("email", ""),
-            telefone=request.POST.get("telefone", ""),
-            endereco=request.POST.get("endereco", ""),
-            cep=request.POST.get("cep", ""),
-        )
+        if hasattr(user, "parceiro"):
+            cliente_data["parceiro"] = user.parceiro
+        else:
+            parceiro_id = request.POST.get("parceiro")
+            if parceiro_id:
+                cliente_data["parceiro"] = get_object_or_404(EntidadeParceira, id=parceiro_id)
+
+        cliente = Cliente.objects.create(**cliente_data)
 
         if is_htmx(request):
             return render(request, "clientes/_create_success.html", {"cliente": cliente})
@@ -383,11 +197,23 @@ class ClienteDetailView(PermissionRequiredMixin, View):
 
     def get(self, request, pk):
         cliente = get_object_or_404(
-            Cliente.objects.prefetch_related("produtos"),
+            Cliente.objects.select_related("parceiro", "operador").prefetch_related("produtos"),
             pk=pk,
         )
+        historico = cliente.historico.select_related("usuario").all()
+
+        if hasattr(request.user, "parceiro") and cliente.parceiro != request.user.parceiro:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+
+        transicoes = []
+        if request.user.has_perm("crm.change_cliente"):
+            transicoes = [(s, Cliente.Status(s).label) for s in Cliente.TRANSICOES_VALIDAS.get(cliente.status, ())]
+
         ctx = {
             "cliente": cliente,
+            "historico": historico,
+            "transicoes": transicoes,
             "can_edit": request.user.has_perm("crm.change_cliente"),
             "can_delete": request.user.has_perm("crm.delete_cliente"),
         }
@@ -417,6 +243,47 @@ class ClienteUpdateView(PermissionRequiredMixin, View):
         return redirect("web:cliente-detail", pk=cliente.pk)
 
 
+class ClienteUpdateStatusView(PermissionRequiredMixin, View):
+    permission_required = "crm.change_cliente"
+
+    def post(self, request, pk):
+        cliente = get_object_or_404(Cliente, pk=pk)
+        novo_status = request.POST.get("status")
+        observacao = request.POST.get("observacao", "")
+
+        if not cliente.pode_transitar_para(novo_status):
+            return render(request, "clientes/_status_error.html", {
+                "error": f"Transicao de '{cliente.get_status_display()}' para '{novo_status}' nao e permitida.",
+            })
+
+        status_anterior = cliente.status
+        cliente.status = novo_status
+        cliente.save(update_fields=["status", "atualizado_em"])
+
+        ClienteHistorico.objects.create(
+            cliente=cliente,
+            status_anterior=status_anterior,
+            status_novo=novo_status,
+            usuario=request.user,
+            observacao=observacao,
+        )
+
+        if novo_status == Cliente.Status.EM_PROCESSAMENTO:
+            from apps.crm.tasks import enviar_cliente_sistema_externo
+            enviar_cliente_sistema_externo.delay(cliente.id)
+
+        historico = cliente.historico.select_related("usuario").all()
+        transicoes = [(s, Cliente.Status(s).label) for s in Cliente.TRANSICOES_VALIDAS.get(cliente.status, ())]
+
+        return render(request, "clientes/_detail_content.html", {
+            "cliente": cliente,
+            "historico": historico,
+            "transicoes": transicoes,
+            "can_edit": True,
+            "can_delete": request.user.has_perm("crm.delete_cliente"),
+        })
+
+
 class ClienteDeleteView(PermissionRequiredMixin, View):
     permission_required = "crm.delete_cliente"
 
@@ -424,9 +291,75 @@ class ClienteDeleteView(PermissionRequiredMixin, View):
         cliente = get_object_or_404(Cliente, pk=pk)
         cliente.delete()
         if is_htmx(request):
-            from django.http import HttpResponse
             return HttpResponse(headers={"HX-Redirect": "/clientes/"})
         return redirect("web:clientes")
+
+
+class ClientePipelineView(PermissionRequiredMixin, TemplateView):
+    template_name = "clientes/pipeline.html"
+    permission_required = "crm.change_cliente"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        clientes = Cliente.objects.select_related("parceiro").order_by("-criado_em")
+        ctx["colunas"] = [
+            {"status": s.value, "label": s.label, "clientes": clientes.filter(status=s.value)}
+            for s in Cliente.Status
+        ]
+        return ctx
+
+
+class ClienteCalendarioView(PermissionRequiredMixin, TemplateView):
+    template_name = "clientes/calendario.html"
+    permission_required = "crm.view_cliente"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        mes = self.request.GET.get("mes", "")
+
+        if mes:
+            try:
+                partes = mes.split("-")
+                ano, mes_num = int(partes[0]), int(partes[1])
+            except (ValueError, IndexError):
+                hoje = timezone.now()
+                ano, mes_num = hoje.year, hoje.month
+        else:
+            hoje = timezone.now()
+            ano, mes_num = hoje.year, hoje.month
+
+        clientes = (
+            Cliente.objects.filter(criado_em__year=ano, criado_em__month=mes_num)
+            .select_related("parceiro")
+            .order_by("criado_em")
+        )
+
+        cal = calendar.monthcalendar(ano, mes_num)
+        dias = {}
+        for cliente in clientes:
+            dia = cliente.criado_em.day
+            if dia not in dias:
+                dias[dia] = []
+            dias[dia].append(cliente)
+
+        if mes_num == 1:
+            prev_mes = f"{ano - 1:04d}-12"
+        else:
+            prev_mes = f"{ano:04d}-{mes_num - 1:02d}"
+        if mes_num == 12:
+            next_mes = f"{ano + 1:04d}-01"
+        else:
+            next_mes = f"{ano:04d}-{mes_num + 1:02d}"
+
+        ctx["ano"] = ano
+        ctx["mes_num"] = mes_num
+        ctx["mes_nome"] = calendar.month_name[mes_num]
+        ctx["semanas"] = cal
+        ctx["dias"] = dias
+        ctx["total"] = clientes.count()
+        ctx["prev_mes"] = prev_mes
+        ctx["next_mes"] = next_mes
+        return ctx
 
 
 # ---------------------------------------------------------------------------

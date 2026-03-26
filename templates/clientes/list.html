@@ -11,14 +11,42 @@
 
 {% block content %}
 <div class="card mb-6">
-  <div class="flex gap-3">
-    <div class="flex-1">
-      <input type="text" name="q" placeholder="Buscar por nome, CNPJ ou email..."
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" value="{{ current_search }}" placeholder="Nome, CNPJ ou email..."
              class="input"
              hx-get="{% url 'web:clientes' %}"
              hx-target="#clientes-table"
              hx-trigger="input changed delay:300ms"
+             hx-include="[name='status'],[name='produto']"
              hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Status</label>
+      <select name="status" class="input"
+              hx-get="{% url 'web:clientes' %}"
+              hx-target="#clientes-table"
+              hx-include="[name='q'],[name='produto']"
+              hx-push-url="true">
+        <option value="">Todos</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="label">Produto</label>
+      <select name="produto" class="input"
+              hx-get="{% url 'web:clientes' %}"
+              hx-target="#clientes-table"
+              hx-include="[name='q'],[name='status']"
+              hx-push-url="true">
+        <option value="">Todos</option>
+        {% for value, label in produto_choices %}
+        <option value="{{ value }}" {% if current_produto == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
     </div>
   </div>
 </div>

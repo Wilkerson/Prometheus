@@ -9,17 +9,16 @@ from rest_framework.views import APIView
 from apps.accounts.models import Usuario
 from apps.accounts.permissions import IsOperador, IsOwnerParceiro, IsSuperAdmin
 
-from .models import Cliente, EntidadeParceira, Lead, LeadHistorico, ProdutoContratado
+from .models import Cliente, ClienteHistorico, EntidadeParceira, ProdutoContratado
 from .serializers import (
+    ClienteHistoricoSerializer,
+    ClienteListSerializer,
     ClienteSerializer,
+    ClienteStatusSerializer,
     EntidadeParceiraSerializer,
-    LeadHistoricoSerializer,
-    LeadListSerializer,
-    LeadSerializer,
-    LeadStatusSerializer,
     ProdutoContratadoSerializer,
 )
-from .tasks import enviar_lead_sistema_externo
+from .tasks import enviar_cliente_sistema_externo
 
 
 class EntidadeParceiraViewSet(viewsets.ModelViewSet):
@@ -30,26 +29,26 @@ class EntidadeParceiraViewSet(viewsets.ModelViewSet):
     permission_classes = [IsSuperAdmin]
 
 
-class LeadViewSet(viewsets.ModelViewSet):
+class ClienteViewSet(viewsets.ModelViewSet):
     """
-    Leads:
+    Clientes:
     - Super Admin / Operador: veem todos, podem alterar status
-    - Parceiro: vê e cria apenas os seus
+    - Parceiro: ve e cria apenas os seus
     """
 
     permission_classes = [IsAuthenticated, IsOwnerParceiro]
     filterset_fields = ["status", "produto_interesse", "parceiro"]
-    search_fields = ["nome", "email"]
+    search_fields = ["nome", "cnpj", "email"]
     ordering_fields = ["criado_em", "status"]
 
     def get_serializer_class(self):
         if self.action == "list":
-            return LeadListSerializer
-        return LeadSerializer
+            return ClienteListSerializer
+        return ClienteSerializer
 
     def get_queryset(self):
         user = self.request.user
-        qs = Lead.objects.select_related("parceiro", "operador").prefetch_related("historico")
+        qs = Cliente.objects.select_related("parceiro", "operador").prefetch_related("historico")
 
         if user.perfil == Usuario.Perfil.PARCEIRO and hasattr(user, "parceiro"):
             return qs.filter(parceiro=user.parceiro)
@@ -64,53 +63,43 @@ class LeadViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["patch"], url_path="status", permission_classes=[IsOperador])
     def update_status(self, request, pk=None):
-        """
-        PATCH /api/v1/leads/{id}/status/
-        Atualiza status com validação de transição e registro no histórico.
-        Ao mudar para 'em_processamento', dispara envio para sistema externo.
-        """
-        lead = self.get_object()
-        serializer = LeadStatusSerializer(data=request.data, context={"lead": lead})
+        """PATCH /api/v1/clientes/{id}/status/ — atualiza status."""
+        cliente = self.get_object()
+        serializer = ClienteStatusSerializer(data=request.data, context={"cliente": cliente})
         serializer.is_valid(raise_exception=True)
 
-        status_anterior = lead.status
+        status_anterior = cliente.status
         novo_status = serializer.validated_data["status"]
         observacao = serializer.validated_data.get("observacao", "")
 
-        # Atualiza o lead
-        lead.status = novo_status
-        lead.save(update_fields=["status", "atualizado_em"])
+        cliente.status = novo_status
+        cliente.save(update_fields=["status", "atualizado_em"])
 
-        # Registra no histórico
-        LeadHistorico.objects.create(
-            lead=lead,
+        ClienteHistorico.objects.create(
+            cliente=cliente,
             status_anterior=status_anterior,
             status_novo=novo_status,
             usuario=request.user,
             observacao=observacao,
         )
 
-        # Se mudou para em_processamento, envia para sistema externo via Celery
-        if novo_status == Lead.Status.EM_PROCESSAMENTO:
-            enviar_lead_sistema_externo.delay(lead.id)
+        if novo_status == Cliente.Status.EM_PROCESSAMENTO:
+            enviar_cliente_sistema_externo.delay(cliente.id)
 
-        lead.refresh_from_db()
-        return Response(LeadSerializer(lead).data)
+        cliente.refresh_from_db()
+        return Response(ClienteSerializer(cliente).data)
 
     @action(detail=True, methods=["get"], url_path="historico")
     def get_historico(self, request, pk=None):
-        """GET /api/v1/leads/{id}/historico/ — timeline do lead."""
-        lead = self.get_object()
-        historico = lead.historico.select_related("usuario").all()
-        serializer = LeadHistoricoSerializer(historico, many=True)
+        """GET /api/v1/clientes/{id}/historico/ — timeline do cliente."""
+        cliente = self.get_object()
+        historico = cliente.historico.select_related("usuario").all()
+        serializer = ClienteHistoricoSerializer(historico, many=True)
         return Response(serializer.data)
 
 
-class CalendarioLeadsView(APIView):
-    """
-    GET /api/v1/leads/calendario/?mes=2026-03
-    Retorna leads agrupadas por dia para visualização no calendário.
-    """
+class CalendarioClientesView(APIView):
+    """GET /api/v1/clientes/calendario/?mes=YYYY-MM"""
 
     permission_classes = [IsAuthenticated, IsOperador]
 
@@ -125,43 +114,40 @@ class CalendarioLeadsView(APIView):
                 ano, mes_num = int(partes[0]), int(partes[1])
             except (ValueError, IndexError):
                 return Response(
-                    {"detail": "Formato inválido. Use ?mes=YYYY-MM"},
+                    {"detail": "Formato invalido. Use ?mes=YYYY-MM"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        leads = (
-            Lead.objects.filter(criado_em__year=ano, criado_em__month=mes_num)
+        clientes = (
+            Cliente.objects.filter(criado_em__year=ano, criado_em__month=mes_num)
             .select_related("parceiro")
             .order_by("criado_em")
         )
 
         calendario = {}
-        for lead in leads:
-            dia = lead.criado_em.strftime("%Y-%m-%d")
+        for cliente in clientes:
+            dia = cliente.criado_em.strftime("%Y-%m-%d")
             if dia not in calendario:
                 calendario[dia] = []
             calendario[dia].append({
-                "id": lead.id,
-                "nome": lead.nome,
-                "parceiro": lead.parceiro.nome_entidade,
-                "produto_interesse": lead.produto_interesse,
-                "status": lead.status,
-                "status_display": lead.get_status_display(),
-                "criado_em": lead.criado_em.isoformat(),
+                "id": cliente.id,
+                "nome": cliente.nome,
+                "parceiro": cliente.parceiro.nome_entidade,
+                "produto_interesse": cliente.produto_interesse,
+                "status": cliente.status,
+                "status_display": cliente.get_status_display(),
+                "criado_em": cliente.criado_em.isoformat(),
             })
 
         return Response({
             "mes": f"{ano:04d}-{mes_num:02d}",
-            "total_leads": leads.count(),
+            "total_clientes": clientes.count(),
             "dias": calendario,
         })
 
 
-class SLALeadsView(APIView):
-    """
-    GET /api/v1/leads/sla/?dias=3
-    Retorna leads paradas (sem mudança de status) há mais de X dias.
-    """
+class SLAClientesView(APIView):
+    """GET /api/v1/clientes/sla/?dias=3"""
 
     permission_classes = [IsAuthenticated, IsOperador]
 
@@ -169,47 +155,34 @@ class SLALeadsView(APIView):
         dias = int(request.query_params.get("dias", 3))
         limite = timezone.now() - timezone.timedelta(days=dias)
 
-        # Leads que NÃO estão em status final e cuja última atualização é antiga
-        leads_paradas = (
-            Lead.objects.exclude(status__in=[Lead.Status.CONCLUIDA, Lead.Status.PERDIDA])
+        clientes_parados = (
+            Cliente.objects.exclude(status__in=[Cliente.Status.CONCLUIDA, Cliente.Status.PERDIDA])
             .filter(atualizado_em__lt=limite)
             .select_related("parceiro", "operador")
             .order_by("atualizado_em")
         )
 
         resultado = []
-        for lead in leads_paradas:
-            dias_parada = (timezone.now() - lead.atualizado_em).days
+        for cliente in clientes_parados:
+            dias_parado = (timezone.now() - cliente.atualizado_em).days
             resultado.append({
-                "id": lead.id,
-                "nome": lead.nome,
-                "parceiro": lead.parceiro.nome_entidade,
-                "status": lead.status,
-                "status_display": lead.get_status_display(),
-                "atualizado_em": lead.atualizado_em.isoformat(),
-                "dias_parada": dias_parada,
+                "id": cliente.id,
+                "nome": cliente.nome,
+                "parceiro": cliente.parceiro.nome_entidade,
+                "status": cliente.status,
+                "status_display": cliente.get_status_display(),
+                "atualizado_em": cliente.atualizado_em.isoformat(),
+                "dias_parado": dias_parado,
             })
 
         return Response({
             "dias_limite": dias,
             "total": len(resultado),
-            "leads": resultado,
+            "clientes": resultado,
         })
 
 
-class ClienteViewSet(viewsets.ModelViewSet):
-    """Clientes — Operadores e Super Admin."""
-
-    queryset = Cliente.objects.prefetch_related("produtos")
-    serializer_class = ClienteSerializer
-    permission_classes = [IsOperador]
-    filterset_fields = ["ativo"]
-    search_fields = ["nome", "documento", "cnpj", "email"]
-
-
 class ProdutoContratadoViewSet(viewsets.ModelViewSet):
-    """Produtos contratados — Operadores e Super Admin."""
-
     queryset = ProdutoContratado.objects.select_related("cliente")
     serializer_class = ProdutoContratadoSerializer
     permission_classes = [IsOperador]

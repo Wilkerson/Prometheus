@@ -11,28 +11,18 @@ from .models import Comissao
 @receiver(post_save, sender=ProdutoContratado)
 def gerar_comissao(sender, instance, created, **kwargs):
     """
-    Ao criar um ProdutoContratado, gera automaticamente a comissão
-    para o parceiro que indicou o lead, se houver.
+    Ao criar um ProdutoContratado, gera automaticamente a comissao
+    para o parceiro do cliente.
     """
     if not created:
         return
 
     cliente = instance.cliente
-
-    if not hasattr(cliente, "lead"):
-        return
-
-    lead = cliente.lead
-
-    if not hasattr(lead, "parceiro"):
-        return
-
-    parceiro = lead.parceiro
+    parceiro = cliente.parceiro
 
     if not parceiro.ativo:
         return
 
-    # Evita duplicação
     if Comissao.objects.filter(parceiro=parceiro, venda=instance).exists():
         return
 

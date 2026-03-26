@@ -11,42 +11,45 @@ SISTEMA_EXTERNO_API_KEY = config("SISTEMA_EXTERNO_API_KEY", default="")
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
-def enviar_lead_sistema_externo(self, lead_id):
+def enviar_cliente_sistema_externo(self, cliente_id):
     """
-    Envia os dados do lead para o sistema externo quando o status
-    muda para 'em_processamento'. O sistema externo processará
-    a implantação e retornará o status via callback.
+    Envia os dados do cliente para o sistema externo quando o status
+    muda para 'em_processamento'. O sistema externo processara
+    a implantacao e retornara o status via callback.
     """
-    from .models import Lead
+    from .models import Cliente
 
     try:
-        lead = Lead.objects.select_related("parceiro").get(id=lead_id)
-    except Lead.DoesNotExist:
-        logger.error("Lead %s não encontrada.", lead_id)
+        cliente = Cliente.objects.select_related("parceiro").get(id=cliente_id)
+    except Cliente.DoesNotExist:
+        logger.error("Cliente %s nao encontrado.", cliente_id)
         return
 
     if not SISTEMA_EXTERNO_URL:
-        logger.warning("SISTEMA_EXTERNO_URL não configurada. Envio ignorado para lead %s.", lead_id)
+        logger.warning("SISTEMA_EXTERNO_URL nao configurada. Envio ignorado para cliente %s.", cliente_id)
         return
 
     payload = {
-        "lead_id": lead.id,
-        "nome": lead.nome,
-        "email": lead.email,
-        "telefone": lead.telefone,
-        "produto_interesse": lead.produto_interesse,
-        "parceiro": lead.parceiro.nome_entidade,
+        "cliente_id": cliente.id,
+        "nome": cliente.nome,
+        "cnpj": cliente.cnpj,
+        "email": cliente.email,
+        "telefone": cliente.telefone,
+        "endereco": cliente.endereco,
+        "cep": cliente.cep,
+        "produto_interesse": cliente.produto_interesse,
+        "parceiro": cliente.parceiro.nome_entidade,
     }
 
     try:
         response = requests.post(
-            f"{SISTEMA_EXTERNO_URL}/api/leads/",
+            f"{SISTEMA_EXTERNO_URL}/api/clientes/",
             json=payload,
             headers={"X-API-Key": SISTEMA_EXTERNO_API_KEY},
             timeout=30,
         )
         response.raise_for_status()
-        logger.info("Lead %s enviada com sucesso para sistema externo.", lead_id)
+        logger.info("Cliente %s enviado com sucesso para sistema externo.", cliente_id)
     except requests.RequestException as exc:
-        logger.error("Erro ao enviar lead %s: %s", lead_id, exc)
+        logger.error("Erro ao enviar cliente %s: %s", cliente_id, exc)
         raise self.retry(exc=exc)

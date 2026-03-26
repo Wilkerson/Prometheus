@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Cliente, EntidadeParceira, Lead, LeadHistorico, ProdutoContratado
+from .models import Cliente, ClienteHistorico, EntidadeParceira, ProdutoContratado
 
 
 class EntidadeParceiraSerializer(serializers.ModelSerializer):
@@ -20,81 +20,19 @@ class EntidadeParceiraSerializer(serializers.ModelSerializer):
         return value
 
 
-class LeadHistoricoSerializer(serializers.ModelSerializer):
+class ClienteHistoricoSerializer(serializers.ModelSerializer):
     usuario_nome = serializers.CharField(source="usuario.get_full_name", read_only=True, default="")
     status_anterior_display = serializers.CharField(source="get_status_anterior_display", read_only=True)
     status_novo_display = serializers.CharField(source="get_status_novo_display", read_only=True)
 
     class Meta:
-        model = LeadHistorico
+        model = ClienteHistorico
         fields = (
             "id", "status_anterior", "status_anterior_display",
             "status_novo", "status_novo_display",
             "usuario", "usuario_nome", "observacao", "criado_em",
         )
         read_only_fields = ("id", "criado_em")
-
-
-class LeadSerializer(serializers.ModelSerializer):
-    parceiro_nome = serializers.CharField(source="parceiro.nome_entidade", read_only=True)
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
-    produto_display = serializers.CharField(source="get_produto_interesse_display", read_only=True)
-    historico = LeadHistoricoSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Lead
-        fields = (
-            "id", "parceiro", "parceiro_nome", "operador",
-            "nome", "email", "telefone",
-            "produto_interesse", "produto_display",
-            "status", "status_display",
-            "criado_em", "atualizado_em", "historico",
-        )
-        read_only_fields = ("id", "criado_em", "atualizado_em")
-
-
-class LeadListSerializer(serializers.ModelSerializer):
-    """Serializer enxuto para listagens (sem histórico)."""
-    parceiro_nome = serializers.CharField(source="parceiro.nome_entidade", read_only=True)
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
-    produto_display = serializers.CharField(source="get_produto_interesse_display", read_only=True)
-
-    class Meta:
-        model = Lead
-        fields = (
-            "id", "parceiro", "parceiro_nome", "operador",
-            "nome", "email", "telefone",
-            "produto_interesse", "produto_display",
-            "status", "status_display",
-            "criado_em", "atualizado_em",
-        )
-        read_only_fields = ("id", "criado_em", "atualizado_em")
-
-
-class LeadCreateParceiroSerializer(serializers.ModelSerializer):
-    """Serializer para criação de lead pelo parceiro (parceiro é injetado na view)."""
-
-    class Meta:
-        model = Lead
-        fields = ("id", "nome", "email", "telefone", "produto_interesse", "status", "criado_em")
-        read_only_fields = ("id", "status", "criado_em")
-
-
-class LeadStatusSerializer(serializers.Serializer):
-    """Serializer para PATCH de status com validação de transição."""
-    status = serializers.ChoiceField(choices=Lead.Status.choices)
-    observacao = serializers.CharField(required=False, default="", allow_blank=True)
-
-    def validate_status(self, value):
-        lead = self.context.get("lead")
-        if lead and not lead.pode_transitar_para(value):
-            transicoes = Lead.TRANSICOES_VALIDAS.get(lead.status, ())
-            permitidos = ", ".join(transicoes) if transicoes else "nenhum (status final)"
-            raise serializers.ValidationError(
-                f"Transição de '{lead.status}' para '{value}' não é permitida. "
-                f"Transições válidas: {permitidos}."
-            )
-        return value
 
 
 class ProdutoContratadoSerializer(serializers.ModelSerializer):
@@ -112,16 +50,23 @@ class ProdutoContratadoSerializer(serializers.ModelSerializer):
 
 
 class ClienteSerializer(serializers.ModelSerializer):
+    parceiro_nome = serializers.CharField(source="parceiro.nome_entidade", read_only=True)
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    produto_display = serializers.CharField(source="get_produto_interesse_display", read_only=True)
+    historico = ClienteHistoricoSerializer(many=True, read_only=True)
     produtos = ProdutoContratadoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Cliente
         fields = (
-            "id", "lead", "nome", "cnpj", "email",
-            "telefone", "endereco", "cep", "arquivo",
-            "ativo", "ativado_em", "produtos",
+            "id", "parceiro", "parceiro_nome", "operador",
+            "nome", "cnpj", "email", "telefone", "endereco", "cep",
+            "produto_interesse", "produto_display",
+            "status", "status_display", "arquivo",
+            "ativo", "criado_em", "atualizado_em",
+            "historico", "produtos",
         )
-        read_only_fields = ("id", "ativado_em")
+        read_only_fields = ("id", "criado_em", "atualizado_em")
 
     def validate_cnpj(self, value):
         digits = "".join(c for c in value if c.isdigit())
@@ -129,10 +74,42 @@ class ClienteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("CNPJ deve conter 14 digitos.")
         return value
 
-    def validate_cep(self, value):
-        if not value:
-            return value
-        digits = "".join(c for c in value if c.isdigit())
-        if len(digits) != 8:
-            raise serializers.ValidationError("CEP deve conter 8 digitos.")
+
+class ClienteListSerializer(serializers.ModelSerializer):
+    parceiro_nome = serializers.CharField(source="parceiro.nome_entidade", read_only=True)
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    produto_display = serializers.CharField(source="get_produto_interesse_display", read_only=True)
+
+    class Meta:
+        model = Cliente
+        fields = (
+            "id", "parceiro", "parceiro_nome", "operador",
+            "nome", "cnpj", "email", "telefone",
+            "produto_interesse", "produto_display",
+            "status", "status_display",
+            "criado_em", "atualizado_em",
+        )
+        read_only_fields = ("id", "criado_em", "atualizado_em")
+
+
+class ClienteStatusSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=Cliente.Status.choices)
+    observacao = serializers.CharField(required=False, default="", allow_blank=True)
+
+    def validate_status(self, value):
+        cliente = self.context.get("cliente")
+        if cliente and not cliente.pode_transitar_para(value):
+            transicoes = Cliente.TRANSICOES_VALIDAS.get(cliente.status, ())
+            permitidos = ", ".join(transicoes) if transicoes else "nenhum (status final)"
+            raise serializers.ValidationError(
+                f"Transicao de '{cliente.status}' para '{value}' nao e permitida. "
+                f"Transicoes validas: {permitidos}."
+            )
         return value
+
+
+class ClienteCreateParceiroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cliente
+        fields = ("id", "nome", "cnpj", "email", "telefone", "endereco", "cep", "produto_interesse", "status", "criado_em")
+        read_only_fields = ("id", "status", "criado_em")

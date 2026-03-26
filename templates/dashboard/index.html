@@ -6,18 +6,18 @@
 {% block content %}
 <!-- Stats Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-  {% if can_view_leads %}
+  {% if can_view_clientes %}
   <div class="card">
-    <div class="text-sm font-medium text-gray-500">Total de Leads</div>
-    <div class="mt-1 text-3xl font-bold text-gray-900">{{ leads_total }}</div>
+    <div class="text-sm font-medium text-gray-500">Total de Clientes</div>
+    <div class="mt-1 text-3xl font-bold text-gray-900">{{ clientes_total }}</div>
   </div>
   <div class="card">
     <div class="text-sm font-medium text-gray-500">Em Processamento</div>
-    <div class="mt-1 text-3xl font-bold text-purple-600">{{ leads_por_status.em_processamento|default:"0" }}</div>
+    <div class="mt-1 text-3xl font-bold text-purple-600">{{ clientes_por_status.em_processamento|default:"0" }}</div>
   </div>
-  <div class="card {% if leads_atrasadas > 0 %}border-red-300 bg-red-50{% endif %}">
-    <div class="text-sm font-medium text-gray-500">Leads Atrasadas (SLA)</div>
-    <div class="mt-1 text-3xl font-bold {% if leads_atrasadas > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">{{ leads_atrasadas }}</div>
+  <div class="card {% if clientes_atrasados > 0 %}border-red-300 bg-red-50{% endif %}">
+    <div class="text-sm font-medium text-gray-500">Atrasados (SLA)</div>
+    <div class="mt-1 text-3xl font-bold {% if clientes_atrasados > 0 %}text-red-600{% else %}text-emerald-600{% endif %}">{{ clientes_atrasados }}</div>
   </div>
   {% endif %}
   {% if can_view_comissoes %}
@@ -28,43 +28,44 @@
   {% endif %}
 </div>
 
-{% if can_view_leads %}
-<!-- Status Pipeline -->
+{% if can_view_clientes %}
+<!-- Pipeline -->
 <div class="card mb-8">
-  <h2 class="text-lg font-semibold text-gray-800 mb-4">Pipeline de Leads</h2>
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Pipeline</h2>
   <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
     <div class="text-center p-3 rounded-lg bg-gray-50">
-      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.recebida|default:"0" }}</div>
+      <div class="text-2xl font-bold text-gray-800">{{ clientes_por_status.recebida|default:"0" }}</div>
       <div class="text-xs text-gray-500 mt-1">Recebida</div>
     </div>
     <div class="text-center p-3 rounded-lg bg-gray-50">
-      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.em_analise|default:"0" }}</div>
+      <div class="text-2xl font-bold text-gray-800">{{ clientes_por_status.em_analise|default:"0" }}</div>
       <div class="text-xs text-gray-500 mt-1">Em Analise</div>
     </div>
     <div class="text-center p-3 rounded-lg bg-gray-50">
-      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.em_processamento|default:"0" }}</div>
+      <div class="text-2xl font-bold text-gray-800">{{ clientes_por_status.em_processamento|default:"0" }}</div>
       <div class="text-xs text-gray-500 mt-1">Em Processamento</div>
     </div>
     <div class="text-center p-3 rounded-lg bg-gray-50">
-      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.concluida|default:"0" }}</div>
+      <div class="text-2xl font-bold text-gray-800">{{ clientes_por_status.concluida|default:"0" }}</div>
       <div class="text-xs text-gray-500 mt-1">Concluida</div>
     </div>
     <div class="text-center p-3 rounded-lg bg-gray-50">
-      <div class="text-2xl font-bold text-gray-800">{{ leads_por_status.perdida|default:"0" }}</div>
+      <div class="text-2xl font-bold text-gray-800">{{ clientes_por_status.perdida|default:"0" }}</div>
       <div class="text-xs text-gray-500 mt-1">Perdida</div>
     </div>
   </div>
 </div>
 
-<!-- Leads Recentes -->
+<!-- Clientes Recentes -->
 <div class="card">
-  <h2 class="text-lg font-semibold text-gray-800 mb-4">Leads Recentes</h2>
-  {% if leads_recentes %}
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Clientes Recentes</h2>
+  {% if clientes_recentes %}
   <div class="overflow-x-auto">
     <table class="w-full text-sm">
       <thead>
         <tr class="border-b border-gray-200 text-left text-gray-500">
           <th class="pb-3 font-medium">Nome</th>
+          <th class="pb-3 font-medium">CNPJ</th>
           <th class="pb-3 font-medium">Parceiro</th>
           <th class="pb-3 font-medium">Produto</th>
           <th class="pb-3 font-medium">Status</th>
@@ -72,25 +73,26 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
-        {% for lead in leads_recentes %}
-        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{% url 'web:lead-detail' lead.pk %}'">
-          <td class="py-3 font-medium text-gray-900">{{ lead.nome }}</td>
-          <td class="py-3 text-gray-600">{{ lead.parceiro.nome_entidade }}</td>
-          <td class="py-3 text-gray-600">{{ lead.get_produto_interesse_display }}</td>
-          <td class="py-3"><span class="badge-{{ lead.status }}">{{ lead.get_status_display }}</span></td>
-          <td class="py-3 text-gray-500">{{ lead.criado_em|date:"d/m/Y H:i" }}</td>
+        {% for cliente in clientes_recentes %}
+        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{% url 'web:cliente-detail' cliente.pk %}'">
+          <td class="py-3 font-medium text-gray-900">{{ cliente.nome }}</td>
+          <td class="py-3 text-gray-600">{{ cliente.cnpj }}</td>
+          <td class="py-3 text-gray-600">{{ cliente.parceiro.nome_entidade }}</td>
+          <td class="py-3 text-gray-600">{{ cliente.get_produto_interesse_display }}</td>
+          <td class="py-3"><span class="badge-{{ cliente.status }}">{{ cliente.get_status_display }}</span></td>
+          <td class="py-3 text-gray-500">{{ cliente.criado_em|date:"d/m/Y H:i" }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% else %}
-  <p class="text-sm text-gray-500">Nenhum lead cadastrado ainda.</p>
+  <p class="text-sm text-gray-500">Nenhum cliente cadastrado ainda.</p>
   {% endif %}
 </div>
 {% endif %}
 
-{% if not can_view_leads and not can_view_comissoes %}
+{% if not can_view_clientes and not can_view_comissoes %}
 <div class="card text-center py-12">
   <p class="text-gray-500">Bem-vindo ao Prometheus!</p>
   <p class="text-sm text-gray-400 mt-2">Entre em contato com o administrador para configurar suas permissoes de acesso.</p>

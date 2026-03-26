@@ -1,8 +1,8 @@
 from django.urls import path
 
-from .views import ClienteIntegracaoCreateView, LeadCallbackView
+from .views import ClienteCallbackView, ClienteIntegracaoCreateView
 
 urlpatterns = [
     path("cliente/", ClienteIntegracaoCreateView.as_view(), name="integracao-cliente"),
-    path("lead/status/", LeadCallbackView.as_view(), name="integracao-lead-callback"),
+    path("cliente/status/", ClienteCallbackView.as_view(), name="integracao-cliente-callback"),
 ]

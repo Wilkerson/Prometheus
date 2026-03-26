@@ -10,14 +10,16 @@ Sistema web para captação e gestão de clientes de produtos/serviços de tecno
 ### Fluxo principal
 
 ```
-Parceiro envia lead → Recebida → Em Análise → Em Processamento ──→ API envia para sistema externo
-                                                                            ↓
-                                                          Sistema externo implanta o serviço
-                                                                            ↓
-                                              Concluída ←── Callback retorna status pro Prometheus
-                                                  ↓
-                                          Converte em Cliente → Produto Contratado → Comissão gerada
+Parceiro cadastra Cliente → Recebida → Em Analise → Em Processamento ──→ API envia para sistema externo
+                                                                                  ↓
+                                                              Sistema externo implanta o servico
+                                                                                  ↓
+                                                Concluida ←── Callback retorna status pro Prometheus
+                                                                                  ↓
+                                                              Produto Contratado → Comissao gerada
 ```
+
+> O modelo Lead foi eliminado. O Cliente e o unico modelo que percorre o pipeline de status.
 
 ---
 
@@ -218,19 +220,16 @@ USUARIO (AbstractUser)
 ENTIDADE_PARCEIRA
   id, usuario_id (FK OneToOne), nome_entidade, percentual_comissao, ativo, criado_em
 
-LEAD
-  id, parceiro_id (FK), operador_id (FK nullable), nome, email, telefone,
+CLIENTE
+  id, parceiro_id (FK), operador_id (FK nullable), nome, cnpj (unique),
+  email, telefone, endereco, cep,
   produto_interesse [agentes_ia|saas|crm|erp|sites|consultoria],
   status [recebida|em_analise|em_processamento|concluida|perdida],
-  criado_em, atualizado_em
+  arquivo ("Produtos ou Servicos", opcional), ativo, criado_em, atualizado_em
 
-LEAD_HISTORICO
-  id, lead_id (FK), status_anterior, status_novo, usuario_id (FK nullable),
+CLIENTE_HISTORICO
+  id, cliente_id (FK), status_anterior, status_novo, usuario_id (FK nullable),
   observacao, criado_em
-
-CLIENTE
-  id, lead_id (FK OneToOne), nome, cnpj (obrigatório, unique),
-  email, telefone, endereco, cep, arquivo ("Produtos ou Servicos", opcional), ativo, ativado_em
 
 PRODUTO_CONTRATADO
   id, cliente_id (FK), produto, valor, status [ativo|suspenso|cancelado], contratado_em
@@ -243,7 +242,7 @@ TOKEN_INTEGRACAO
   id, nome, token (auto-gerado), ativo, criado_em
 ```
 
-### Transições válidas de status do Lead
+### Transicoes validas de status do Cliente
 
 ```
 recebida        → em_analise, perdida
@@ -263,31 +262,26 @@ perdida         → (status final)
 - `GET  /auth/me/` — Dados do usuário logado
 - CRUD `/auth/usuarios/` — Gestão de usuários (Super Admin)
 
-### Leads
-- `POST /leads/` — Cadastra lead
-- `GET  /leads/` — Lista leads (filtro por perfil)
-- `GET  /leads/{id}/` — Detalhe com histórico completo
-- `PATCH /leads/{id}/status/` — Atualiza status com validação de transição (operador/admin)
-- `GET  /leads/{id}/historico/` — Timeline de mudanças de status
-- `GET  /leads/calendario/?mes=YYYY-MM` — Leads agrupadas por dia
-- `GET  /leads/sla/?dias=N` — Leads paradas há mais de N dias
-
-### Painel do Parceiro
-- `POST /parceiro/leads/` — Cadastra novo lead
-- `GET  /parceiro/leads/` — Lista leads do parceiro
-- `GET  /parceiro/leads/{id}/` — Detalhe de um lead
-- `GET  /parceiro/dashboard/` — Resumo com totais por status e comissões
-
 ### Clientes
-- CRUD `/clientes/` — Gestão de clientes (operador/admin)
+- CRUD `/clientes/` — Gestao de clientes (com pipeline de status)
+- `PATCH /clientes/{id}/status/` — Atualiza status com validacao de transicao
+- `GET  /clientes/{id}/historico/` — Timeline de mudancas de status
+- `GET  /clientes/calendario/?mes=YYYY-MM` — Clientes agrupados por dia
+- `GET  /clientes/sla/?dias=N` — Clientes parados ha mais de N dias
 - CRUD `/produtos-contratados/` — Produtos de cada cliente
 
-### Comissões
-- `GET /comissoes/` — Lista comissões (parceiro vê as próprias)
+### Painel do Parceiro
+- `POST /parceiro/clientes/` — Cadastra novo cliente
+- `GET  /parceiro/clientes/` — Lista clientes do parceiro
+- `GET  /parceiro/clientes/{id}/` — Detalhe de um cliente
+- `GET  /parceiro/dashboard/` — Resumo com totais por status e comissoes
 
-### Integração externa (autenticação via X-API-Key)
+### Comissoes
+- `GET /comissoes/` — Lista comissoes (parceiro ve as proprias)
+
+### Integracao externa (autenticacao via X-API-Key)
 - `POST /integracao/cliente/` — Insere cliente via sistema externo
-- `POST /integracao/lead/status/` — Callback do sistema externo (concluida/perdida)
+- `POST /integracao/cliente/status/` — Callback do sistema externo (concluida/perdida)
 
 ---
 
@@ -300,20 +294,17 @@ perdida         → (status final)
 - `GET /login/` — Tela de login (split layout com branding RUCH)
 - `POST /logout/` — Logout
 
-### Páginas autenticadas (painel interno)
-- `GET /dashboard/` — Dashboard com stats, pipeline, leads recentes e SLA
-- `GET /leads/` — Listagem de leads com busca/filtros HTMX
-- `GET /leads/novo/` — Formulário de criação de lead
-- `GET /leads/{id}/` — Detalhe do lead com timeline e ações
-- `POST /leads/{id}/status/` — Alteração de status via HTMX
-- `GET /leads/pipeline/` — Kanban por status
-- `GET /leads/calendario/` — Calendário mensal
-- `GET /clientes/` — Listagem de clientes (permissao: `crm.view_cliente`)
-- `GET /clientes/novo/` — Cadastro de cliente (permissao: `crm.add_cliente`)
-- `GET /clientes/{id}/` — Detalhe do cliente + produtos
-- `GET /clientes/{id}/editar/` — Edicao do cliente (permissao: `crm.change_cliente`)
-- `POST /clientes/{id}/excluir/` — Exclusao do cliente (permissao: `crm.delete_cliente`)
-- `GET /comissoes/` — Listagem de comissões
+### Paginas autenticadas (painel interno)
+- `GET /dashboard/` — Dashboard com stats, pipeline, clientes recentes e SLA
+- `GET /clientes/` — Listagem com busca/filtros HTMX por status e produto
+- `GET /clientes/novo/` — Cadastro de cliente
+- `GET /clientes/{id}/` — Detalhe com timeline de status + acoes CRUD
+- `POST /clientes/{id}/status/` — Alteracao de status via HTMX
+- `GET /clientes/{id}/editar/` — Edicao do cliente
+- `POST /clientes/{id}/excluir/` — Exclusao com confirmacao
+- `GET /clientes/pipeline/` — Kanban por status
+- `GET /clientes/calendario/` — Calendario mensal
+- `GET /comissoes/` — Listagem de comissoes
 
 ---
 
@@ -391,7 +382,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 32. [x] Refatorar model Cliente: remover documento, adicionar endereco/cep, arquivo = "Produtos ou Servicos"
 33. [x] Remover modulo de conversao de lead em cliente (lead ja chega convertida do parceiro)
 34. [x] Implementar CRUD completo de clientes na dashboard (criar, editar, excluir com permissoes)
-35. [ ] Aplicar design system (JSON) quando fornecido
+35. [x] Eliminar model Lead — unificar pipeline de status no model Cliente
+36. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
 

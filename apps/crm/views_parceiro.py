@@ -7,48 +7,45 @@ from rest_framework.viewsets import GenericViewSet, mixins
 
 from apps.accounts.permissions import IsParceiro
 
-from .models import Lead
-from .serializers import LeadCreateParceiroSerializer, LeadListSerializer
+from .models import Cliente
+from .serializers import ClienteCreateParceiroSerializer, ClienteListSerializer
 
 
-class ParceiroLeadViewSet(
+class ParceiroClienteViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     GenericViewSet,
 ):
     """
-    Painel do parceiro — leads:
-    - GET  /api/v1/parceiro/leads/         → lista seus leads
-    - POST /api/v1/parceiro/leads/         → cadastra novo lead
-    - GET  /api/v1/parceiro/leads/{id}/    → detalhe de um lead
+    Painel do parceiro — clientes:
+    - GET  /api/v1/parceiro/clientes/         -> lista seus clientes
+    - POST /api/v1/parceiro/clientes/         -> cadastra novo cliente
+    - GET  /api/v1/parceiro/clientes/{id}/    -> detalhe de um cliente
     """
 
     permission_classes = [IsAuthenticated, IsParceiro]
     filterset_fields = ["status", "produto_interesse"]
-    search_fields = ["nome", "email"]
+    search_fields = ["nome", "cnpj", "email"]
     ordering_fields = ["criado_em", "status"]
 
     def get_serializer_class(self):
         if self.action == "create":
-            return LeadCreateParceiroSerializer
-        return LeadListSerializer
+            return ClienteCreateParceiroSerializer
+        return ClienteListSerializer
 
     def get_queryset(self):
         user = self.request.user
         if hasattr(user, "parceiro"):
-            return Lead.objects.filter(parceiro=user.parceiro).select_related("parceiro", "operador")
-        return Lead.objects.none()
+            return Cliente.objects.filter(parceiro=user.parceiro).select_related("parceiro", "operador")
+        return Cliente.objects.none()
 
     def perform_create(self, serializer):
         serializer.save(parceiro=self.request.user.parceiro)
 
 
 class ParceiroDashboardView(APIView):
-    """
-    GET /api/v1/parceiro/dashboard/
-    Resumo do painel do parceiro: totais de leads por status e comissões.
-    """
+    """GET /api/v1/parceiro/dashboard/"""
 
     permission_classes = [IsAuthenticated, IsParceiro]
 
@@ -56,22 +53,20 @@ class ParceiroDashboardView(APIView):
         user = request.user
         if not hasattr(user, "parceiro"):
             return Response(
-                {"detail": "Usuário não vinculado a uma entidade parceira."},
+                {"detail": "Usuario nao vinculado a uma entidade parceira."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         parceiro = user.parceiro
 
-        # Contagem de leads por status
-        leads_stats = (
-            Lead.objects.filter(parceiro=parceiro)
+        stats = (
+            Cliente.objects.filter(parceiro=parceiro)
             .values("status")
             .annotate(total=Count("id"))
         )
-        leads_por_status = {item["status"]: item["total"] for item in leads_stats}
-        total_leads = sum(leads_por_status.values())
+        por_status = {item["status"]: item["total"] for item in stats}
+        total = sum(por_status.values())
 
-        # Comissões
         from apps.comissoes.models import Comissao
 
         comissoes_stats = Comissao.objects.filter(parceiro=parceiro).aggregate(
@@ -86,14 +81,14 @@ class ParceiroDashboardView(APIView):
                 "nome_entidade": parceiro.nome_entidade,
                 "percentual_comissao": str(parceiro.percentual_comissao),
             },
-            "leads": {
-                "total": total_leads,
+            "clientes": {
+                "total": total,
                 "por_status": {
-                    "recebida": leads_por_status.get("recebida", 0),
-                    "em_analise": leads_por_status.get("em_analise", 0),
-                    "em_processamento": leads_por_status.get("em_processamento", 0),
-                    "concluida": leads_por_status.get("concluida", 0),
-                    "perdida": leads_por_status.get("perdida", 0),
+                    "recebida": por_status.get("recebida", 0),
+                    "em_analise": por_status.get("em_analise", 0),
+                    "em_processamento": por_status.get("em_processamento", 0),
+                    "concluida": por_status.get("concluida", 0),
+                    "perdida": por_status.get("perdida", 0),
                 },
             },
             "comissoes": {

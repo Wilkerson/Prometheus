@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Calendario{% endblock %}
+{% block page_title %}Calendario de Clientes{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="flex items-center justify-between mb-6">
+    <a href="?mes={{ prev_mes }}" class="btn-secondary text-xs">&larr; Anterior</a>
+    <h2 class="text-lg font-semibold text-gray-800 capitalize">{{ mes_nome }} {{ ano }}</h2>
+    <a href="?mes={{ next_mes }}" class="btn-secondary text-xs">Proximo &rarr;</a>
+  </div>
+
+  <p class="text-sm text-gray-500 mb-4">{{ total }} cliente{{ total|pluralize }} neste mes</p>
+
+  <div class="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Seg</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Ter</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Qua</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Qui</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Sex</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Sab</div>
+    <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500">Dom</div>
+
+    {% for semana in semanas %}
+      {% for dia in semana %}
+      <div class="bg-white min-h-[80px] p-1.5">
+        {% if dia != 0 %}
+          <div class="text-xs font-medium text-gray-500 mb-1">{{ dia }}</div>
+          {% for d, clist in dias.items %}
+            {% if d == dia %}
+              {% for cliente in clist %}
+              <div class="text-xs truncate px-1 py-0.5 rounded mb-0.5
+                          {% if cliente.status == 'recebida' %}bg-blue-100 text-blue-700
+                          {% elif cliente.status == 'em_analise' %}bg-yellow-100 text-yellow-700
+                          {% elif cliente.status == 'em_processamento' %}bg-purple-100 text-purple-700
+                          {% elif cliente.status == 'concluida' %}bg-emerald-100 text-emerald-700
+                          {% else %}bg-red-100 text-red-700{% endif %}">
+                <a href="{% url 'web:cliente-detail' cliente.pk %}">{{ cliente.nome }}</a>
+              </div>
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

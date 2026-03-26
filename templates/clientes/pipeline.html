@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Pipeline{% endblock %}
+{% block page_title %}Pipeline de Clientes{% endblock %}
+
+{% block content %}
+<div class="flex gap-4 overflow-x-auto pb-4">
+  {% for col in colunas %}
+  <div class="flex-shrink-0 w-72">
+    <div class="bg-gray-100 rounded-xl p-3">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-gray-700">{{ col.label }}</h3>
+        <span class="badge bg-gray-200 text-gray-600">{{ col.clientes.count }}</span>
+      </div>
+      <div class="space-y-2">
+        {% for cliente in col.clientes %}
+        <a href="{% url 'web:cliente-detail' cliente.pk %}"
+           class="block card p-3 hover:shadow-md transition-shadow">
+          <div class="text-sm font-medium text-gray-900 truncate">{{ cliente.nome }}</div>
+          <div class="text-xs text-gray-500 mt-1">{{ cliente.parceiro.nome_entidade }}</div>
+          <div class="text-xs text-gray-400 mt-1">{{ cliente.get_produto_interesse_display }}</div>
+          <div class="text-xs text-gray-400 mt-0.5">{{ cliente.criado_em|date:"d/m/Y" }}</div>
+        </a>
+        {% empty %}
+        <p class="text-xs text-gray-400 text-center py-4">Nenhum cliente</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
