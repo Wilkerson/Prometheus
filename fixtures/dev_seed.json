@@ -18,14 +18,14 @@
     "date_joined": "2026-02-01T10:00:00Z"
   }},
   {"model": "accounts.usuario", "pk": 13, "fields": {
-    "username": "operador1", "email": "operador1@ruch.solutions", "first_name": "Juliana", "last_name": "Torres",
-    "perfil": "operador", "is_active": true, "is_staff": true, "is_superuser": false,
+    "username": "administrador1", "email": "adm@ruch.solutions", "first_name": "Juliana", "last_name": "Torres",
+    "perfil": "operador", "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
     "date_joined": "2026-01-05T10:00:00Z"
   }},
   {"model": "accounts.usuario", "pk": 14, "fields": {
-    "username": "operador2", "email": "operador2@ruch.solutions", "first_name": "Felipe", "last_name": "Ramos",
-    "perfil": "operador", "is_active": true, "is_staff": true, "is_superuser": false,
+    "username": "comercial1", "email": "comercial@ruch.solutions", "first_name": "Felipe", "last_name": "Ramos",
+    "perfil": "operador", "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
     "date_joined": "2026-01-05T10:00:00Z"
   }},
@@ -109,14 +109,14 @@
 
   {"model": "crm.endereco", "pk": 1, "fields": {"cep": "01310-100", "logradouro": "Av. Paulista", "numero": "1578", "complemento": "Sala 1201", "bairro": "Bela Vista", "cidade": "Sao Paulo", "uf": "SP"}},
   {"model": "crm.endereco", "pk": 2, "fields": {"cep": "01414-001", "logradouro": "Rua Oscar Freire", "numero": "379", "complemento": "", "bairro": "Jardins", "cidade": "Sao Paulo", "uf": "SP"}},
-  {"model": "crm.endereco", "pk": 3, "fields": {"cep": "04543-011", "logradouro": "Av. Engenheiro Luis Carlos Berrini", "numero": "1461", "complemento": "14o andar", "bairro": "Cidade Moncoes", "cidade": "Sao Paulo", "uf": "SP"}},
+  {"model": "crm.endereco", "pk": 3, "fields": {"cep": "04543-011", "logradouro": "Av. Eng. Luis Carlos Berrini", "numero": "1461", "complemento": "14o andar", "bairro": "Cidade Moncoes", "cidade": "Sao Paulo", "uf": "SP"}},
   {"model": "crm.endereco", "pk": 4, "fields": {"cep": "20040-020", "logradouro": "Av. Rio Branco", "numero": "156", "complemento": "Sala 801", "bairro": "Centro", "cidade": "Rio de Janeiro", "uf": "RJ"}},
   {"model": "crm.endereco", "pk": 5, "fields": {"cep": "22041-080", "logradouro": "Rua Barata Ribeiro", "numero": "391", "complemento": "", "bairro": "Copacabana", "cidade": "Rio de Janeiro", "uf": "RJ"}},
   {"model": "crm.endereco", "pk": 6, "fields": {"cep": "22250-040", "logradouro": "Praia de Botafogo", "numero": "501", "complemento": "Bloco B", "bairro": "Botafogo", "cidade": "Rio de Janeiro", "uf": "RJ"}},
   {"model": "crm.endereco", "pk": 7, "fields": {"cep": "30130-000", "logradouro": "Av. Afonso Pena", "numero": "1901", "complemento": "Sala 502", "bairro": "Funcionarios", "cidade": "Belo Horizonte", "uf": "MG"}},
   {"model": "crm.endereco", "pk": 8, "fields": {"cep": "30140-071", "logradouro": "Rua da Bahia", "numero": "1148", "complemento": "", "bairro": "Centro", "cidade": "Belo Horizonte", "uf": "MG"}},
   {"model": "crm.endereco", "pk": 9, "fields": {"cep": "30110-004", "logradouro": "Praca Sete de Setembro", "numero": "S/N", "complemento": "Ed. Comercial", "bairro": "Centro", "cidade": "Belo Horizonte", "uf": "MG"}},
-  {"model": "crm.endereco", "pk": 10, "fields": {"cep": "01452-001", "logradouro": "Av. Brigadeiro Faria Lima", "numero": "2277", "complemento": "Conj 1801", "bairro": "Jardim Paulistano", "cidade": "Sao Paulo", "uf": "SP"}},
+  {"model": "crm.endereco", "pk": 10, "fields": {"cep": "01452-001", "logradouro": "Av. Brig. Faria Lima", "numero": "2277", "complemento": "Conj 1801", "bairro": "Jardim Paulistano", "cidade": "Sao Paulo", "uf": "SP"}},
 
   {"model": "crm.cliente", "pk": 1, "fields": {
     "parceiro": 1, "operador": 13, "nome": "Tech Solutions Ltda", "cnpj": "12345678000101",
