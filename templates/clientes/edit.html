@@ -55,15 +55,15 @@
             <label class="label">Status</label>
             <label class="flex items-center gap-2 mt-2 cursor-pointer">
               <input type="checkbox" name="ativo" {% if cliente.ativo %}checked{% endif %}
-                     class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-              <span class="text-sm text-gray-700">Cliente ativo</span>
+                     class="w-4 h-4 rounded border-bdr text-primary-600 focus:ring-primary-500">
+              <span class="text-sm text-t2">Cliente ativo</span>
             </label>
           </div>
           <div>
             <label for="arquivo" class="label">Produtos ou Servicos (arquivo) {% if not cliente.arquivo %}<span class="text-red-500">*</span>{% endif %}</label>
             {% if cliente.arquivo %}
-            <p class="text-xs text-gray-500 mb-2">Arquivo atual: <a href="{{ cliente.arquivo.url }}" class="text-primary-600 underline" target="_blank">{{ cliente.arquivo.name }}</a></p>
-            <p class="text-xs text-gray-400 mb-1">Envie um novo arquivo para substituir:</p>
+            <p class="text-xs text-t3 mb-2">Arquivo atual: <a href="{{ cliente.arquivo.url }}" class="text-primary-600 underline" target="_blank">{{ cliente.arquivo.name }}</a></p>
+            <p class="text-xs text-t3 mb-1">Envie um novo arquivo para substituir:</p>
             {% endif %}
             <input type="file" name="arquivo" id="arquivo" {% if not cliente.arquivo %}required{% endif %}
                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 {% if erros.arquivo %}border border-red-500 rounded-lg{% endif %}">
