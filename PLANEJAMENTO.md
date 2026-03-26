@@ -402,7 +402,10 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 41. [x] Criar models Produto, Plano e PlanoProduto (catalogo + precos por parceiro)
 42. [x] Refatorar Cliente: remover produto_interesse e ProdutoContratado, adicionar M2M com Plano
 43. [x] Refatorar comissao: gerada ao concluir cliente (soma dos planos), nao por ProdutoContratado
-44. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+44. [x] Implementar CRUD web de Produtos e Planos com permissoes
+45. [x] Adicionar links Produtos e Planos na sidebar por permissao
+46. [x] Selecao multipla de planos no cadastro de cliente (adicionar/remover dinamico com Alpine.js)
+47. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.

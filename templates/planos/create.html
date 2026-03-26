@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Novo Plano{% endblock %}
+{% block page_title %}Novo Plano{% endblock %}
+{% block page_actions %}<a href="{% url 'web:planos' %}" class="btn-secondary">Voltar</a>{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card" x-data="{
+    itens: [{ produto_id: '', preco: '' }],
+    addItem() { this.itens.push({ produto_id: '', preco: '' }); },
+    removeItem(i) { if (this.itens.length > 1) this.itens.splice(i, 1); }
+  }">
+    <form method="post">
+      {% csrf_token %}
+      {% if erros %}{% include "clientes/_form_errors.html" %}{% endif %}
+      <div class="space-y-4 mt-2">
+        <div>
+          <label class="label">Nome do plano <span class="text-red-500">*</span></label>
+          <input type="text" name="nome" required class="input" placeholder="Ex: Plano Premium">
+        </div>
+        <div>
+          <label class="label">Parceiro <span class="text-red-500">*</span></label>
+          <select name="parceiro" required class="input">
+            <option value="">Selecione...</option>
+            {% for p in parceiros %}
+            <option value="{{ p.id }}">{{ p.nome_entidade }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Produtos dinamicos -->
+        <div>
+          <label class="label">Produtos e precos <span class="text-red-500">*</span></label>
+          <template x-for="(item, index) in itens" :key="index">
+            <div class="flex gap-2 mb-2 items-center">
+              <select :name="'produto_id'" x-model="item.produto_id" required class="input flex-1">
+                <option value="">Produto...</option>
+                {% for prod in produtos %}
+                <option value="{{ prod.id }}">{{ prod.nome }} ({{ prod.get_tier_display }})</option>
+                {% endfor %}
+              </select>
+              <input type="text" :name="'preco'" x-model="item.preco" required class="input w-32" placeholder="R$ Preco">
+              <button type="button" @click="removeItem(index)" class="text-red-400 hover:text-red-300 text-lg px-2"
+                      x-show="itens.length > 1">&times;</button>
+            </div>
+          </template>
+          <button type="button" @click="addItem()" class="text-[12px] text-ruch-accent hover:text-t1 mt-1">
+            + Adicionar produto
+          </button>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary">Criar Plano</button>
+        <a href="{% url 'web:planos' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

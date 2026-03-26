@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Planos{% endblock %}
+{% block page_title %}Planos{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:plano-create' %}" class="btn-primary">+ Novo Plano</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <input type="text" name="q" placeholder="Buscar plano ou parceiro..." class="input"
+         hx-get="{% url 'web:planos' %}" hx-target="#table" hx-trigger="input changed delay:300ms" hx-push-url="true">
+</div>
+<div class="card" id="table">{% include "planos/_table.html" %}</div>
+{% endblock %}

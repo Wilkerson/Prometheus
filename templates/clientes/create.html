@@ -50,23 +50,36 @@
 
         {% include "clientes/_form_endereco.html" %}
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          <div>
-            <label for="produto_interesse" class="label">Produto de interesse <span class="text-red-500">*</span></label>
-            <select name="produto_interesse" id="produto_interesse" required class="input {% if erros.produto_interesse %}border-red-500{% endif %}">
-              <option value="">Selecione...</option>
-              {% for value, label in produto_choices %}
-              <option value="{{ value }}" {% if dados.produto_interesse == value %}selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
-            {% if erros.produto_interesse %}<p class="text-xs text-red-600 mt-1">{{ erros.produto_interesse }}</p>{% endif %}
-          </div>
-          <div>
-            <label for="arquivo" class="label">Produtos ou Servicos (arquivo) <span class="text-red-500">*</span></label>
-            <input type="file" name="arquivo" id="arquivo" required
-                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 {% if erros.arquivo %}border border-red-500 rounded-lg{% endif %}">
-            {% if erros.arquivo %}<p class="text-xs text-red-600 mt-1">{{ erros.arquivo }}</p>{% endif %}
-          </div>
+        <!-- Planos -->
+        <div class="mt-4" x-data="{
+          selecionados: [],
+          addPlano() { this.selecionados.push(''); },
+          removePlano(i) { if (this.selecionados.length > 1) this.selecionados.splice(i, 1); }
+        }" x-init="if (selecionados.length === 0) selecionados.push('')">
+          <label class="label">Planos contratados <span class="text-red-500">*</span></label>
+          {% if erros.planos %}<p class="text-xs text-red-600 mb-2">{{ erros.planos }}</p>{% endif %}
+          <template x-for="(sel, index) in selecionados" :key="index">
+            <div class="flex gap-2 mb-2 items-center">
+              <select name="planos" x-model="selecionados[index]" required class="input flex-1">
+                <option value="">Selecione um plano...</option>
+                {% for plano in planos_disponiveis %}
+                <option value="{{ plano.id }}">{{ plano.nome }} — R$ {{ plano.valor_total }}</option>
+                {% endfor %}
+              </select>
+              <button type="button" @click="removePlano(index)" class="text-red-400 hover:text-red-300 text-lg px-2"
+                      x-show="selecionados.length > 1">&times;</button>
+            </div>
+          </template>
+          <button type="button" @click="addPlano()" class="text-[12px] text-ruch-accent hover:text-t1 mt-1">
+            + Adicionar outro plano
+          </button>
+        </div>
+
+        <div class="mt-4">
+          <label for="arquivo" class="label">Produtos ou Servicos (arquivo) <span class="text-red-500">*</span></label>
+          <input type="file" name="arquivo" id="arquivo" required
+                 class="block w-full text-sm text-t3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 {% if erros.arquivo %}border border-red-500 rounded-lg{% endif %}">
+          {% if erros.arquivo %}<p class="text-xs text-red-600 mt-1">{{ erros.arquivo }}</p>{% endif %}
         </div>
       </div>
 

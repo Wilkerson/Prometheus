@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ plano.nome }}{% endblock %}
+{% block page_title %}Plano: {{ plano.nome }}{% endblock %}
+{% block page_actions %}
+<div class="flex gap-2">
+  {% if can_edit %}<a href="{% url 'web:plano-edit' plano.pk %}" class="btn-primary">Editar</a>{% endif %}
+  <a href="{% url 'web:planos' %}" class="btn-secondary">Voltar</a>
+</div>
+{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div class="lg:col-span-2">
+    <div class="card">
+      <h2 class="text-[15px] font-bold mb-4">Informacoes</h2>
+      <dl class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <dt class="text-t3">Nome</dt>
+          <dd class="font-medium text-t1">{{ plano.nome }}</dd>
+        </div>
+        <div>
+          <dt class="text-t3">Parceiro</dt>
+          <dd class="font-medium text-t1">{{ plano.parceiro.nome_entidade }}</dd>
+        </div>
+        <div>
+          <dt class="text-t3">Valor total</dt>
+          <dd class="font-medium text-t1">R$ {{ plano.valor_total }}</dd>
+        </div>
+        <div>
+          <dt class="text-t3">Status</dt>
+          <dd>{% if plano.ativo %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>{% else %}<span class="badge bg-bg4 text-t3">Inativo</span>{% endif %}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="card mt-4">
+      <h2 class="text-[15px] font-bold mb-4">Produtos do plano</h2>
+      {% if plano.itens.all %}
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bdr text-left text-t3">
+            <th class="pb-2 font-medium">Produto</th>
+            <th class="pb-2 font-medium">Tier</th>
+            <th class="pb-2 font-medium">Preco</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-bdr">
+          {% for item in plano.itens.all %}
+          <tr>
+            <td class="py-2.5 text-t1 font-medium">{{ item.produto.nome }}</td>
+            <td class="py-2.5 text-t2">{{ item.produto.get_tier_display }}</td>
+            <td class="py-2.5 text-t1 font-medium">R$ {{ item.preco }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="text-sm text-t3">Nenhum produto neste plano.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    {% if can_delete %}
+    <div class="card border-red-500/20" x-data="{ confirmar: false }">
+      <h3 class="text-sm font-semibold text-red-400 mb-2">Excluir Plano</h3>
+      <p class="text-[11px] text-t3 mb-3">Esta acao nao pode ser desfeita.</p>
+      <div x-show="!confirmar">
+        <button @click="confirmar = true" class="btn-danger w-full text-sm">Excluir</button>
+      </div>
+      <div x-show="confirmar" x-transition class="space-y-2">
+        <p class="text-sm text-red-400 font-medium">Tem certeza?</p>
+        <form method="post" action="{% url 'web:plano-delete' plano.pk %}" hx-post="{% url 'web:plano-delete' plano.pk %}">
+          {% csrf_token %}
+          <div class="flex gap-2">
+            <button type="submit" class="btn-danger text-xs flex-1">Sim</button>
+            <button type="button" @click="confirmar = false" class="btn-secondary text-xs flex-1">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

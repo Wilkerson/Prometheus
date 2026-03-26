@@ -12,7 +12,7 @@ from django.views.generic import ListView, TemplateView
 
 from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
-from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Plano
+from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Plano, PlanoProduto, Produto
 
 from .mixins import HtmxMixin, is_htmx
 
@@ -539,7 +539,7 @@ class ComissaoListView(PermissionRequiredMixin, HtmxMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Comissao.objects.select_related("parceiro", "venda").order_by("-gerado_em")
+        qs = Comissao.objects.select_related("parceiro", "cliente").order_by("-gerado_em")
 
         if hasattr(user, "parceiro"):
             qs = qs.filter(parceiro=user.parceiro)
@@ -554,3 +554,219 @@ class ComissaoListView(PermissionRequiredMixin, HtmxMixin, ListView):
         ctx["status_choices"] = Comissao.Status.choices
         ctx["current_status"] = self.request.GET.get("status", "")
         return ctx
+
+
+# ---------------------------------------------------------------------------
+# Produtos
+# ---------------------------------------------------------------------------
+class ProdutoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "produtos/list.html"
+    partial_template_name = "produtos/_table.html"
+    context_object_name = "produtos"
+    paginate_by = 20
+    permission_required = "crm.view_produto"
+
+    def get_queryset(self):
+        qs = Produto.objects.order_by("nome")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(Q(nome__icontains=search))
+        tier = self.request.GET.get("tier")
+        if tier:
+            qs = qs.filter(tier=tier)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tier_choices"] = Produto.Tier.choices
+        ctx["current_tier"] = self.request.GET.get("tier", "")
+        ctx["can_add"] = self.request.user.has_perm("crm.add_produto")
+        return ctx
+
+
+class ProdutoCreateView(PermissionRequiredMixin, View):
+    permission_required = "crm.add_produto"
+
+    def get(self, request):
+        return render(request, "produtos/create.html", {
+            "tier_choices": Produto.Tier.choices, "erros": {}, "dados": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        descricao = request.POST.get("descricao", "").strip()
+        if not descricao:
+            erros["descricao"] = "A descricao e obrigatoria."
+        tier = request.POST.get("tier", "basico")
+        dados = {"nome": nome, "descricao": descricao, "tier": tier}
+
+        if erros:
+            ctx = {"tier_choices": Produto.Tier.choices, "erros": erros, "dados": dados}
+            if is_htmx(request):
+                return render(request, "clientes/_form_errors.html", ctx)
+            return render(request, "produtos/create.html", ctx)
+
+        Produto.objects.create(**dados)
+        return redirect("web:produtos")
+
+
+class ProdutoUpdateView(PermissionRequiredMixin, View):
+    permission_required = "crm.change_produto"
+
+    def get(self, request, pk):
+        produto = get_object_or_404(Produto, pk=pk)
+        return render(request, "produtos/edit.html", {
+            "produto": produto, "tier_choices": Produto.Tier.choices, "erros": {},
+        })
+
+    def post(self, request, pk):
+        produto = get_object_or_404(Produto, pk=pk)
+        produto.nome = request.POST.get("nome", produto.nome).strip()
+        produto.descricao = request.POST.get("descricao", produto.descricao).strip()
+        produto.tier = request.POST.get("tier", produto.tier)
+        produto.ativo = request.POST.get("ativo") == "on"
+        produto.save()
+        return redirect("web:produtos")
+
+
+class ProdutoDeleteView(PermissionRequiredMixin, View):
+    permission_required = "crm.delete_produto"
+
+    def post(self, request, pk):
+        get_object_or_404(Produto, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/produtos/"})
+        return redirect("web:produtos")
+
+
+# ---------------------------------------------------------------------------
+# Planos
+# ---------------------------------------------------------------------------
+class PlanoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "planos/list.html"
+    partial_template_name = "planos/_table.html"
+    context_object_name = "planos"
+    paginate_by = 20
+    permission_required = "crm.view_plano"
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = Plano.objects.select_related("parceiro").prefetch_related("itens__produto").order_by("-criado_em")
+        if hasattr(user, "parceiro"):
+            qs = qs.filter(parceiro=user.parceiro)
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(Q(nome__icontains=search) | Q(parceiro__nome_entidade__icontains=search))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("crm.add_plano")
+        return ctx
+
+
+class PlanoCreateView(PermissionRequiredMixin, View):
+    permission_required = "crm.add_plano"
+
+    def get(self, request):
+        return render(request, "planos/create.html", {
+            "parceiros": EntidadeParceira.objects.filter(ativo=True),
+            "produtos": Produto.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        parceiro_id = request.POST.get("parceiro")
+        if not parceiro_id:
+            erros["parceiro"] = "Selecione um parceiro."
+
+        produto_ids = request.POST.getlist("produto_id")
+        precos = request.POST.getlist("preco")
+        if not produto_ids or not any(produto_ids):
+            erros["produtos"] = "Adicione ao menos um produto ao plano."
+
+        if erros:
+            ctx = {
+                "parceiros": EntidadeParceira.objects.filter(ativo=True),
+                "produtos": Produto.objects.filter(ativo=True),
+                "erros": erros,
+            }
+            if is_htmx(request):
+                return render(request, "clientes/_form_errors.html", ctx)
+            return render(request, "planos/create.html", ctx)
+
+        parceiro = get_object_or_404(EntidadeParceira, pk=parceiro_id)
+        plano = Plano.objects.create(nome=nome, parceiro=parceiro)
+
+        for pid, preco in zip(produto_ids, precos):
+            if pid and preco:
+                PlanoProduto.objects.create(
+                    plano=plano,
+                    produto_id=int(pid),
+                    preco=preco,
+                )
+
+        return redirect("web:plano-detail", pk=plano.pk)
+
+
+class PlanoDetailView(PermissionRequiredMixin, View):
+    permission_required = "crm.view_plano"
+
+    def get(self, request, pk):
+        plano = get_object_or_404(
+            Plano.objects.select_related("parceiro").prefetch_related("itens__produto"), pk=pk,
+        )
+        return render(request, "planos/detail.html", {
+            "plano": plano,
+            "can_edit": request.user.has_perm("crm.change_plano"),
+            "can_delete": request.user.has_perm("crm.delete_plano"),
+        })
+
+
+class PlanoUpdateView(PermissionRequiredMixin, View):
+    permission_required = "crm.change_plano"
+
+    def get(self, request, pk):
+        plano = get_object_or_404(Plano.objects.prefetch_related("itens__produto"), pk=pk)
+        return render(request, "planos/edit.html", {
+            "plano": plano,
+            "parceiros": EntidadeParceira.objects.filter(ativo=True),
+            "produtos": Produto.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        plano = get_object_or_404(Plano, pk=pk)
+        plano.nome = request.POST.get("nome", plano.nome).strip()
+        parceiro_id = request.POST.get("parceiro")
+        if parceiro_id:
+            plano.parceiro = get_object_or_404(EntidadeParceira, pk=parceiro_id)
+        plano.ativo = request.POST.get("ativo") == "on"
+        plano.save()
+
+        # Recria itens
+        plano.itens.all().delete()
+        produto_ids = request.POST.getlist("produto_id")
+        precos = request.POST.getlist("preco")
+        for pid, preco in zip(produto_ids, precos):
+            if pid and preco:
+                PlanoProduto.objects.create(plano=plano, produto_id=int(pid), preco=preco)
+
+        return redirect("web:plano-detail", pk=plano.pk)
+
+
+class PlanoDeleteView(PermissionRequiredMixin, View):
+    permission_required = "crm.delete_plano"
+
+    def post(self, request, pk):
+        get_object_or_404(Plano, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/planos/"})
+        return redirect("web:planos")
