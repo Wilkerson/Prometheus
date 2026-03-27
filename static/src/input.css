@@ -45,15 +45,15 @@
 }
 
 html.light {
-  --theme-bg:  #f5f5f5;
+  --theme-bg:  #f0f0f0;
   --theme-bg2: #ffffff;
-  --theme-bg3: #eaeaea;
-  --theme-bg4: #e0e0e0;
+  --theme-bg3: #e8e8e8;
+  --theme-bg4: #d8d8d8;
   --theme-t1:  #1a1a1a;
-  --theme-t2:  #555555;
-  --theme-t3:  #999999;
-  --theme-bdr: rgba(0,0,0,0.08);
-  --theme-bdr2: rgba(0,0,0,0.15);
+  --theme-t2:  #444444;
+  --theme-t3:  #888888;
+  --theme-bdr: rgba(0,0,0,0.18);
+  --theme-bdr2: rgba(0,0,0,0.28);
 }
 
 /* ========== UTILITIES ========== */
