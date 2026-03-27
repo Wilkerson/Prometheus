@@ -1,0 +1,240 @@
+[
+  {"model": "rh.setor", "pk": 1, "fields": {
+    "nome": "Vendas", "departamento": 1, "descricao": "Equipe de vendas e prospecao de clientes", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.setor", "pk": 2, "fields": {
+    "nome": "Pos-venda", "departamento": 1, "descricao": "Suporte e acompanhamento apos a venda", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.setor", "pk": 3, "fields": {
+    "nome": "Contas a Pagar", "departamento": 2, "descricao": "Controle de pagamentos e despesas", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.setor", "pk": 4, "fields": {
+    "nome": "Contas a Receber", "departamento": 2, "descricao": "Controle de recebiveis e faturamento", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.setor", "pk": 5, "fields": {
+    "nome": "Recrutamento e Selecao", "departamento": 3, "descricao": "Contratacao de novos colaboradores", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.setor", "pk": 6, "fields": {
+    "nome": "Treinamento e Desenvolvimento", "departamento": 3, "descricao": "Capacitacao e PDI dos colaboradores", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.setor", "pk": 7, "fields": {
+    "nome": "Desenvolvimento", "departamento": 5, "descricao": "Engenharia de software e desenvolvimento de produtos", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.setor", "pk": 8, "fields": {
+    "nome": "Infraestrutura", "departamento": 5, "descricao": "Servidores, cloud, DevOps e seguranca", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+
+  {"model": "rh.cargo", "pk": 1, "fields": {
+    "nome": "Diretor Comercial", "departamento": 1, "nivel": "diretor",
+    "faixa_salarial_min": "15000.00", "faixa_salarial_max": "25000.00",
+    "descricao": "Lideranca estrategica do departamento comercial", "requisitos": "Experiencia em gestao de vendas",
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.cargo", "pk": 2, "fields": {
+    "nome": "Analista Comercial", "departamento": 1, "nivel": "analista",
+    "faixa_salarial_min": "3500.00", "faixa_salarial_max": "6000.00",
+    "descricao": "Atendimento ao cliente e suporte comercial", "requisitos": "Experiencia em vendas B2B",
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.cargo", "pk": 3, "fields": {
+    "nome": "Gerente Financeiro", "departamento": 2, "nivel": "gerente",
+    "faixa_salarial_min": "10000.00", "faixa_salarial_max": "18000.00",
+    "descricao": "Gestao do departamento financeiro", "requisitos": "Formacao em contabilidade ou administracao",
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.cargo", "pk": 4, "fields": {
+    "nome": "Assistente Financeiro", "departamento": 2, "nivel": "assistente",
+    "faixa_salarial_min": "2200.00", "faixa_salarial_max": "3500.00",
+    "descricao": "Apoio em contas a pagar e receber", "requisitos": "Cursando administracao ou contabilidade",
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.cargo", "pk": 5, "fields": {
+    "nome": "Gerente de RH", "departamento": 3, "nivel": "gerente",
+    "faixa_salarial_min": "9000.00", "faixa_salarial_max": "15000.00",
+    "descricao": "Gestao de pessoas e processos de RH", "requisitos": "Formacao em RH ou psicologia organizacional",
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.cargo", "pk": 6, "fields": {
+    "nome": "Analista de RH", "departamento": 3, "nivel": "analista",
+    "faixa_salarial_min": "3500.00", "faixa_salarial_max": "5500.00",
+    "descricao": "Recrutamento, selecao e rotinas de pessoal", "requisitos": "Experiencia em recrutamento",
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.cargo", "pk": 7, "fields": {
+    "nome": "Especialista em Desenvolvimento", "departamento": 5, "nivel": "especialista",
+    "faixa_salarial_min": "8000.00", "faixa_salarial_max": "14000.00",
+    "descricao": "Desenvolvimento de software e solucoes tecnicas", "requisitos": "Experiencia solida em programacao",
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.cargo", "pk": 8, "fields": {
+    "nome": "Estagiario de Tecnologia", "departamento": 5, "nivel": "estagiario",
+    "faixa_salarial_min": "1200.00", "faixa_salarial_max": "1800.00",
+    "descricao": "Apoio em projetos de desenvolvimento", "requisitos": "Cursando ciencia da computacao ou afins",
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+
+  {"model": "crm.endereco", "pk": 20, "fields": {"cep": "01311-200", "logradouro": "Rua Augusta", "numero": "1508", "complemento": "Apto 42", "bairro": "Consolacao", "cidade": "Sao Paulo", "uf": "SP"}},
+  {"model": "crm.endereco", "pk": 21, "fields": {"cep": "22041-001", "logradouro": "Rua Santa Clara", "numero": "75", "complemento": "", "bairro": "Copacabana", "cidade": "Rio de Janeiro", "uf": "RJ"}},
+  {"model": "crm.endereco", "pk": 22, "fields": {"cep": "30130-001", "logradouro": "Rua dos Caetes", "numero": "234", "complemento": "Sala 3", "bairro": "Centro", "cidade": "Belo Horizonte", "uf": "MG"}},
+  {"model": "crm.endereco", "pk": 23, "fields": {"cep": "80060-150", "logradouro": "Rua XV de Novembro", "numero": "700", "complemento": "", "bairro": "Centro", "cidade": "Curitiba", "uf": "PR"}},
+  {"model": "crm.endereco", "pk": 24, "fields": {"cep": "90010-280", "logradouro": "Rua dos Andradas", "numero": "1001", "complemento": "Conj 501", "bairro": "Centro Historico", "cidade": "Porto Alegre", "uf": "RS"}},
+  {"model": "crm.endereco", "pk": 25, "fields": {"cep": "40020-000", "logradouro": "Av. Sete de Setembro", "numero": "555", "complemento": "", "bairro": "Centro", "cidade": "Salvador", "uf": "BA"}},
+  {"model": "crm.endereco", "pk": 26, "fields": {"cep": "01310-300", "logradouro": "Alameda Santos", "numero": "211", "complemento": "Apto 15", "bairro": "Cerqueira Cesar", "cidade": "Sao Paulo", "uf": "SP"}},
+  {"model": "crm.endereco", "pk": 27, "fields": {"cep": "22031-070", "logradouro": "Rua Tonelero", "numero": "148", "complemento": "Bloco A", "bairro": "Copacabana", "cidade": "Rio de Janeiro", "uf": "RJ"}},
+
+  {"model": "rh.colaborador", "pk": 1, "fields": {
+    "nome_completo": "Mariana Costa Silva", "cpf": "123.456.789-01", "data_nascimento": "1990-03-15",
+    "endereco": 20, "telefone": "11999887766", "email_pessoal": "mariana.costa@gmail.com",
+    "contato_emergencia_nome": "Pedro Costa", "contato_emergencia_telefone": "11988776655",
+    "tipo_contrato": "clt", "data_admissao": "2025-06-01", "data_desligamento": null,
+    "cargo": 1, "departamento": 1, "setor": 1, "remuneracao": "18000.00", "carga_horaria_semanal": 40,
+    "status": "ativo",
+    "pis_nit": "123.45678.90-1", "ctps_numero": "1234567", "ctps_serie": "001",
+    "banco_deposito": "Itau 341", "regime_trabalho": "hibrido",
+    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
+    "usuario": null,
+    "criado_em": "2025-06-01T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.colaborador", "pk": 2, "fields": {
+    "nome_completo": "Lucas Ferreira Oliveira", "cpf": "234.567.890-12", "data_nascimento": "1995-08-22",
+    "endereco": 21, "telefone": "21998877665", "email_pessoal": "lucas.ferreira@hotmail.com",
+    "contato_emergencia_nome": "Maria Oliveira", "contato_emergencia_telefone": "21987766554",
+    "tipo_contrato": "clt", "data_admissao": "2025-09-15", "data_desligamento": null,
+    "cargo": 2, "departamento": 1, "setor": 1, "remuneracao": "4500.00", "carga_horaria_semanal": 40,
+    "status": "ativo",
+    "pis_nit": "234.56789.01-2", "ctps_numero": "2345678", "ctps_serie": "002",
+    "banco_deposito": "Bradesco 237", "regime_trabalho": "presencial",
+    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
+    "usuario": null,
+    "criado_em": "2025-09-15T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.colaborador", "pk": 3, "fields": {
+    "nome_completo": "Camila Rodrigues Santos", "cpf": "345.678.901-23", "data_nascimento": "1988-11-10",
+    "endereco": 22, "telefone": "31997766554", "email_pessoal": "camila.rsantos@gmail.com",
+    "contato_emergencia_nome": "Jose Santos", "contato_emergencia_telefone": "31986655443",
+    "tipo_contrato": "clt", "data_admissao": "2025-03-01", "data_desligamento": null,
+    "cargo": 3, "departamento": 2, "setor": 3, "remuneracao": "12000.00", "carga_horaria_semanal": 40,
+    "status": "ativo",
+    "pis_nit": "345.67890.12-3", "ctps_numero": "3456789", "ctps_serie": "003",
+    "banco_deposito": "Nubank 260", "regime_trabalho": "remoto",
+    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
+    "usuario": null,
+    "criado_em": "2025-03-01T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.colaborador", "pk": 4, "fields": {
+    "nome_completo": "Rafael Almeida Lima", "cpf": "456.789.012-34", "data_nascimento": "1998-05-28",
+    "endereco": 23, "telefone": "41996655443", "email_pessoal": "rafael.almeida@outlook.com",
+    "contato_emergencia_nome": "Ana Lima", "contato_emergencia_telefone": "41985544332",
+    "tipo_contrato": "clt", "data_admissao": "2026-01-10", "data_desligamento": null,
+    "cargo": 4, "departamento": 2, "setor": 4, "remuneracao": "2800.00", "carga_horaria_semanal": 40,
+    "status": "ativo",
+    "pis_nit": "456.78901.23-4", "ctps_numero": "4567890", "ctps_serie": "004",
+    "banco_deposito": "Inter 077", "regime_trabalho": "presencial",
+    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
+    "usuario": null,
+    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.colaborador", "pk": 5, "fields": {
+    "nome_completo": "Patricia Mendes Souza", "cpf": "567.890.123-45", "data_nascimento": "1992-07-03",
+    "endereco": 24, "telefone": "51995544332", "email_pessoal": "patricia.mendes@gmail.com",
+    "contato_emergencia_nome": "Carlos Souza", "contato_emergencia_telefone": "51984433221",
+    "tipo_contrato": "clt", "data_admissao": "2025-08-01", "data_desligamento": null,
+    "cargo": 5, "departamento": 3, "setor": 5, "remuneracao": "11000.00", "carga_horaria_semanal": 40,
+    "status": "ativo",
+    "pis_nit": "567.89012.34-5", "ctps_numero": "5678901", "ctps_serie": "005",
+    "banco_deposito": "Caixa 104", "regime_trabalho": "hibrido",
+    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
+    "usuario": null,
+    "criado_em": "2025-08-01T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.colaborador", "pk": 6, "fields": {
+    "nome_completo": "Thiago Barbosa Pereira", "cpf": "678.901.234-56", "data_nascimento": "1994-12-18",
+    "endereco": 25, "telefone": "71994433221", "email_pessoal": "thiago.barbosa@yahoo.com",
+    "contato_emergencia_nome": "Lucia Pereira", "contato_emergencia_telefone": "71983322110",
+    "tipo_contrato": "pj", "data_admissao": "2025-11-01", "data_desligamento": null,
+    "cargo": 7, "departamento": 5, "setor": 7, "remuneracao": "12000.00", "carga_horaria_semanal": 40,
+    "status": "ativo",
+    "pis_nit": "", "ctps_numero": "", "ctps_serie": "",
+    "banco_deposito": "", "regime_trabalho": "",
+    "cnpj_pj": "12.345.678/0001-90", "razao_social": "Thiago Dev LTDA",
+    "banco_pagamento_pj": "Nubank 260", "chave_pix": "thiago.barbosa@yahoo.com",
+    "usuario": null,
+    "criado_em": "2025-11-01T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.colaborador", "pk": 7, "fields": {
+    "nome_completo": "Juliana Nascimento Dias", "cpf": "789.012.345-67", "data_nascimento": "2001-02-14",
+    "endereco": 26, "telefone": "11993322110", "email_pessoal": "juliana.dias@gmail.com",
+    "contato_emergencia_nome": "Sandra Nascimento", "contato_emergencia_telefone": "11982211009",
+    "tipo_contrato": "clt", "data_admissao": "2026-02-01", "data_desligamento": null,
+    "cargo": 8, "departamento": 5, "setor": 7, "remuneracao": "1500.00", "carga_horaria_semanal": 30,
+    "status": "ativo",
+    "pis_nit": "789.01234.56-7", "ctps_numero": "7890123", "ctps_serie": "007",
+    "banco_deposito": "Inter 077", "regime_trabalho": "hibrido",
+    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
+    "usuario": null,
+    "criado_em": "2026-02-01T10:00:00Z", "atualizado_em": "2026-02-01T10:00:00Z"
+  }},
+  {"model": "rh.colaborador", "pk": 8, "fields": {
+    "nome_completo": "Fernando Gomes Araujo", "cpf": "890.123.456-78", "data_nascimento": "1987-09-25",
+    "endereco": 27, "telefone": "21992211009", "email_pessoal": "fernando.araujo@outlook.com",
+    "contato_emergencia_nome": "Claudia Gomes", "contato_emergencia_telefone": "21981100998",
+    "tipo_contrato": "pj", "data_admissao": "2025-04-01", "data_desligamento": "2026-01-31",
+    "cargo": 2, "departamento": 1, "setor": 2, "remuneracao": "5000.00", "carga_horaria_semanal": 40,
+    "status": "desligado",
+    "pis_nit": "", "ctps_numero": "", "ctps_serie": "",
+    "banco_deposito": "", "regime_trabalho": "",
+    "cnpj_pj": "98.765.432/0001-10", "razao_social": "Fernando Consultoria ME",
+    "banco_pagamento_pj": "Bradesco 237", "chave_pix": "98765432000110",
+    "usuario": null,
+    "criado_em": "2025-04-01T10:00:00Z", "atualizado_em": "2026-01-31T10:00:00Z"
+  }},
+
+  {"model": "rh.historicocolaborador", "pk": 1, "fields": {
+    "colaborador": 1, "tipo": "admissao",
+    "cargo_anterior": "", "cargo_novo": "Diretor Comercial (Comercial)",
+    "departamento_anterior": "", "departamento_novo": "Comercial",
+    "remuneracao_anterior": null, "remuneracao_nova": "18000.00",
+    "observacao": "Admissao registrada no sistema.", "registrado_por": null,
+    "criado_em": "2025-06-01T10:00:00Z"
+  }},
+  {"model": "rh.historicocolaborador", "pk": 2, "fields": {
+    "colaborador": 3, "tipo": "admissao",
+    "cargo_anterior": "", "cargo_novo": "Gerente Financeiro (Financeiro)",
+    "departamento_anterior": "", "departamento_novo": "Financeiro",
+    "remuneracao_anterior": null, "remuneracao_nova": "10000.00",
+    "observacao": "Admissao registrada no sistema.", "registrado_por": null,
+    "criado_em": "2025-03-01T10:00:00Z"
+  }},
+  {"model": "rh.historicocolaborador", "pk": 3, "fields": {
+    "colaborador": 3, "tipo": "reajuste",
+    "cargo_anterior": "", "cargo_novo": "",
+    "departamento_anterior": "", "departamento_novo": "",
+    "remuneracao_anterior": "10000.00", "remuneracao_nova": "12000.00",
+    "observacao": "Reajuste anual por desempenho.", "registrado_por": null,
+    "criado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.historicocolaborador", "pk": 4, "fields": {
+    "colaborador": 8, "tipo": "admissao",
+    "cargo_anterior": "", "cargo_novo": "Analista Comercial (Comercial)",
+    "departamento_anterior": "", "departamento_novo": "Comercial",
+    "remuneracao_anterior": null, "remuneracao_nova": "5000.00",
+    "observacao": "Admissao como PJ.", "registrado_por": null,
+    "criado_em": "2025-04-01T10:00:00Z"
+  }},
+  {"model": "rh.historicocolaborador", "pk": 5, "fields": {
+    "colaborador": 8, "tipo": "desligamento",
+    "cargo_anterior": "Analista Comercial (Comercial)", "cargo_novo": "",
+    "departamento_anterior": "Comercial", "departamento_novo": "",
+    "remuneracao_anterior": "5000.00", "remuneracao_nova": null,
+    "observacao": "Contrato PJ encerrado por termino do projeto.", "registrado_por": null,
+    "criado_em": "2026-01-31T10:00:00Z"
+  }}
+]
