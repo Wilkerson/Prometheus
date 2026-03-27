@@ -65,6 +65,21 @@ class Command(BaseCommand):
         self._log(g, created)
 
         # ---------------------------------------------------------------
+        # Colaborador — acesso limitado (solicitar ausencias, ver seus dados)
+        # ---------------------------------------------------------------
+        g, created = Group.objects.get_or_create(name="Colaborador")
+        perms = Permission.objects.filter(codename__in=[
+            "view_solicitacaoausencia", "add_solicitacaoausencia",
+            "view_treinamento",
+            "view_participacaotreinamento",
+            "view_documentocolaborador",
+            "view_onboardingcolaborador",
+            "view_saldoferias",
+        ])
+        g.permissions.set(perms)
+        self._log(g, created)
+
+        # ---------------------------------------------------------------
         # Empresa Parceira — apenas clientes (criar/ver/editar)
         # ---------------------------------------------------------------
         g, created = Group.objects.get_or_create(name="Empresa Parceira")

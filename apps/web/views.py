@@ -1954,6 +1954,93 @@ class ColaboradorDeleteView(PermissionRequiredMixin, View):
         return redirect("web:rh-colaboradores")
 
 
+class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
+    """Cria usuario no sistema para o colaborador com grupo Colaborador."""
+    permission_required = "rh.change_colaborador"
+
+    def get(self, request, pk):
+        colab = get_object_or_404(Colaborador, pk=pk)
+        if colab.usuario:
+            return redirect("web:rh-colaborador-detail", pk=pk)
+        # Sugerir username baseado no email pessoal
+        email = colab.email_pessoal
+        username_sugerido = email.split("@")[0] if email else colab.nome_completo.lower().replace(" ", ".")
+        return render(request, "rh/colaboradores/criar_acesso.html", {
+            "colab": colab,
+            "username_sugerido": username_sugerido,
+            "email": email,
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        colab = get_object_or_404(Colaborador, pk=pk)
+        if colab.usuario:
+            return redirect("web:rh-colaborador-detail", pk=pk)
+
+        erros = {}
+        username = request.POST.get("username", "").strip()
+        if not username:
+            erros["username"] = "O username e obrigatorio."
+        elif Usuario.objects.filter(username=username).exists():
+            erros["username"] = "Esse username ja esta em uso."
+
+        email = request.POST.get("email", "").strip()
+        if not email:
+            erros["email"] = "O email e obrigatorio."
+
+        password = request.POST.get("password", "").strip()
+        if not password or len(password) < 8:
+            erros["password"] = "A senha deve ter no minimo 8 caracteres."
+
+        if erros:
+            return render(request, "rh/colaboradores/criar_acesso.html", {
+                "colab": colab,
+                "username_sugerido": username,
+                "email": email,
+                "erros": erros,
+            })
+
+        # Extrair nome/sobrenome do nome completo
+        partes = colab.nome_completo.split()
+        first_name = partes[0] if partes else ""
+        last_name = " ".join(partes[1:]) if len(partes) > 1 else ""
+
+        user = Usuario.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+        )
+
+        # Atribuir grupo Colaborador
+        grupo_colab = Group.objects.filter(name="Colaborador").first()
+        if grupo_colab:
+            user.groups.add(grupo_colab)
+
+        # Vincular ao colaborador
+        colab.usuario = user
+        colab.save(update_fields=["usuario"])
+
+        from django.contrib import messages
+        messages.success(request, f"Acesso criado para {colab.nome_completo} (usuario: {username})")
+        return redirect("web:rh-colaborador-detail", pk=pk)
+
+
+class ColaboradorRevogarAcessoView(PermissionRequiredMixin, View):
+    """Revoga acesso ao sistema — desativa o usuario vinculado."""
+    permission_required = "rh.change_colaborador"
+
+    def post(self, request, pk):
+        colab = get_object_or_404(Colaborador, pk=pk)
+        if colab.usuario:
+            colab.usuario.is_active = False
+            colab.usuario.save(update_fields=["is_active"])
+            from django.contrib import messages
+            messages.success(request, f"Acesso revogado para {colab.nome_completo}")
+        return redirect("web:rh-colaborador-detail", pk=pk)
+
+
 # ---------------------------------------------------------------------------
 # RH — Documentos do Colaborador
 # ---------------------------------------------------------------------------
@@ -2266,8 +2353,22 @@ class AusenciaListView(PermissionRequiredMixin, HtmxMixin, ListView):
     paginate_by = 20
     permission_required = "rh.view_solicitacaoausencia"
 
+    def _is_rh(self):
+        return self.request.user.has_perm("rh.change_solicitacaoausencia")
+
+    def _get_colaborador(self):
+        """Retorna o Colaborador vinculado ao usuario logado, se houver."""
+        return getattr(self.request.user, "colaborador", None)
+
     def get_queryset(self):
         qs = SolicitacaoAusencia.objects.select_related("colaborador", "aprovado_por")
+        # Colaborador comum ve apenas suas proprias ausencias
+        if not self._is_rh():
+            colab = self._get_colaborador()
+            if colab:
+                qs = qs.filter(colaborador=colab)
+            else:
+                return qs.none()
         search = self.request.GET.get("q")
         if search:
             qs = qs.filter(colaborador__nome_completo__icontains=search)
@@ -2286,25 +2387,44 @@ class AusenciaListView(PermissionRequiredMixin, HtmxMixin, ListView):
         ctx["current_tipo"] = self.request.GET.get("tipo", "")
         ctx["current_status"] = self.request.GET.get("status", "")
         ctx["can_add"] = self.request.user.has_perm("rh.add_solicitacaoausencia")
-        ctx["can_approve"] = self.request.user.has_perm("rh.change_solicitacaoausencia")
+        ctx["can_approve"] = self._is_rh()
+        ctx["is_rh"] = self._is_rh()
         return ctx
 
 
 class AusenciaCreateView(PermissionRequiredMixin, View):
     permission_required = "rh.add_solicitacaoausencia"
 
+    def _is_rh(self, user):
+        return user.has_perm("rh.change_solicitacaoausencia")
+
     def get(self, request):
+        is_rh = self._is_rh(request.user)
+        colab_proprio = getattr(request.user, "colaborador", None)
         return render(request, "rh/ausencias/create.html", {
             "tipo_choices": SolicitacaoAusencia.TipoAusencia.choices,
-            "colaboradores": Colaborador.objects.filter(status="ativo"),
+            "colaboradores": Colaborador.objects.filter(status="ativo") if is_rh else [],
+            "is_rh": is_rh,
+            "colab_proprio": colab_proprio,
             "erros": {},
         })
 
     def post(self, request):
         erros = {}
-        colab_id = request.POST.get("colaborador")
-        if not colab_id:
-            erros["colaborador"] = "O colaborador e obrigatorio."
+        is_rh = self._is_rh(request.user)
+
+        # Determinar colaborador
+        if is_rh:
+            colab_id = request.POST.get("colaborador")
+            if not colab_id:
+                erros["colaborador"] = "O colaborador e obrigatorio."
+        else:
+            colab = getattr(request.user, "colaborador", None)
+            if not colab:
+                erros["colaborador"] = "Seu usuario nao esta vinculado a um colaborador."
+            else:
+                colab_id = colab.pk
+
         tipo = request.POST.get("tipo", "").strip()
         if not tipo:
             erros["tipo"] = "O tipo e obrigatorio."
@@ -2316,9 +2436,12 @@ class AusenciaCreateView(PermissionRequiredMixin, View):
             erros["data_fim"] = "A data de fim e obrigatoria."
 
         if erros:
+            colab_proprio = getattr(request.user, "colaborador", None)
             return render(request, "rh/ausencias/create.html", {
                 "tipo_choices": SolicitacaoAusencia.TipoAusencia.choices,
-                "colaboradores": Colaborador.objects.filter(status="ativo"),
+                "colaboradores": Colaborador.objects.filter(status="ativo") if is_rh else [],
+                "is_rh": is_rh,
+                "colab_proprio": colab_proprio,
                 "erros": erros,
             })
 

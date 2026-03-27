@@ -130,6 +130,45 @@
   </div>
 </div>
 
+<!-- Acesso ao sistema -->
+{% if can_edit %}
+<div class="card mt-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="text-sm font-semibold text-t2">Acesso ao sistema</h3>
+      {% if colab.usuario %}
+      <p class="text-[12px] text-t2 mt-1">
+        Usuario: <span class="text-t1 font-medium">{{ colab.usuario.username }}</span>
+        <span class="ml-2">
+          {% if colab.usuario.is_active %}
+          <span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
+          {% else %}
+          <span class="badge bg-red-500/15 text-red-500">Revogado</span>
+          {% endif %}
+        </span>
+      </p>
+      {% else %}
+      <p class="text-[12px] text-t3 mt-1">Este colaborador nao possui acesso ao sistema.</p>
+      {% endif %}
+    </div>
+    <div>
+      {% if not colab.usuario %}
+      <a href="{% url 'web:rh-colaborador-criar-acesso' colab.pk %}" class="btn-primary text-[12px]">Criar acesso</a>
+      {% elif colab.usuario.is_active %}
+      <form method="post" action="{% url 'web:rh-colaborador-revogar-acesso' colab.pk %}" x-data="{ conf: false }">
+        {% csrf_token %}
+        <button type="button" @click="conf = true" x-show="!conf" class="btn-danger text-[12px]">Revogar acesso</button>
+        <div x-show="conf" x-cloak class="flex gap-2">
+          <button type="submit" class="btn-danger text-[12px]">Confirmar</button>
+          <button type="button" @click="conf = false" class="btn-secondary text-[12px]">Cancelar</button>
+        </div>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- Onboarding -->
 <div class="card mt-4">
   <div class="flex items-center justify-between mb-3">
