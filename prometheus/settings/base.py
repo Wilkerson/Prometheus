@@ -198,6 +198,13 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_BEAT_SCHEDULE = {
+    "rh-alertas-diarios": {
+        "task": "rh.alertas_diarios",
+        "schedule": 60 * 60 * 24,  # a cada 24 horas
+        "options": {"queue": "default"},
+    },
+}
 
 # -----------------------------------------------------------------------------
 # drf-spectacular (Swagger / OpenAPI)
