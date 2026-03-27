@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Relatorios RH{% endblock %}
+{% block page_title %}Relatorios e Indicadores{% endblock %}
+{% block content %}
+
+<!-- Headcount -->
+<h3 class="text-sm font-semibold text-t2 mb-3">Headcount</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-t1">{{ total_ativos }}</div>
+    <div class="text-[11px] text-t3 mt-1">Ativos</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-blue-500">{{ total_clt }}</div>
+    <div class="text-[11px] text-t3 mt-1">CLT</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-purple-500">{{ total_pj }}</div>
+    <div class="text-[11px] text-t3 mt-1">PJ</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-amber-500">{{ total_afastados }}</div>
+    <div class="text-[11px] text-t3 mt-1">Afastados</div>
+  </div>
+</div>
+
+<!-- Financeiro + Turnover -->
+<h3 class="text-sm font-semibold text-t2 mb-3">Custos e Turnover</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="card text-center">
+    <div class="text-2xl font-bold text-t1">R$ {{ custo_total|floatformat:0 }}</div>
+    <div class="text-[11px] text-t3 mt-1">Custo mensal total</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-2xl font-bold text-blue-500">R$ {{ custo_clt|floatformat:0 }}</div>
+    <div class="text-[11px] text-t3 mt-1">Custo CLT</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-2xl font-bold text-purple-500">R$ {{ custo_pj|floatformat:0 }}</div>
+    <div class="text-[11px] text-t3 mt-1">Custo PJ</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold {% if turnover > 10 %}text-red-500{% elif turnover > 5 %}text-amber-500{% else %}text-emerald-500{% endif %}">{{ turnover }}%</div>
+    <div class="text-[11px] text-t3 mt-1">Turnover (12m)</div>
+    <div class="text-[10px] text-t3">{{ desligados_12m }} desligamento{{ desligados_12m|pluralize:"s" }}</div>
+  </div>
+</div>
+
+<!-- Alertas -->
+<h3 class="text-sm font-semibold text-t2 mb-3">Alertas</h3>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+  <div class="card text-center {% if ferias_vencidas > 0 %}border border-red-500/20{% endif %}">
+    <div class="text-3xl font-bold {% if ferias_vencidas > 0 %}text-red-500{% else %}text-emerald-500{% endif %}">{{ ferias_vencidas }}</div>
+    <div class="text-[11px] text-t3 mt-1">Ferias vencidas</div>
+  </div>
+  <div class="card text-center {% if docs_vencidos > 0 %}border border-red-500/20{% endif %}">
+    <div class="text-3xl font-bold {% if docs_vencidos > 0 %}text-red-500{% else %}text-emerald-500{% endif %}">{{ docs_vencidos }}</div>
+    <div class="text-[11px] text-t3 mt-1">Docs vencidos</div>
+  </div>
+  <div class="card text-center {% if docs_vencer > 0 %}border border-amber-500/20{% endif %}">
+    <div class="text-3xl font-bold {% if docs_vencer > 0 %}text-amber-500{% else %}text-emerald-500{% endif %}">{{ docs_vencer }}</div>
+    <div class="text-[11px] text-t3 mt-1">Docs a vencer (30d)</div>
+  </div>
+  <div class="card text-center {% if ausencias_pendentes > 0 %}border border-blue-500/20{% endif %}">
+    <div class="text-3xl font-bold {% if ausencias_pendentes > 0 %}text-blue-500{% else %}text-t3{% endif %}">{{ ausencias_pendentes }}</div>
+    <div class="text-[11px] text-t3 mt-1">Ausencias pendentes</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-ruch-accent">{{ onb_andamento }}</div>
+    <div class="text-[11px] text-t3 mt-1">Onboarding em curso</div>
+  </div>
+</div>
+
+<!-- Treinamentos + eNPS + PDI -->
+<h3 class="text-sm font-semibold text-t2 mb-3">Desenvolvimento</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-emerald-500">{{ trein_concluidos }}</div>
+    <div class="text-[11px] text-t3 mt-1">Treinamentos concluidos</div>
+    <div class="text-[10px] text-t3">{{ trein_andamento }} em andamento · {{ trein_inscritos }} inscritos</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-ruch-accent">{{ pdis_ativos }}</div>
+    <div class="text-[11px] text-t3 mt-1">PDIs ativos ({{ hoje.year|default:"2026" }})</div>
+  </div>
+  <div class="card text-center md:col-span-2">
+    <div class="flex items-center justify-center gap-4">
+      <div>
+        <div class="text-4xl font-bold {% if enps_score is not None %}{% if enps_score >= 50 %}text-emerald-500{% elif enps_score >= 0 %}text-amber-500{% else %}text-red-500{% endif %}{% else %}text-t3{% endif %}">
+          {% if enps_score is not None %}{{ enps_score }}{% else %}—{% endif %}
+        </div>
+        <div class="text-[11px] text-t3 mt-1">eNPS Score</div>
+      </div>
+      <div class="text-left">
+        <div class="text-sm text-t2">{{ enps_participacao }}% participacao</div>
+        {% if ultima_pesquisa %}
+        <div class="text-[11px] text-t3">{{ ultima_pesquisa.titulo }}</div>
+        {% endif %}
+        {% if enps_score is not None %}
+        <div class="text-[10px] mt-1 {% if enps_score >= 50 %}text-emerald-500{% elif enps_score >= 0 %}text-amber-500{% else %}text-red-500{% endif %}">
+          {% if enps_score >= 75 %}Excelente{% elif enps_score >= 50 %}Muito bom{% elif enps_score >= 0 %}Bom{% elif enps_score >= -10 %}Atencao{% else %}Critico{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

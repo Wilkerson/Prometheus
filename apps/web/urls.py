@@ -126,4 +126,6 @@ urlpatterns = [
     path("rh/enps/<int:pk>/", views.ENPSDetailView.as_view(), name="rh-enps-detail"),
     path("rh/enps/<int:pk>/responder/", views.ENPSResponderView.as_view(), name="rh-enps-responder"),
     path("rh/enps/<int:pk>/status/", views.ENPSStatusView.as_view(), name="rh-enps-status"),
+    # RH — Relatorios
+    path("rh/relatorios/", views.RelatoriosRHView.as_view(), name="rh-relatorios"),
 ]

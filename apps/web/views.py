@@ -3084,3 +3084,102 @@ class ENPSStatusView(PermissionRequiredMixin, View):
         pesquisa.status = request.POST.get("status", pesquisa.status)
         pesquisa.save(update_fields=["status"])
         return redirect("web:rh-enps-detail", pk=pk)
+
+
+# ---------------------------------------------------------------------------
+# RH — Relatorios e Indicadores
+# ---------------------------------------------------------------------------
+class RelatoriosRHView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_colaborador"
+
+    def get(self, request):
+        from django.utils import timezone
+        from django.db.models import Sum
+        hoje = timezone.now().date()
+
+        # Headcount
+        ativos = Colaborador.objects.filter(status="ativo")
+        total_ativos = ativos.count()
+        total_clt = ativos.filter(tipo_contrato="clt").count()
+        total_pj = ativos.filter(tipo_contrato="pj").count()
+        total_afastados = Colaborador.objects.filter(status="afastado").count()
+
+        # Turnover (ultimos 12 meses)
+        inicio_12m = hoje.replace(year=hoje.year - 1)
+        desligados_12m = Colaborador.objects.filter(
+            status="desligado", data_desligamento__gte=inicio_12m
+        ).count()
+        total_geral = Colaborador.objects.count()
+        turnover = round((desligados_12m / total_geral) * 100) if total_geral else 0
+
+        # Custo de pessoal
+        custo_total = ativos.aggregate(total=Sum("remuneracao"))["total"] or 0
+        custo_clt = ativos.filter(tipo_contrato="clt").aggregate(t=Sum("remuneracao"))["t"] or 0
+        custo_pj = ativos.filter(tipo_contrato="pj").aggregate(t=Sum("remuneracao"))["t"] or 0
+
+        # Ferias vencidas (CLT com saldo e periodo expirado > 12 meses)
+        ferias_vencidas = SaldoFerias.objects.filter(
+            colaborador__status="ativo",
+            periodo_fim__lt=hoje - timezone.timedelta(days=365),
+        ).exclude(dias_usufruidos__gte=models.F("dias_direito")).count()
+
+        # Documentos a vencer (proximos 30 dias)
+        docs_vencer = DocumentoColaborador.objects.filter(
+            data_vencimento__gte=hoje,
+            data_vencimento__lte=hoje + timezone.timedelta(days=30),
+        ).count()
+        docs_vencidos = DocumentoColaborador.objects.filter(
+            data_vencimento__lt=hoje,
+        ).count()
+
+        # Treinamentos
+        trein_concluidos = ParticipacaoTreinamento.objects.filter(status="concluido").count()
+        trein_andamento = ParticipacaoTreinamento.objects.filter(status="em_andamento").count()
+        trein_inscritos = ParticipacaoTreinamento.objects.filter(status="inscrito").count()
+
+        # Ausencias pendentes de aprovacao
+        ausencias_pendentes = SolicitacaoAusencia.objects.filter(status="solicitada").count()
+
+        # Onboarding em andamento
+        onb_andamento = OnboardingColaborador.objects.filter(concluido_em__isnull=True).count()
+
+        # eNPS (ultima pesquisa encerrada ou ativa)
+        ultima_pesquisa = PesquisaENPS.objects.filter(
+            status__in=["ativa", "encerrada"]
+        ).order_by("-data_inicio").first()
+        enps_score = ultima_pesquisa.enps_score if ultima_pesquisa else None
+        enps_participacao = ultima_pesquisa.participacao if ultima_pesquisa else 0
+
+        # PDIs em andamento
+        pdis_ativos = PDI.objects.filter(ano=hoje.year).count()
+
+        return render(request, "rh/relatorios/dashboard.html", {
+            # Headcount
+            "total_ativos": total_ativos,
+            "total_clt": total_clt,
+            "total_pj": total_pj,
+            "total_afastados": total_afastados,
+            # Turnover
+            "turnover": turnover,
+            "desligados_12m": desligados_12m,
+            # Custo
+            "custo_total": custo_total,
+            "custo_clt": custo_clt,
+            "custo_pj": custo_pj,
+            # Alertas
+            "ferias_vencidas": ferias_vencidas,
+            "docs_vencer": docs_vencer,
+            "docs_vencidos": docs_vencidos,
+            "ausencias_pendentes": ausencias_pendentes,
+            "onb_andamento": onb_andamento,
+            # Treinamentos
+            "trein_concluidos": trein_concluidos,
+            "trein_andamento": trein_andamento,
+            "trein_inscritos": trein_inscritos,
+            # eNPS
+            "enps_score": enps_score,
+            "enps_participacao": enps_participacao,
+            "ultima_pesquisa": ultima_pesquisa,
+            # PDI
+            "pdis_ativos": pdis_ativos,
+        })

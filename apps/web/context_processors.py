@@ -44,6 +44,7 @@ def navigation(request):
                 {"url": "/rh/metas/", "label": "Metas", "permission": "rh.view_cicloavaliacao"},
                 {"url": "/rh/pdi/", "label": "PDI", "permission": "rh.view_pdi"},
                 {"url": "/rh/enps/", "label": "eNPS", "permission": "rh.view_pesquisaenps"},
+                {"url": "/rh/relatorios/", "label": "Relatorios", "permission": "rh.view_colaborador"},
                 {"url": "/rh/cargos/", "label": "Cargos", "permission": "rh.view_cargo"},
                 {"url": "/rh/setores/", "label": "Setores", "permission": "rh.view_setor"},
             ],
