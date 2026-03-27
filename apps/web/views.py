@@ -1097,6 +1097,9 @@ MODULOS_PERMISSOES = [
     {"label": "Usuarios", "app": "accounts", "model": "usuario"},
     {"label": "Parceiros", "app": "crm", "model": "entidadeparceira"},
     {"label": "Tokens API", "app": "integracao", "model": "tokenintegracao"},
+    {"label": "Departamentos", "app": "rh", "model": "departamento"},
+    {"label": "Cargos", "app": "rh", "model": "cargo"},
+    {"label": "Colaboradores", "app": "rh", "model": "colaborador"},
 ]
 
 ACOES = [
