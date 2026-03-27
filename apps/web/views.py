@@ -19,7 +19,8 @@ from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
 from apps.rh.models import (
     Cargo, Colaborador, Departamento, DocumentoColaborador, HistoricoColaborador,
-    OnboardingColaborador, OnboardingItem, OnboardingTemplate, OnboardingTemplateItem, Setor,
+    OnboardingColaborador, OnboardingItem, OnboardingTemplate, OnboardingTemplateItem,
+    ParticipacaoTreinamento, SaldoFerias, Setor, SolicitacaoAusencia, Treinamento,
 )
 
 from .mixins import HtmxMixin, is_htmx
@@ -1176,6 +1177,8 @@ MODULOS_PERMISSOES = [
     {"label": "Setores", "app": "rh", "model": "setor"},
     {"label": "Documentos RH", "app": "rh", "model": "documentocolaborador"},
     {"label": "Onboarding", "app": "rh", "model": "onboardingtemplate"},
+    {"label": "Ausencias", "app": "rh", "model": "solicitacaoausencia"},
+    {"label": "Treinamentos", "app": "rh", "model": "treinamento"},
 ]
 
 ACOES = [
@@ -2251,3 +2254,308 @@ class OnboardingToggleItemView(PermissionRequiredMixin, View):
             onboarding.save(update_fields=["concluido_em"])
 
         return redirect("web:rh-onboarding-detail", pk=onboarding.pk)
+
+
+# ---------------------------------------------------------------------------
+# RH — Ferias e Ausencias
+# ---------------------------------------------------------------------------
+class AusenciaListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/ausencias/list.html"
+    partial_template_name = "rh/ausencias/_table.html"
+    context_object_name = "ausencias"
+    paginate_by = 20
+    permission_required = "rh.view_solicitacaoausencia"
+
+    def get_queryset(self):
+        qs = SolicitacaoAusencia.objects.select_related("colaborador", "aprovado_por")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(colaborador__nome_completo__icontains=search)
+        tipo = self.request.GET.get("tipo")
+        if tipo:
+            qs = qs.filter(tipo=tipo)
+        status = self.request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tipo_choices"] = SolicitacaoAusencia.TipoAusencia.choices
+        ctx["status_choices"] = SolicitacaoAusencia.StatusSolicitacao.choices
+        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["can_add"] = self.request.user.has_perm("rh.add_solicitacaoausencia")
+        ctx["can_approve"] = self.request.user.has_perm("rh.change_solicitacaoausencia")
+        return ctx
+
+
+class AusenciaCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_solicitacaoausencia"
+
+    def get(self, request):
+        return render(request, "rh/ausencias/create.html", {
+            "tipo_choices": SolicitacaoAusencia.TipoAusencia.choices,
+            "colaboradores": Colaborador.objects.filter(status="ativo"),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        colab_id = request.POST.get("colaborador")
+        if not colab_id:
+            erros["colaborador"] = "O colaborador e obrigatorio."
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo e obrigatorio."
+        data_inicio = request.POST.get("data_inicio", "").strip()
+        if not data_inicio:
+            erros["data_inicio"] = "A data de inicio e obrigatoria."
+        data_fim = request.POST.get("data_fim", "").strip()
+        if not data_fim:
+            erros["data_fim"] = "A data de fim e obrigatoria."
+
+        if erros:
+            return render(request, "rh/ausencias/create.html", {
+                "tipo_choices": SolicitacaoAusencia.TipoAusencia.choices,
+                "colaboradores": Colaborador.objects.filter(status="ativo"),
+                "erros": erros,
+            })
+
+        SolicitacaoAusencia.objects.create(
+            colaborador_id=colab_id,
+            tipo=tipo,
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+            total_dias=0,
+            observacao=request.POST.get("observacao", "").strip(),
+        )
+        return redirect("web:rh-ausencias")
+
+
+class AusenciaAprovarView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_solicitacaoausencia"
+
+    def post(self, request, pk):
+        ausencia = get_object_or_404(SolicitacaoAusencia, pk=pk)
+        acao = request.POST.get("acao")
+        if acao == "aprovar":
+            ausencia.status = SolicitacaoAusencia.StatusSolicitacao.APROVADA
+            ausencia.aprovado_por = request.user
+        elif acao == "rejeitar":
+            ausencia.status = SolicitacaoAusencia.StatusSolicitacao.REJEITADA
+            ausencia.aprovado_por = request.user
+            ausencia.justificativa_rejeicao = request.POST.get("justificativa", "").strip()
+        elif acao == "cancelar":
+            ausencia.status = SolicitacaoAusencia.StatusSolicitacao.CANCELADA
+        ausencia.save()
+        return redirect("web:rh-ausencias")
+
+
+class AusenciaCalendarioView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_solicitacaoausencia"
+
+    def get(self, request):
+        from django.utils import timezone
+        import calendar as cal_module
+
+        hoje = timezone.now().date()
+        mes = int(request.GET.get("mes", hoje.month))
+        ano = int(request.GET.get("ano", hoje.year))
+
+        primeiro_dia = hoje.replace(year=ano, month=mes, day=1)
+        _, ultimo = cal_module.monthrange(ano, mes)
+        ultimo_dia = primeiro_dia.replace(day=ultimo)
+
+        ausencias = SolicitacaoAusencia.objects.filter(
+            status="aprovada",
+            data_inicio__lte=ultimo_dia,
+            data_fim__gte=primeiro_dia,
+        ).select_related("colaborador").order_by("data_inicio")
+
+        # Navegacao
+        if mes == 1:
+            prev_mes, prev_ano = 12, ano - 1
+        else:
+            prev_mes, prev_ano = mes - 1, ano
+        if mes == 12:
+            next_mes, next_ano = 1, ano + 1
+        else:
+            next_mes, next_ano = mes + 1, ano
+
+        return render(request, "rh/ausencias/calendario.html", {
+            "ausencias": ausencias,
+            "mes": mes,
+            "ano": ano,
+            "mes_nome": primeiro_dia.strftime("%B %Y").capitalize(),
+            "prev_mes": prev_mes,
+            "prev_ano": prev_ano,
+            "next_mes": next_mes,
+            "next_ano": next_ano,
+        })
+
+
+# ---------------------------------------------------------------------------
+# RH — Treinamentos
+# ---------------------------------------------------------------------------
+class TreinamentoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/treinamentos/list.html"
+    partial_template_name = "rh/treinamentos/_table.html"
+    context_object_name = "treinamentos"
+    paginate_by = 20
+    permission_required = "rh.view_treinamento"
+
+    def get_queryset(self):
+        qs = Treinamento.objects.annotate(total_participantes=Count("participacoes"))
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(nome__icontains=search)
+        tipo = self.request.GET.get("tipo")
+        if tipo:
+            qs = qs.filter(tipo=tipo)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tipo_choices"] = Treinamento.TipoTreinamento.choices
+        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["can_add"] = self.request.user.has_perm("rh.add_treinamento")
+        return ctx
+
+
+class TreinamentoCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_treinamento"
+
+    def get(self, request):
+        return render(request, "rh/treinamentos/create.html", {
+            "tipo_choices": Treinamento.TipoTreinamento.choices,
+            "modalidade_choices": Treinamento.Modalidade.choices,
+            "erros": {}, "dados": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo e obrigatorio."
+
+        if erros:
+            return render(request, "rh/treinamentos/create.html", {
+                "tipo_choices": Treinamento.TipoTreinamento.choices,
+                "modalidade_choices": Treinamento.Modalidade.choices,
+                "erros": erros, "dados": request.POST,
+            })
+
+        Treinamento.objects.create(
+            nome=nome,
+            tipo=tipo,
+            modalidade=request.POST.get("modalidade", "online"),
+            carga_horaria=request.POST.get("carga_horaria", 1) or 1,
+            instituicao=request.POST.get("instituicao", "").strip(),
+            descricao=request.POST.get("descricao", "").strip(),
+            obrigatorio="obrigatorio" in request.POST,
+        )
+        return redirect("web:rh-treinamentos")
+
+
+class TreinamentoDetailView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_treinamento"
+
+    def get(self, request, pk):
+        treinamento = get_object_or_404(Treinamento, pk=pk)
+        participacoes = treinamento.participacoes.select_related("colaborador").order_by("-criado_em")
+        return render(request, "rh/treinamentos/detail.html", {
+            "treinamento": treinamento,
+            "participacoes": participacoes,
+            "can_edit": request.user.has_perm("rh.change_treinamento"),
+            "can_add_participacao": request.user.has_perm("rh.add_participacaotreinamento"),
+        })
+
+
+class TreinamentoUpdateView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_treinamento"
+
+    def get(self, request, pk):
+        treinamento = get_object_or_404(Treinamento, pk=pk)
+        return render(request, "rh/treinamentos/edit.html", {
+            "treinamento": treinamento,
+            "tipo_choices": Treinamento.TipoTreinamento.choices,
+            "modalidade_choices": Treinamento.Modalidade.choices,
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        treinamento = get_object_or_404(Treinamento, pk=pk)
+        treinamento.nome = request.POST.get("nome", treinamento.nome).strip()
+        treinamento.tipo = request.POST.get("tipo", treinamento.tipo)
+        treinamento.modalidade = request.POST.get("modalidade", treinamento.modalidade)
+        treinamento.carga_horaria = request.POST.get("carga_horaria", treinamento.carga_horaria) or 1
+        treinamento.instituicao = request.POST.get("instituicao", "").strip()
+        treinamento.descricao = request.POST.get("descricao", "").strip()
+        treinamento.obrigatorio = "obrigatorio" in request.POST
+        treinamento.ativo = "ativo" in request.POST
+        treinamento.save()
+        return redirect("web:rh-treinamento-detail", pk=pk)
+
+
+class TreinamentoDeleteView(PermissionRequiredMixin, View):
+    permission_required = "rh.delete_treinamento"
+
+    def post(self, request, pk):
+        get_object_or_404(Treinamento, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/rh/treinamentos/"})
+        return redirect("web:rh-treinamentos")
+
+
+class ParticipacaoCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_participacaotreinamento"
+
+    def get(self, request, treinamento_pk):
+        treinamento = get_object_or_404(Treinamento, pk=treinamento_pk)
+        ja_inscritos = treinamento.participacoes.values_list("colaborador_id", flat=True)
+        colaboradores = Colaborador.objects.filter(status="ativo").exclude(pk__in=ja_inscritos)
+        return render(request, "rh/treinamentos/participacao_create.html", {
+            "treinamento": treinamento,
+            "colaboradores": colaboradores,
+            "status_choices": ParticipacaoTreinamento.StatusParticipacao.choices,
+            "erros": {},
+        })
+
+    def post(self, request, treinamento_pk):
+        treinamento = get_object_or_404(Treinamento, pk=treinamento_pk)
+        colab_id = request.POST.get("colaborador")
+        if not colab_id:
+            return redirect("web:rh-treinamento-detail", pk=treinamento_pk)
+
+        ParticipacaoTreinamento.objects.get_or_create(
+            colaborador_id=colab_id,
+            treinamento=treinamento,
+            defaults={
+                "status": request.POST.get("status", "inscrito"),
+                "data_inicio": request.POST.get("data_inicio") or None,
+                "observacao": request.POST.get("observacao", "").strip(),
+            },
+        )
+        return redirect("web:rh-treinamento-detail", pk=treinamento_pk)
+
+
+class ParticipacaoUpdateView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_participacaotreinamento"
+
+    def post(self, request, pk):
+        part = get_object_or_404(ParticipacaoTreinamento, pk=pk)
+        part.status = request.POST.get("status", part.status)
+        part.data_inicio = request.POST.get("data_inicio") or part.data_inicio
+        part.data_conclusao = request.POST.get("data_conclusao") or None
+        nota = request.POST.get("nota", "").strip()
+        part.nota = nota if nota else None
+        cert = request.FILES.get("certificado")
+        if cert:
+            part.certificado = cert
+        part.observacao = request.POST.get("observacao", "").strip()
+        part.save()
+        return redirect("web:rh-treinamento-detail", pk=part.treinamento_id)

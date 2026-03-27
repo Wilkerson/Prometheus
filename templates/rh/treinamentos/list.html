@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Treinamentos{% endblock %}
+{% block page_title %}Treinamentos{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:rh-treinamento-create' %}" class="btn-primary">+ Novo Treinamento</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" placeholder="Nome do treinamento..." class="input"
+             hx-get="{% url 'web:rh-treinamentos' %}" hx-target="#table" hx-trigger="input changed delay:300ms"
+             hx-include="[name='tipo']" hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Tipo</label>
+      <select name="tipo" class="input"
+              hx-get="{% url 'web:rh-treinamentos' %}" hx-target="#table" hx-include="[name='q']" hx-push-url="true">
+        <option value="">Todos</option>
+        {% for v, l in tipo_choices %}
+        <option value="{{ v }}" {% if current_tipo == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card" id="table">{% include "rh/treinamentos/_table.html" %}</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% if ausencias %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium">Colaborador</th>
+        <th class="pb-3 font-medium">Tipo</th>
+        <th class="pb-3 font-medium">Periodo</th>
+        <th class="pb-3 font-medium">Dias</th>
+        <th class="pb-3 font-medium">Status</th>
+        {% if can_approve %}<th class="pb-3 font-medium">Acoes</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for a in ausencias %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium">
+          <a href="{% url 'web:rh-colaborador-detail' a.colaborador.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ a.colaborador.nome_completo }}</a>
+        </td>
+        <td class="py-3 text-t2">{{ a.get_tipo_display }}</td>
+        <td class="py-3 text-t2">{{ a.data_inicio|date:"d/m/Y" }} — {{ a.data_fim|date:"d/m/Y" }}</td>
+        <td class="py-3 text-t2">{{ a.total_dias }}</td>
+        <td class="py-3">
+          {% if a.status == 'solicitada' %}<span class="badge bg-blue-500/15 text-blue-500">Solicitada</span>
+          {% elif a.status == 'aprovada' %}<span class="badge bg-emerald-500/15 text-emerald-500">Aprovada</span>
+          {% elif a.status == 'rejeitada' %}<span class="badge bg-red-500/15 text-red-500">Rejeitada</span>
+          {% else %}<span class="badge bg-bg4 text-t3">Cancelada</span>{% endif %}
+        </td>
+        {% if can_approve %}
+        <td class="py-3">
+          {% if a.status == 'solicitada' %}
+          <div class="flex gap-2">
+            <form method="post" action="{% url 'web:rh-ausencia-acao' a.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="acao" value="aprovar">
+              <button type="submit" class="text-[12px] text-emerald-500 hover:text-emerald-400">Aprovar</button>
+            </form>
+            <form method="post" action="{% url 'web:rh-ausencia-acao' a.pk %}" x-data="{ show: false }">
+              {% csrf_token %}
+              <input type="hidden" name="acao" value="rejeitar">
+              <button type="button" @click="show = !show" class="text-[12px] text-red-400 hover:text-red-300">Rejeitar</button>
+              <div x-show="show" x-cloak class="mt-1">
+                <input type="text" name="justificativa" placeholder="Justificativa..." class="input text-[12px] py-1">
+                <button type="submit" class="text-[11px] text-red-400 mt-1">Confirmar</button>
+              </div>
+            </form>
+          </div>
+          {% elif a.status == 'rejeitada' and a.justificativa_rejeicao %}
+          <span class="text-[11px] text-t3">{{ a.justificativa_rejeicao }}</span>
+          {% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhuma solicitacao de ausencia.</p>
+{% endif %}

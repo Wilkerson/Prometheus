@@ -56,6 +56,10 @@ class Command(BaseCommand):
             "view_documentocolaborador", "add_documentocolaborador", "change_documentocolaborador", "delete_documentocolaborador",
             "view_onboardingtemplate", "add_onboardingtemplate", "change_onboardingtemplate", "delete_onboardingtemplate",
             "view_onboardingcolaborador", "add_onboardingcolaborador", "change_onboardingcolaborador", "delete_onboardingcolaborador",
+            "view_solicitacaoausencia", "add_solicitacaoausencia", "change_solicitacaoausencia", "delete_solicitacaoausencia",
+            "view_saldoferias", "add_saldoferias", "change_saldoferias", "delete_saldoferias",
+            "view_treinamento", "add_treinamento", "change_treinamento", "delete_treinamento",
+            "view_participacaotreinamento", "add_participacaotreinamento", "change_participacaotreinamento", "delete_participacaotreinamento",
         ])
         g.permissions.set(perms)
         self._log(g, created)

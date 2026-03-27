@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Ausencias{% endblock %}
+{% block page_title %}Ferias e Ausencias{% endblock %}
+{% block page_actions %}
+<div class="flex gap-2">
+  {% if can_add %}<a href="{% url 'web:rh-ausencia-create' %}" class="btn-primary">+ Nova Solicitacao</a>{% endif %}
+  <a href="{% url 'web:rh-ausencia-calendario' %}" class="btn-secondary">Calendario</a>
+</div>
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" placeholder="Nome do colaborador..." class="input"
+             hx-get="{% url 'web:rh-ausencias' %}" hx-target="#table" hx-trigger="input changed delay:300ms"
+             hx-include="[name='tipo'],[name='status']" hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Tipo</label>
+      <select name="tipo" class="input"
+              hx-get="{% url 'web:rh-ausencias' %}" hx-target="#table" hx-include="[name='q'],[name='status']" hx-push-url="true">
+        <option value="">Todos</option>
+        {% for v, l in tipo_choices %}
+        <option value="{{ v }}" {% if current_tipo == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="label">Status</label>
+      <select name="status" class="input"
+              hx-get="{% url 'web:rh-ausencias' %}" hx-target="#table" hx-include="[name='q'],[name='tipo']" hx-push-url="true">
+        <option value="">Todos</option>
+        {% for v, l in status_choices %}
+        <option value="{{ v }}" {% if current_status == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card" id="table">{% include "rh/ausencias/_table.html" %}</div>
+{% endblock %}

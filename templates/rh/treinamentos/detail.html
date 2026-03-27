@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ treinamento.nome }}{% endblock %}
+{% block page_title %}{{ treinamento.nome }}{% endblock %}
+{% block page_actions %}
+<div class="flex gap-2">
+  {% if can_edit %}<a href="{% url 'web:rh-treinamento-edit' treinamento.pk %}" class="btn-primary">Editar</a>{% endif %}
+  <a href="{% url 'web:rh-treinamentos' %}" class="btn-secondary">Voltar</a>
+</div>
+{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <!-- Info -->
+  <div class="card">
+    <h3 class="text-sm font-semibold text-t2 mb-3">Informacoes</h3>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between"><dt class="text-t3">Tipo</dt><dd class="text-t2">{{ treinamento.get_tipo_display }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Modalidade</dt><dd class="text-t2">{{ treinamento.get_modalidade_display }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Carga horaria</dt><dd class="text-t2">{{ treinamento.carga_horaria }}h</dd></div>
+      {% if treinamento.instituicao %}
+      <div class="flex justify-between"><dt class="text-t3">Instituicao</dt><dd class="text-t2">{{ treinamento.instituicao }}</dd></div>
+      {% endif %}
+      <div class="flex justify-between">
+        <dt class="text-t3">Obrigatorio</dt>
+        <dd>{% if treinamento.obrigatorio %}<span class="text-amber-500">Sim</span>{% else %}<span class="text-t3">Nao</span>{% endif %}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Status</dt>
+        <dd>{% if treinamento.ativo %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>{% else %}<span class="badge bg-bg4 text-t3">Inativo</span>{% endif %}</dd>
+      </div>
+    </dl>
+    {% if treinamento.descricao %}
+    <div class="mt-3 pt-3 border-t border-bdr">
+      <p class="text-sm text-t2">{{ treinamento.descricao }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Participantes -->
+  <div class="card lg:col-span-2">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-t2">Participantes ({{ participacoes.count }})</h3>
+      {% if can_add_participacao %}
+      <a href="{% url 'web:rh-participacao-create' treinamento.pk %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">+ Inscrever colaborador</a>
+      {% endif %}
+    </div>
+    {% if participacoes %}
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-bdr text-left text-t3">
+            <th class="pb-2 font-medium">Colaborador</th>
+            <th class="pb-2 font-medium">Status</th>
+            <th class="pb-2 font-medium">Inicio</th>
+            <th class="pb-2 font-medium">Conclusao</th>
+            <th class="pb-2 font-medium">Nota</th>
+            <th class="pb-2 font-medium">Acoes</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-bdr">
+          {% for p in participacoes %}
+          <tr class="hover:bg-bg3">
+            <td class="py-2 font-medium">
+              <a href="{% url 'web:rh-colaborador-detail' p.colaborador.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ p.colaborador.nome_completo }}</a>
+            </td>
+            <td class="py-2">
+              {% if p.status == 'inscrito' %}<span class="badge bg-blue-500/15 text-blue-500">Inscrito</span>
+              {% elif p.status == 'em_andamento' %}<span class="badge bg-amber-500/15 text-amber-500">Em andamento</span>
+              {% elif p.status == 'concluido' %}<span class="badge bg-emerald-500/15 text-emerald-500">Concluido</span>
+              {% else %}<span class="badge bg-bg4 text-t3">Cancelado</span>{% endif %}
+            </td>
+            <td class="py-2 text-t2">{{ p.data_inicio|date:"d/m/Y"|default:"—" }}</td>
+            <td class="py-2 text-t2">{{ p.data_conclusao|date:"d/m/Y"|default:"—" }}</td>
+            <td class="py-2 text-t2">{{ p.nota|default:"—" }}</td>
+            <td class="py-2">
+              {% if can_add_participacao %}
+              <form method="post" action="{% url 'web:rh-participacao-update' p.pk %}" class="flex gap-1 items-center" enctype="multipart/form-data">
+                {% csrf_token %}
+                <select name="status" class="input text-[11px] py-0.5 w-24">
+                  <option value="inscrito" {% if p.status == 'inscrito' %}selected{% endif %}>Inscrito</option>
+                  <option value="em_andamento" {% if p.status == 'em_andamento' %}selected{% endif %}>Andamento</option>
+                  <option value="concluido" {% if p.status == 'concluido' %}selected{% endif %}>Concluido</option>
+                  <option value="cancelado" {% if p.status == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                </select>
+                <button type="submit" class="text-[11px] text-ruch-accent hover:text-t1">Salvar</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-sm text-t3">Nenhum participante inscrito.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

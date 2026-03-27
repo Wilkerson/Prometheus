@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Calendario de Ausencias{% endblock %}
+{% block page_title %}Calendario de Ausencias{% endblock %}
+{% block page_actions %}<a href="{% url 'web:rh-ausencias' %}" class="btn-secondary">Ver listagem</a>{% endblock %}
+{% block content %}
+<div class="card">
+  <!-- Navegacao do mes -->
+  <div class="flex items-center justify-between mb-4">
+    <a href="{% url 'web:rh-ausencia-calendario' %}?mes={{ prev_mes }}&ano={{ prev_ano }}"
+       class="text-t2 hover:text-t1 no-underline text-sm">&larr; Anterior</a>
+    <h2 class="text-lg font-bold text-t1">{{ mes_nome }}</h2>
+    <a href="{% url 'web:rh-ausencia-calendario' %}?mes={{ next_mes }}&ano={{ next_ano }}"
+       class="text-t2 hover:text-t1 no-underline text-sm">Proximo &rarr;</a>
+  </div>
+
+  {% if ausencias %}
+  <div class="space-y-2">
+    {% for a in ausencias %}
+    <div class="flex items-center gap-3 p-3 rounded-lg bg-bg3">
+      <div class="w-2 h-2 rounded-full flex-shrink-0
+        {% if a.tipo == 'ferias' %}bg-blue-500
+        {% elif a.tipo == 'atestado' %}bg-red-500
+        {% elif a.tipo == 'licenca_maternidade' or a.tipo == 'licenca_paternidade' %}bg-purple-500
+        {% elif a.tipo == 'folga_compensatoria' %}bg-amber-500
+        {% else %}bg-t3{% endif %}"></div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <a href="{% url 'web:rh-colaborador-detail' a.colaborador.pk %}" class="text-sm font-medium text-t1 hover:text-ruch-accent no-underline">{{ a.colaborador.nome_completo }}</a>
+          <span class="text-[11px] text-t3">{{ a.total_dias }} dias</span>
+        </div>
+        <div class="text-[12px] text-t2 mt-0.5">
+          {{ a.get_tipo_display }} · {{ a.data_inicio|date:"d/m" }} a {{ a.data_fim|date:"d/m" }}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-sm text-t3 py-4 text-center">Nenhuma ausencia aprovada neste mes.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -293,5 +293,98 @@
     "arquivo": "", "data_emissao": "2026-01-31", "data_vencimento": null,
     "alerta_dias_antes": 30, "observacao": "Encerramento por termino do projeto", "enviado_por": null,
     "criado_em": "2026-01-31T10:00:00Z", "atualizado_em": "2026-01-31T10:00:00Z"
+  }},
+
+  {"model": "rh.solicitacaoausencia", "pk": 1, "fields": {
+    "colaborador": 1, "tipo": "ferias", "data_inicio": "2026-04-14", "data_fim": "2026-04-28",
+    "total_dias": 15, "observacao": "Ferias de abril", "status": "aprovada",
+    "aprovado_por": null, "justificativa_rejeicao": "",
+    "criado_em": "2026-03-01T10:00:00Z", "atualizado_em": "2026-03-05T10:00:00Z"
+  }},
+  {"model": "rh.solicitacaoausencia", "pk": 2, "fields": {
+    "colaborador": 2, "tipo": "atestado", "data_inicio": "2026-03-20", "data_fim": "2026-03-22",
+    "total_dias": 3, "observacao": "Atestado medico", "status": "aprovada",
+    "aprovado_por": null, "justificativa_rejeicao": "",
+    "criado_em": "2026-03-20T08:00:00Z", "atualizado_em": "2026-03-20T08:00:00Z"
+  }},
+  {"model": "rh.solicitacaoausencia", "pk": 3, "fields": {
+    "colaborador": 5, "tipo": "ferias", "data_inicio": "2026-05-01", "data_fim": "2026-05-15",
+    "total_dias": 15, "observacao": "", "status": "solicitada",
+    "aprovado_por": null, "justificativa_rejeicao": "",
+    "criado_em": "2026-03-25T14:00:00Z", "atualizado_em": "2026-03-25T14:00:00Z"
+  }},
+  {"model": "rh.solicitacaoausencia", "pk": 4, "fields": {
+    "colaborador": 4, "tipo": "folga_compensatoria", "data_inicio": "2026-03-28", "data_fim": "2026-03-28",
+    "total_dias": 1, "observacao": "Hora extra do dia 15/03", "status": "rejeitada",
+    "aprovado_por": null, "justificativa_rejeicao": "Periodo de fechamento, reagendar para proxima semana",
+    "criado_em": "2026-03-24T10:00:00Z", "atualizado_em": "2026-03-24T14:00:00Z"
+  }},
+
+  {"model": "rh.saldoferias", "pk": 1, "fields": {
+    "colaborador": 1, "periodo_inicio": "2025-06-01", "periodo_fim": "2026-05-31",
+    "dias_direito": 30, "dias_usufruidos": 15, "criado_em": "2025-06-01T10:00:00Z"
+  }},
+  {"model": "rh.saldoferias", "pk": 2, "fields": {
+    "colaborador": 2, "periodo_inicio": "2025-09-15", "periodo_fim": "2026-09-14",
+    "dias_direito": 30, "dias_usufruidos": 0, "criado_em": "2025-09-15T10:00:00Z"
+  }},
+  {"model": "rh.saldoferias", "pk": 3, "fields": {
+    "colaborador": 3, "periodo_inicio": "2025-03-01", "periodo_fim": "2026-02-28",
+    "dias_direito": 30, "dias_usufruidos": 0, "criado_em": "2025-03-01T10:00:00Z"
+  }},
+  {"model": "rh.saldoferias", "pk": 4, "fields": {
+    "colaborador": 5, "periodo_inicio": "2025-08-01", "periodo_fim": "2026-07-31",
+    "dias_direito": 30, "dias_usufruidos": 0, "criado_em": "2025-08-01T10:00:00Z"
+  }},
+
+  {"model": "rh.treinamento", "pk": 1, "fields": {
+    "nome": "N8N — Automacao de workflows", "tipo": "tecnico_interno", "modalidade": "online",
+    "carga_horaria": 16, "instituicao": "RUCH Academy", "descricao": "Treinamento interno sobre automacao de processos com N8N.",
+    "obrigatorio": true, "ativo": true,
+    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-01-10T10:00:00Z"
+  }},
+  {"model": "rh.treinamento", "pk": 2, "fields": {
+    "nome": "LGPD e Seguranca da Informacao", "tipo": "compliance", "modalidade": "online",
+    "carga_horaria": 8, "instituicao": "Compliance Academy", "descricao": "Treinamento obrigatorio sobre protecao de dados.",
+    "obrigatorio": true, "ativo": true,
+    "criado_em": "2026-01-15T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.treinamento", "pk": 3, "fields": {
+    "nome": "Lideranca e Gestao de Equipes", "tipo": "comportamental", "modalidade": "hibrido",
+    "carga_horaria": 24, "instituicao": "FGV Online", "descricao": "Desenvolvimento de habilidades de lideranca para gestores.",
+    "obrigatorio": false, "ativo": true,
+    "criado_em": "2026-02-01T10:00:00Z", "atualizado_em": "2026-02-01T10:00:00Z"
+  }},
+  {"model": "rh.treinamento", "pk": 4, "fields": {
+    "nome": "Python Avancado para Automacao", "tipo": "tecnico_externo", "modalidade": "online",
+    "carga_horaria": 40, "instituicao": "Alura", "descricao": "Curso avancado de Python aplicado a automacao e integracao de sistemas.",
+    "obrigatorio": false, "ativo": true,
+    "criado_em": "2026-02-15T10:00:00Z", "atualizado_em": "2026-02-15T10:00:00Z"
+  }},
+
+  {"model": "rh.participacaotreinamento", "pk": 1, "fields": {
+    "colaborador": 6, "treinamento": 1, "data_inicio": "2026-02-01", "data_conclusao": "2026-02-15",
+    "status": "concluido", "nota": "9.50", "certificado": "", "observacao": "",
+    "criado_em": "2026-02-01T10:00:00Z", "atualizado_em": "2026-02-15T10:00:00Z"
+  }},
+  {"model": "rh.participacaotreinamento", "pk": 2, "fields": {
+    "colaborador": 7, "treinamento": 1, "data_inicio": "2026-02-10", "data_conclusao": null,
+    "status": "em_andamento", "nota": null, "certificado": "", "observacao": "",
+    "criado_em": "2026-02-10T10:00:00Z", "atualizado_em": "2026-03-01T10:00:00Z"
+  }},
+  {"model": "rh.participacaotreinamento", "pk": 3, "fields": {
+    "colaborador": 1, "treinamento": 2, "data_inicio": "2026-01-20", "data_conclusao": "2026-01-25",
+    "status": "concluido", "nota": "10.00", "certificado": "", "observacao": "",
+    "criado_em": "2026-01-20T10:00:00Z", "atualizado_em": "2026-01-25T10:00:00Z"
+  }},
+  {"model": "rh.participacaotreinamento", "pk": 4, "fields": {
+    "colaborador": 1, "treinamento": 3, "data_inicio": "2026-03-01", "data_conclusao": null,
+    "status": "em_andamento", "nota": null, "certificado": "", "observacao": "",
+    "criado_em": "2026-03-01T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
+  }},
+  {"model": "rh.participacaotreinamento", "pk": 5, "fields": {
+    "colaborador": 6, "treinamento": 4, "data_inicio": "2026-03-10", "data_conclusao": null,
+    "status": "inscrito", "nota": null, "certificado": "", "observacao": "Aguardando inicio da turma",
+    "criado_em": "2026-03-10T10:00:00Z", "atualizado_em": "2026-03-10T10:00:00Z"
   }}
 ]

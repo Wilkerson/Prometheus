@@ -3,7 +3,8 @@ from django.contrib import admin
 from .models import (
     Cargo, Colaborador, Departamento, DocumentoColaborador,
     HistoricoColaborador, OnboardingColaborador, OnboardingItem,
-    OnboardingTemplate, OnboardingTemplateItem, Setor,
+    OnboardingTemplate, OnboardingTemplateItem, ParticipacaoTreinamento,
+    SaldoFerias, Setor, SolicitacaoAusencia, Treinamento,
 )
 
 
@@ -83,3 +84,30 @@ class OnboardingItemInline(admin.TabularInline):
 class OnboardingColaboradorAdmin(admin.ModelAdmin):
     list_display = ("colaborador", "template", "progresso", "criado_em", "concluido_em")
     inlines = [OnboardingItemInline]
+
+
+@admin.register(SolicitacaoAusencia)
+class SolicitacaoAusenciaAdmin(admin.ModelAdmin):
+    list_display = ("colaborador", "tipo", "data_inicio", "data_fim", "total_dias", "status")
+    list_filter = ("tipo", "status")
+    search_fields = ("colaborador__nome_completo",)
+
+
+@admin.register(SaldoFerias)
+class SaldoFeriasAdmin(admin.ModelAdmin):
+    list_display = ("colaborador", "periodo_inicio", "periodo_fim", "dias_direito", "dias_usufruidos", "saldo_disponivel")
+    search_fields = ("colaborador__nome_completo",)
+
+
+@admin.register(Treinamento)
+class TreinamentoAdmin(admin.ModelAdmin):
+    list_display = ("nome", "tipo", "modalidade", "carga_horaria", "obrigatorio", "ativo")
+    list_filter = ("tipo", "modalidade", "obrigatorio", "ativo")
+    search_fields = ("nome",)
+
+
+@admin.register(ParticipacaoTreinamento)
+class ParticipacaoTreinamentoAdmin(admin.ModelAdmin):
+    list_display = ("colaborador", "treinamento", "status", "data_inicio", "data_conclusao")
+    list_filter = ("status",)
+    search_fields = ("colaborador__nome_completo", "treinamento__nome")

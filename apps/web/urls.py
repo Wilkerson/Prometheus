@@ -94,4 +94,17 @@ urlpatterns = [
     path("rh/onboarding/iniciar/<int:colab_pk>/", views.OnboardingIniciarView.as_view(), name="rh-onboarding-iniciar"),
     path("rh/onboarding/<int:pk>/", views.OnboardingDetailView.as_view(), name="rh-onboarding-detail"),
     path("rh/onboarding/item/<int:item_pk>/toggle/", views.OnboardingToggleItemView.as_view(), name="rh-onboarding-toggle-item"),
+    # RH — Ausencias
+    path("rh/ausencias/", views.AusenciaListView.as_view(), name="rh-ausencias"),
+    path("rh/ausencias/novo/", views.AusenciaCreateView.as_view(), name="rh-ausencia-create"),
+    path("rh/ausencias/<int:pk>/acao/", views.AusenciaAprovarView.as_view(), name="rh-ausencia-acao"),
+    path("rh/ausencias/calendario/", views.AusenciaCalendarioView.as_view(), name="rh-ausencia-calendario"),
+    # RH — Treinamentos
+    path("rh/treinamentos/", views.TreinamentoListView.as_view(), name="rh-treinamentos"),
+    path("rh/treinamentos/novo/", views.TreinamentoCreateView.as_view(), name="rh-treinamento-create"),
+    path("rh/treinamentos/<int:pk>/", views.TreinamentoDetailView.as_view(), name="rh-treinamento-detail"),
+    path("rh/treinamentos/<int:pk>/editar/", views.TreinamentoUpdateView.as_view(), name="rh-treinamento-edit"),
+    path("rh/treinamentos/<int:pk>/excluir/", views.TreinamentoDeleteView.as_view(), name="rh-treinamento-delete"),
+    path("rh/treinamentos/<int:treinamento_pk>/inscrever/", views.ParticipacaoCreateView.as_view(), name="rh-participacao-create"),
+    path("rh/treinamentos/participacao/<int:pk>/", views.ParticipacaoUpdateView.as_view(), name="rh-participacao-update"),
 ]

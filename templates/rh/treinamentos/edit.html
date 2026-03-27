@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ treinamento.nome }}{% endblock %}
+{% block page_title %}Editar Treinamento{% endblock %}
+{% block page_actions %}<a href="{% url 'web:rh-treinamento-detail' treinamento.pk %}" class="btn-secondary">Voltar</a>{% endblock %}
+{% block content %}
+<div class="max-w-lg">
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="space-y-4">
+        <div>
+          <label class="label">Nome <span class="text-red-500">*</span></label>
+          <input type="text" name="nome" required class="input" value="{{ treinamento.nome }}">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Tipo</label>
+            <select name="tipo" class="input">
+              {% for v, l in tipo_choices %}
+              <option value="{{ v }}" {% if treinamento.tipo == v %}selected{% endif %}>{{ l }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="label">Modalidade</label>
+            <select name="modalidade" class="input">
+              {% for v, l in modalidade_choices %}
+              <option value="{{ v }}" {% if treinamento.modalidade == v %}selected{% endif %}>{{ l }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Carga horaria (h)</label>
+            <input type="number" name="carga_horaria" class="input" value="{{ treinamento.carga_horaria }}" min="1">
+          </div>
+          <div>
+            <label class="label">Instituicao / Plataforma</label>
+            <input type="text" name="instituicao" class="input" value="{{ treinamento.instituicao }}">
+          </div>
+        </div>
+        <div>
+          <label class="label">Descricao</label>
+          <textarea name="descricao" rows="3" class="input">{{ treinamento.descricao }}</textarea>
+        </div>
+        <div class="flex gap-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="obrigatorio" {% if treinamento.obrigatorio %}checked{% endif %}
+                   class="w-4 h-4 rounded border-bdr text-ruch-green">
+            <span class="text-sm text-t2">Obrigatorio</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="ativo" {% if treinamento.ativo %}checked{% endif %}
+                   class="w-4 h-4 rounded border-bdr text-ruch-green">
+            <span class="text-sm text-t2">Ativo</span>
+          </label>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary">Salvar</button>
+        <a href="{% url 'web:rh-treinamento-detail' treinamento.pk %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

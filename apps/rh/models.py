@@ -537,3 +537,202 @@ class OnboardingItem(models.Model):
             return False
         from django.utils import timezone
         return self.prazo < timezone.now().date()
+
+
+# =========================================================================
+# Ferias e Ausencias
+# =========================================================================
+class SolicitacaoAusencia(models.Model):
+    class TipoAusencia(models.TextChoices):
+        FERIAS = "ferias", "Ferias"
+        RECESSO = "recesso", "Recesso (PJ)"
+        ATESTADO = "atestado", "Atestado medico"
+        LICENCA_MATERNIDADE = "licenca_maternidade", "Licenca maternidade"
+        LICENCA_PATERNIDADE = "licenca_paternidade", "Licenca paternidade"
+        FOLGA_COMPENSATORIA = "folga_compensatoria", "Folga compensatoria"
+        FALTA_JUSTIFICADA = "falta_justificada", "Falta justificada"
+        FALTA_INJUSTIFICADA = "falta_injustificada", "Falta injustificada"
+
+    class StatusSolicitacao(models.TextChoices):
+        SOLICITADA = "solicitada", "Solicitada"
+        APROVADA = "aprovada", "Aprovada"
+        REJEITADA = "rejeitada", "Rejeitada"
+        CANCELADA = "cancelada", "Cancelada"
+
+    colaborador = models.ForeignKey(
+        Colaborador,
+        on_delete=models.CASCADE,
+        related_name="ausencias",
+        verbose_name="Colaborador",
+    )
+    tipo = models.CharField(
+        "Tipo de ausencia",
+        max_length=25,
+        choices=TipoAusencia.choices,
+    )
+    data_inicio = models.DateField("Data inicio")
+    data_fim = models.DateField("Data fim")
+    total_dias = models.PositiveSmallIntegerField("Total de dias")
+    observacao = models.TextField("Observacao", blank=True)
+    status = models.CharField(
+        "Status",
+        max_length=12,
+        choices=StatusSolicitacao.choices,
+        default=StatusSolicitacao.SOLICITADA,
+    )
+    aprovado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ausencias_aprovadas",
+        verbose_name="Aprovado/Rejeitado por",
+    )
+    justificativa_rejeicao = models.TextField("Justificativa da rejeicao", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Solicitacao de ausencia"
+        verbose_name_plural = "Solicitacoes de ausencia"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.colaborador} — {self.get_tipo_display()} ({self.data_inicio} a {self.data_fim})"
+
+    def save(self, *args, **kwargs):
+        if self.data_inicio and self.data_fim:
+            self.total_dias = (self.data_fim - self.data_inicio).days + 1
+        super().save(*args, **kwargs)
+
+
+class SaldoFerias(models.Model):
+    """Controle de saldo de ferias por periodo aquisitivo (CLT)."""
+    colaborador = models.ForeignKey(
+        Colaborador,
+        on_delete=models.CASCADE,
+        related_name="saldos_ferias",
+        verbose_name="Colaborador",
+    )
+    periodo_inicio = models.DateField("Inicio do periodo aquisitivo")
+    periodo_fim = models.DateField("Fim do periodo aquisitivo")
+    dias_direito = models.PositiveSmallIntegerField("Dias de direito", default=30)
+    dias_usufruidos = models.PositiveSmallIntegerField("Dias usufruidos", default=0)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Saldo de ferias"
+        verbose_name_plural = "Saldos de ferias"
+        ordering = ["-periodo_inicio"]
+
+    def __str__(self):
+        return f"{self.colaborador} — {self.periodo_inicio:%d/%m/%Y} a {self.periodo_fim:%d/%m/%Y}"
+
+    @property
+    def saldo_disponivel(self):
+        return self.dias_direito - self.dias_usufruidos
+
+    @property
+    def vencidas(self):
+        """Ferias vencem se nao tiradas ate 12 meses apos fim do periodo aquisitivo."""
+        from django.utils import timezone
+        limite = self.periodo_fim + timezone.timedelta(days=365)
+        return timezone.now().date() > limite and self.saldo_disponivel > 0
+
+
+# =========================================================================
+# Treinamento e Capacitacao
+# =========================================================================
+class Treinamento(models.Model):
+    class TipoTreinamento(models.TextChoices):
+        TECNICO_INTERNO = "tecnico_interno", "Tecnico interno"
+        TECNICO_EXTERNO = "tecnico_externo", "Tecnico externo"
+        COMPORTAMENTAL = "comportamental", "Comportamental"
+        COMPLIANCE = "compliance", "Compliance"
+        ONBOARDING = "onboarding", "Onboarding"
+
+    class Modalidade(models.TextChoices):
+        PRESENCIAL = "presencial", "Presencial"
+        ONLINE = "online", "Online"
+        HIBRIDO = "hibrido", "Hibrido"
+
+    nome = models.CharField("Nome do treinamento", max_length=200)
+    tipo = models.CharField(
+        "Tipo",
+        max_length=20,
+        choices=TipoTreinamento.choices,
+    )
+    modalidade = models.CharField(
+        "Modalidade",
+        max_length=12,
+        choices=Modalidade.choices,
+        default=Modalidade.ONLINE,
+    )
+    carga_horaria = models.PositiveSmallIntegerField("Carga horaria (h)", default=1)
+    instituicao = models.CharField("Instituicao / Plataforma", max_length=200, blank=True)
+    descricao = models.TextField("Descricao", blank=True)
+    obrigatorio = models.BooleanField("Obrigatorio", default=False)
+    ativo = models.BooleanField("Ativo", default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Treinamento"
+        verbose_name_plural = "Treinamentos"
+        ordering = ["nome"]
+
+    def __str__(self):
+        return self.nome
+
+
+class ParticipacaoTreinamento(models.Model):
+    class StatusParticipacao(models.TextChoices):
+        INSCRITO = "inscrito", "Inscrito"
+        EM_ANDAMENTO = "em_andamento", "Em andamento"
+        CONCLUIDO = "concluido", "Concluido"
+        CANCELADO = "cancelado", "Cancelado"
+
+    colaborador = models.ForeignKey(
+        Colaborador,
+        on_delete=models.CASCADE,
+        related_name="treinamentos",
+        verbose_name="Colaborador",
+    )
+    treinamento = models.ForeignKey(
+        Treinamento,
+        on_delete=models.CASCADE,
+        related_name="participacoes",
+        verbose_name="Treinamento",
+    )
+    data_inicio = models.DateField("Data de inicio", null=True, blank=True)
+    data_conclusao = models.DateField("Data de conclusao", null=True, blank=True)
+    status = models.CharField(
+        "Status",
+        max_length=15,
+        choices=StatusParticipacao.choices,
+        default=StatusParticipacao.INSCRITO,
+    )
+    nota = models.DecimalField(
+        "Nota / Aprovacao",
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    certificado = models.FileField(
+        "Certificado",
+        upload_to="rh/certificados/%Y/%m/",
+        blank=True,
+    )
+    observacao = models.TextField("Observacao", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Participacao em treinamento"
+        verbose_name_plural = "Participacoes em treinamentos"
+        ordering = ["-criado_em"]
+        unique_together = [("colaborador", "treinamento")]
+
+    def __str__(self):
+        return f"{self.colaborador} — {self.treinamento}"
