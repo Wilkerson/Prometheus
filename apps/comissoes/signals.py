@@ -37,10 +37,22 @@ def gerar_comissao_ao_concluir(sender, instance, **kwargs):
     percentual = parceiro.percentual_comissao
     valor_comissao = (valor_total * percentual / Decimal("100")).quantize(Decimal("0.01"))
 
-    Comissao.objects.create(
+    comissao = Comissao.objects.create(
         parceiro=parceiro,
         cliente=instance,
         valor_venda=valor_total,
         percentual=percentual,
         valor_comissao=valor_comissao,
+    )
+
+    # Notifica o parceiro
+    from apps.crm.notifications import notificar_parceiro_do_cliente
+    from apps.crm.models import Notificacao
+
+    notificar_parceiro_do_cliente(
+        instance,
+        tipo=Notificacao.Tipo.COMISSAO_GERADA,
+        titulo=f"Comissao de R${valor_comissao} gerada",
+        mensagem=f"Cliente {instance.nome} concluido. Comissao: R${valor_comissao} ({percentual}%).",
+        link=f"/comissoes/",
     )

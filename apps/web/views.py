@@ -14,7 +14,7 @@ from django.contrib.auth.models import Group
 
 from apps.accounts.models import Usuario
 from apps.comissoes.models import Comissao
-from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Plano, PlanoProduto, Produto
+from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
 
@@ -1219,3 +1219,31 @@ class GrupoDeleteView(LoginRequiredMixin, View):
         if is_htmx(request):
             return HttpResponse(headers={"HX-Redirect": "/grupos/"})
         return redirect("web:grupos")
+
+
+# ---------------------------------------------------------------------------
+# Notificacoes
+# ---------------------------------------------------------------------------
+class NotificacaoListView(LoginRequiredMixin, ListView):
+    template_name = "notificacoes/list.html"
+    context_object_name = "notificacoes"
+    paginate_by = 30
+
+    def get_queryset(self):
+        return Notificacao.objects.filter(destinatario=self.request.user).order_by("-criado_em")
+
+
+class NotificacaoLerView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        notif = get_object_or_404(Notificacao, pk=pk, destinatario=request.user)
+        notif.lida = True
+        notif.save(update_fields=["lida"])
+        if notif.link:
+            return redirect(notif.link)
+        return redirect("web:notificacoes")
+
+
+class NotificacaoLerTodasView(LoginRequiredMixin, View):
+    def post(self, request):
+        Notificacao.objects.filter(destinatario=request.user, lida=False).update(lida=True)
+        return redirect("web:notificacoes")

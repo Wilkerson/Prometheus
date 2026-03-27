@@ -49,6 +49,10 @@ urlpatterns = [
     path("tokens/", views.TokenListView.as_view(), name="tokens"),
     path("tokens/novo/", views.TokenCreateView.as_view(), name="token-create"),
     path("tokens/<int:pk>/excluir/", views.TokenDeleteView.as_view(), name="token-delete"),
+    # Notificacoes
+    path("notificacoes/", views.NotificacaoListView.as_view(), name="notificacoes"),
+    path("notificacoes/<int:pk>/ler/", views.NotificacaoLerView.as_view(), name="notificacao-ler"),
+    path("notificacoes/ler-todas/", views.NotificacaoLerTodasView.as_view(), name="notificacao-ler-todas"),
     # Avatar
     path("perfil/avatar/", views.AvatarUpdateView.as_view(), name="avatar-update"),
     path("perfil/avatar/remover/", views.AvatarRemoveView.as_view(), name="avatar-remove"),

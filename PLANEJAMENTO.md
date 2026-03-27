@@ -420,7 +420,10 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 57. [x] Adicionar status falha_implantacao (Zypher NOK) + transicao retry para em_processamento
 58. [x] Validacao de formato de arquivo no upload de cliente (28 formatos aceitos)
 59. [x] Avatar do usuario: upload local, Gravatar automatico, iniciais como fallback
-60. [ ] Implementar modulos futuros: mensagens, analises, notificacoes, configuracoes
+60. [x] Sidebar colapsavel com grupos accordion (Clientes, Catalogo, Financeiro, Administracao)
+61. [x] Modulo de Notificacoes Fase 1: model, signals automaticos, right panel, historico
+62. [ ] Modulo de Notificacoes Fase 2: preferencias do usuario, tempo real (WebSocket/SSE)
+63. [ ] Implementar modulos futuros: mensagens, analises, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.

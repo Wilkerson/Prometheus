@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Notificacoes{% endblock %}
+{% block page_title %}Notificacoes{% endblock %}
+{% block page_actions %}
+{% if notif_count > 0 %}
+<form method="post" action="{% url 'web:notificacao-ler-todas' %}">
+  {% csrf_token %}
+  <button type="submit" class="btn-secondary text-xs">Marcar todas como lidas</button>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  {% if notificacoes %}
+  <div class="divide-y divide-bdr">
+    {% for notif in notificacoes %}
+    <div class="flex items-start gap-3 py-3 {% if not notif.lida %}bg-bg3/30{% endif %} px-2 -mx-2 rounded-lg">
+      <div class="w-2 h-2 rounded-full mt-2 shrink-0 {% if not notif.lida %}bg-ruch-accent{% else %}bg-bg4{% endif %}"></div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <span class="text-[12.5px] font-medium text-t1">{{ notif.titulo }}</span>
+            <span class="badge bg-bg4 text-t3 ml-2">{{ notif.get_tipo_display }}</span>
+          </div>
+          <span class="text-[10px] text-t3 shrink-0">{{ notif.criado_em|timesince }} atras</span>
+        </div>
+        {% if notif.mensagem %}
+        <p class="text-[12px] text-t2 mt-1">{{ notif.mensagem }}</p>
+        {% endif %}
+        <div class="flex items-center gap-3 mt-1.5">
+          {% if notif.link %}
+          <form method="post" action="{% url 'web:notificacao-ler' notif.pk %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="text-[11px] text-ruch-accent hover:text-t1 no-underline">Ver detalhes</button>
+          </form>
+          {% endif %}
+          {% if not notif.lida %}
+          <form method="post" action="{% url 'web:notificacao-ler' notif.pk %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="text-[11px] text-t3 hover:text-t1">Marcar como lida</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+  <div class="flex items-center justify-between mt-4 pt-4 border-t border-bdr">
+    <span class="text-sm text-t3">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    <div class="flex gap-2">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}" class="btn-secondary text-xs">Anterior</a>
+      {% endif %}
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary text-xs">Proxima</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <p class="text-sm text-t3 py-4">Nenhuma notificacao.</p>
+  {% endif %}
+</div>
+{% endblock %}

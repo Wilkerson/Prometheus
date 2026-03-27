@@ -245,3 +245,38 @@ class ClienteHistorico(models.Model):
 
     def __str__(self):
         return f"{self.cliente.nome}: {self.status_anterior} -> {self.status_novo}"
+
+
+# =========================================================================
+# Notificacoes
+# =========================================================================
+class Notificacao(models.Model):
+    class Tipo(models.TextChoices):
+        CLIENTE_NOVO = "cliente_novo", "Novo cliente cadastrado"
+        CLIENTE_STATUS = "cliente_status", "Status do cliente alterado"
+        CLIENTE_ZYPHER_OK = "cliente_zypher_ok", "Implantacao concluida"
+        CLIENTE_ZYPHER_FALHA = "cliente_zypher_falha", "Falha na implantacao"
+        COMISSAO_GERADA = "comissao_gerada", "Comissao gerada"
+        COMISSAO_PAGA = "comissao_paga", "Comissao paga"
+        USUARIO_CRIADO = "usuario_criado", "Novo usuario criado"
+        SISTEMA = "sistema", "Sistema"
+
+    destinatario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notificacoes",
+    )
+    tipo = models.CharField(max_length=30, choices=Tipo.choices, default=Tipo.SISTEMA)
+    titulo = models.CharField(max_length=200)
+    mensagem = models.TextField(blank=True)
+    link = models.CharField(max_length=300, blank=True)
+    lida = models.BooleanField(default=False)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Notificacao"
+        verbose_name_plural = "Notificacoes"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.titulo} -> {self.destinatario}"

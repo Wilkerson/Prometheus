@@ -88,7 +88,15 @@ def navigation(request):
                 "active": group_active,
             })
 
+    # Notificacoes nao-lidas
+    from apps.crm.models import Notificacao
+    notif_nao_lidas = Notificacao.objects.filter(destinatario=user, lida=False)
+    notif_count = notif_nao_lidas.count()
+    notif_recentes = notif_nao_lidas[:5]
+
     return {
         "nav_standalone": nav_standalone,
         "nav_groups": nav_groups,
+        "notif_count": notif_count,
+        "notif_recentes": notif_recentes,
     }

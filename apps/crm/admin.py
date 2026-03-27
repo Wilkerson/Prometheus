@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import (
     Cliente, ClienteHistorico, Endereco, EntidadeParceira,
-    Plano, PlanoProduto, Produto,
+    Notificacao, Plano, PlanoProduto, Produto,
 )
 
 
@@ -62,3 +62,10 @@ class ClienteHistoricoAdmin(admin.ModelAdmin):
     list_filter = ("status_novo",)
     date_hierarchy = "criado_em"
     readonly_fields = ("cliente", "status_anterior", "status_novo", "usuario", "observacao", "criado_em")
+
+
+@admin.register(Notificacao)
+class NotificacaoAdmin(admin.ModelAdmin):
+    list_display = ("titulo", "destinatario", "tipo", "lida", "criado_em")
+    list_filter = ("tipo", "lida")
+    date_hierarchy = "criado_em"
