@@ -550,6 +550,8 @@ class SolicitacaoAusencia(models.Model):
         LICENCA_MATERNIDADE = "licenca_maternidade", "Licenca maternidade"
         LICENCA_PATERNIDADE = "licenca_paternidade", "Licenca paternidade"
         FOLGA_COMPENSATORIA = "folga_compensatoria", "Folga compensatoria"
+        LUTO = "luto", "Luto (falecimento)"
+        NUPCIAIS = "nupciais", "Licenca nupcial (casamento)"
         FALTA_JUSTIFICADA = "falta_justificada", "Falta justificada"
         FALTA_INJUSTIFICADA = "falta_injustificada", "Falta injustificada"
 
