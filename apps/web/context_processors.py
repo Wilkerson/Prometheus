@@ -72,8 +72,8 @@ def navigation(request):
         for item in group["items"]:
             perm = item["permission"]
             if perm is None or user.has_perm(perm):
-                is_active = path == item["url"] or path.startswith(item["url"]) and item["url"] != "/"
-                if is_active:
+                is_active = path == item["url"]
+                if is_active or path.startswith(item["url"]) and item["url"] != "/":
                     group_active = True
                 visible_items.append({
                     "url": item["url"],
