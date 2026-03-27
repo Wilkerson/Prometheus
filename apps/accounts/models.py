@@ -5,16 +5,11 @@ from django.db import models
 
 
 def upload_avatar_path(instance, filename):
+    """Mantida para compatibilidade com migrations anteriores."""
     return f"avatars/{instance.pk}/{filename}"
 
 
 class Usuario(AbstractUser):
-    avatar = models.ImageField(
-        "Avatar",
-        upload_to=upload_avatar_path,
-        blank=True,
-        null=True,
-    )
 
     class Meta:
         verbose_name = "Usuario"
@@ -50,29 +45,8 @@ class Usuario(AbstractUser):
 
     @property
     def avatar_url(self):
-        """Retorna URL do avatar: foto colaborador > upload local > Gravatar > None (iniciais)."""
-        # Foto do colaborador vinculado (prioridade)
+        """Retorna URL do avatar: foto colaborador > Gravatar > None (iniciais)."""
         colab = getattr(self, "colaborador", None)
         if colab and colab.foto:
             return colab.foto.url
-        # Avatar do usuario
-        if self.avatar:
-            return self.avatar.url
         return None
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.avatar:
-            self._resize_avatar()
-
-    def _resize_avatar(self):
-        """Redimensiona avatar para 200x200 se necessario."""
-        try:
-            from PIL import Image
-
-            img = Image.open(self.avatar.path)
-            if img.width > 200 or img.height > 200:
-                img.thumbnail((200, 200), Image.LANCZOS)
-                img.save(self.avatar.path)
-        except Exception:
-            pass

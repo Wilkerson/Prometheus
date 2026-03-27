@@ -69,40 +69,6 @@ class LogoutView(View):
         return redirect("web:login")
 
 
-class AvatarUpdateView(LoginRequiredMixin, View):
-    def post(self, request):
-        avatar = request.FILES.get("avatar")
-        if not avatar:
-            return redirect("web:dashboard")
-
-        # Validar tipo
-        import os
-        _, ext = os.path.splitext(avatar.name.lower())
-        if ext not in (".jpg", ".jpeg", ".png", ".webp"):
-            return redirect("web:dashboard")
-
-        # Validar tamanho (max 2MB)
-        if avatar.size > 2 * 1024 * 1024:
-            return redirect("web:dashboard")
-
-        # Remove avatar antigo se existir
-        if request.user.avatar:
-            request.user.avatar.delete(save=False)
-
-        request.user.avatar = avatar
-        request.user.save()
-        return redirect("web:dashboard")
-
-
-class AvatarRemoveView(LoginRequiredMixin, View):
-    def post(self, request):
-        if request.user.avatar:
-            request.user.avatar.delete(save=False)
-            request.user.avatar = None
-            request.user.save()
-        return redirect("web:dashboard")
-
-
 # ---------------------------------------------------------------------------
 # Dashboard
 # ---------------------------------------------------------------------------

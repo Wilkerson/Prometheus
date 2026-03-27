@@ -56,9 +56,6 @@ urlpatterns = [
     path("notificacoes/ler-todas/", views.NotificacaoLerTodasView.as_view(), name="notificacao-ler-todas"),
     path("notificacoes/painel/", views.NotificacaoPainelView.as_view(), name="notificacao-painel"),
     path("notificacoes/preferencias/", views.NotificacaoPreferenciasView.as_view(), name="notificacao-preferencias"),
-    # Avatar
-    path("perfil/avatar/", views.AvatarUpdateView.as_view(), name="avatar-update"),
-    path("perfil/avatar/remover/", views.AvatarRemoveView.as_view(), name="avatar-remove"),
     # Grupos e permissoes
     path("grupos/", views.GrupoListView.as_view(), name="grupos"),
     path("grupos/novo/", views.GrupoCreateView.as_view(), name="grupo-create"),
