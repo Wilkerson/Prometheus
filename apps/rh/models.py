@@ -224,6 +224,14 @@ class Colaborador(models.Model):
     )
     chave_pix = models.CharField("Chave Pix", max_length=100, blank=True)
 
+    # --- Foto ---
+    foto = models.ImageField(
+        "Foto",
+        upload_to="rh/fotos/%Y/%m/",
+        blank=True,
+        null=True,
+    )
+
     # --- Vinculo com usuario do sistema (opcional) ---
     usuario = models.OneToOneField(
         settings.AUTH_USER_MODEL,

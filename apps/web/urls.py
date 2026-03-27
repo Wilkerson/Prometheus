@@ -81,6 +81,8 @@ urlpatterns = [
     path("rh/colaboradores/<int:pk>/", views.ColaboradorDetailView.as_view(), name="rh-colaborador-detail"),
     path("rh/colaboradores/<int:pk>/editar/", views.ColaboradorUpdateView.as_view(), name="rh-colaborador-edit"),
     path("rh/colaboradores/<int:pk>/excluir/", views.ColaboradorDeleteView.as_view(), name="rh-colaborador-delete"),
+    path("rh/colaboradores/<int:pk>/foto/", views.ColaboradorFotoView.as_view(), name="rh-colaborador-foto"),
+    path("rh/colaboradores/<int:pk>/foto/remover/", views.ColaboradorFotoRemoverView.as_view(), name="rh-colaborador-foto-remover"),
     path("rh/colaboradores/<int:pk>/criar-acesso/", views.ColaboradorCriarAcessoView.as_view(), name="rh-colaborador-criar-acesso"),
     path("rh/colaboradores/<int:pk>/revogar-acesso/", views.ColaboradorRevogarAcessoView.as_view(), name="rh-colaborador-revogar-acesso"),
     # RH — Documentos

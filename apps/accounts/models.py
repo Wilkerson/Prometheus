@@ -50,7 +50,12 @@ class Usuario(AbstractUser):
 
     @property
     def avatar_url(self):
-        """Retorna URL do avatar: upload local > Gravatar > None (usa iniciais)."""
+        """Retorna URL do avatar: foto colaborador > upload local > Gravatar > None (iniciais)."""
+        # Foto do colaborador vinculado (prioridade)
+        colab = getattr(self, "colaborador", None)
+        if colab and colab.foto:
+            return colab.foto.url
+        # Avatar do usuario
         if self.avatar:
             return self.avatar.url
         return None

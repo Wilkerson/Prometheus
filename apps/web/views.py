@@ -1954,6 +1954,57 @@ class ColaboradorDeleteView(PermissionRequiredMixin, View):
         return redirect("web:rh-colaboradores")
 
 
+class ColaboradorFotoView(PermissionRequiredMixin, View):
+    """Upload de foto do colaborador."""
+    permission_required = "rh.change_colaborador"
+
+    def post(self, request, pk):
+        colab = get_object_or_404(Colaborador, pk=pk)
+        foto = request.FILES.get("foto")
+        if not foto:
+            return redirect("web:rh-colaborador-detail", pk=pk)
+
+        import os
+        _, ext = os.path.splitext(foto.name.lower())
+        if ext not in (".jpg", ".jpeg", ".png", ".webp"):
+            return redirect("web:rh-colaborador-detail", pk=pk)
+
+        if foto.size > 2 * 1024 * 1024:
+            return redirect("web:rh-colaborador-detail", pk=pk)
+
+        # Remover foto anterior se existir
+        if colab.foto:
+            colab.foto.delete(save=False)
+
+        colab.foto = foto
+        colab.save(update_fields=["foto"])
+
+        # Redimensionar
+        try:
+            from PIL import Image
+            img = Image.open(colab.foto.path)
+            if img.width > 200 or img.height > 200:
+                img.thumbnail((200, 200), Image.LANCZOS)
+                img.save(colab.foto.path)
+        except Exception:
+            pass
+
+        return redirect("web:rh-colaborador-detail", pk=pk)
+
+
+class ColaboradorFotoRemoverView(PermissionRequiredMixin, View):
+    """Remove foto do colaborador."""
+    permission_required = "rh.change_colaborador"
+
+    def post(self, request, pk):
+        colab = get_object_or_404(Colaborador, pk=pk)
+        if colab.foto:
+            colab.foto.delete(save=False)
+            colab.foto = None
+            colab.save(update_fields=["foto"])
+        return redirect("web:rh-colaborador-detail", pk=pk)
+
+
 class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
     """Cria usuario no sistema para o colaborador com grupo Colaborador."""
     permission_required = "rh.change_colaborador"

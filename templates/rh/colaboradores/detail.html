@@ -11,6 +11,59 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
   <!-- Dados pessoais -->
   <div class="card">
+    <div class="flex items-start gap-4 mb-4">
+      <!-- Foto -->
+      <div class="relative">
+        {% if colab.foto %}
+        <img src="{{ colab.foto.url }}" alt="{{ colab.nome_completo }}"
+             class="w-16 h-16 rounded-full object-cover border-2 border-bdr">
+        {% else %}
+        <div class="w-16 h-16 rounded-full bg-ruch-green flex items-center justify-center text-white font-bold text-lg">
+          {{ colab.nome_completo|make_list|first }}{{ colab.nome_completo|truncatewords:2|last }}
+        </div>
+        {% endif %}
+        {% if can_edit %}
+        <button onclick="document.getElementById('foto-upload').style.display = document.getElementById('foto-upload').style.display === 'none' ? 'block' : 'none'"
+                class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-bg4 border border-bdr flex items-center justify-center text-[10px] text-t2 hover:text-t1 cursor-pointer">
+          &#9998;
+        </button>
+        {% endif %}
+      </div>
+      <div class="flex-1">
+        <h3 class="text-base font-semibold text-t1">{{ colab.nome_completo }}</h3>
+        <p class="text-sm text-t2">{{ colab.cargo.nome }} · {{ colab.departamento.nome }}</p>
+        <div class="mt-1">
+          {% if colab.status == 'ativo' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
+          {% elif colab.status == 'afastado' %}<span class="badge bg-amber-500/15 text-amber-500">Afastado</span>
+          {% else %}<span class="badge bg-bg4 text-t3">Desligado</span>{% endif %}
+          {% if colab.tipo_contrato == 'clt' %}<span class="badge bg-blue-500/15 text-blue-500 ml-1">CLT</span>
+          {% else %}<span class="badge bg-purple-500/15 text-purple-500 ml-1">PJ</span>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% if can_edit %}
+    <div id="foto-upload" style="display:none" class="mb-4 p-3 bg-bg3 rounded-lg">
+      <form method="post" action="{% url 'web:rh-colaborador-foto' colab.pk %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="foto" accept=".jpg,.jpeg,.png,.webp" required
+               class="block w-full text-[11px] text-t3 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-medium file:bg-bg4 file:text-t2 hover:file:bg-bdr2 mb-2">
+        <div class="flex items-center gap-2 text-[11px]">
+          <button type="submit" class="text-ruch-accent hover:text-t1">Salvar foto</button>
+          {% if colab.foto %}
+          <span class="text-t3">|</span>
+      </form>
+      <form method="post" action="{% url 'web:rh-colaborador-foto-remover' colab.pk %}" class="inline">
+        {% csrf_token %}
+        <button type="submit" class="text-[11px] text-red-400 hover:text-red-300">Remover</button>
+      </form>
+          {% else %}
+      </form>
+          {% endif %}
+          <span class="text-t3">|</span>
+          <button type="button" onclick="document.getElementById('foto-upload').style.display='none'" class="text-t3 hover:text-t1">Cancelar</button>
+        </div>
+    </div>
+    {% endif %}
     <h3 class="text-sm font-semibold text-t2 mb-3">Dados pessoais</h3>
     <dl class="space-y-2 text-sm">
       <div class="flex justify-between">
