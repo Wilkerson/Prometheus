@@ -3,8 +3,14 @@ from django.db import models
 
 
 class Departamento(models.Model):
+    """Departamento do sistema — criado automaticamente com cada modulo.
+    Nao deve ser criado/excluido manualmente pelo usuario.
+    """
     nome = models.CharField("Nome", max_length=100, unique=True)
+    slug = models.SlugField("Identificador", max_length=50, unique=True)
     descricao = models.TextField("Descricao", blank=True)
+    icone = models.CharField("Icone", max_length=10, blank=True)
+    ordem = models.PositiveSmallIntegerField("Ordem na sidebar", default=0)
     ativo = models.BooleanField("Ativo", default=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
@@ -12,10 +18,44 @@ class Departamento(models.Model):
     class Meta:
         verbose_name = "Departamento"
         verbose_name_plural = "Departamentos"
-        ordering = ["nome"]
+        ordering = ["ordem", "nome"]
 
     def __str__(self):
         return self.nome
+
+
+# Departamentos do sistema — seedados automaticamente
+DEPARTAMENTOS_SISTEMA = [
+    {"slug": "comercial", "nome": "Comercial", "ordem": 1},
+    {"slug": "financeiro", "nome": "Financeiro", "ordem": 2},
+    {"slug": "rh", "nome": "RH / Pessoas", "ordem": 3},
+    {"slug": "marketing", "nome": "Marketing", "ordem": 4},
+    {"slug": "tecnologia", "nome": "Tecnologia", "ordem": 5},
+]
+
+
+class Setor(models.Model):
+    """Setor de trabalho — subdivisao de um departamento, gerenciado pelo usuario."""
+    nome = models.CharField("Nome", max_length=100)
+    departamento = models.ForeignKey(
+        Departamento,
+        on_delete=models.PROTECT,
+        related_name="setores",
+        verbose_name="Departamento",
+    )
+    descricao = models.TextField("Descricao", blank=True)
+    ativo = models.BooleanField("Ativo", default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Setor"
+        verbose_name_plural = "Setores"
+        ordering = ["departamento__nome", "nome"]
+        unique_together = [("nome", "departamento")]
+
+    def __str__(self):
+        return f"{self.nome} ({self.departamento.nome})"
 
 
 class Cargo(models.Model):
@@ -135,6 +175,14 @@ class Colaborador(models.Model):
         on_delete=models.PROTECT,
         related_name="colaboradores",
         verbose_name="Departamento",
+    )
+    setor = models.ForeignKey(
+        Setor,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="colaboradores",
+        verbose_name="Setor",
     )
     remuneracao = models.DecimalField(
         "Remuneracao atual (R$)",

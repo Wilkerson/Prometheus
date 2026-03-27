@@ -64,12 +64,11 @@ urlpatterns = [
     path("grupos/novo/", views.GrupoCreateView.as_view(), name="grupo-create"),
     path("grupos/<int:pk>/editar/", views.GrupoUpdateView.as_view(), name="grupo-edit"),
     path("grupos/<int:pk>/excluir/", views.GrupoDeleteView.as_view(), name="grupo-delete"),
-    # RH — Departamentos
-    path("rh/departamentos/", views.DepartamentoListView.as_view(), name="rh-departamentos"),
-    path("rh/departamentos/novo/", views.DepartamentoCreateView.as_view(), name="rh-departamento-create"),
-    path("rh/departamentos/<int:pk>/", views.DepartamentoDetailView.as_view(), name="rh-departamento-detail"),
-    path("rh/departamentos/<int:pk>/editar/", views.DepartamentoUpdateView.as_view(), name="rh-departamento-edit"),
-    path("rh/departamentos/<int:pk>/excluir/", views.DepartamentoDeleteView.as_view(), name="rh-departamento-delete"),
+    # RH — Setores
+    path("rh/setores/", views.SetorListView.as_view(), name="rh-setores"),
+    path("rh/setores/novo/", views.SetorCreateView.as_view(), name="rh-setor-create"),
+    path("rh/setores/<int:pk>/editar/", views.SetorUpdateView.as_view(), name="rh-setor-edit"),
+    path("rh/setores/<int:pk>/excluir/", views.SetorDeleteView.as_view(), name="rh-setor-delete"),
     # RH — Cargos
     path("rh/cargos/", views.CargoListView.as_view(), name="rh-cargos"),
     path("rh/cargos/novo/", views.CargoCreateView.as_view(), name="rh-cargo-create"),

@@ -143,17 +143,17 @@
         {% endfor %}
       </div>
 
-      <!-- Placeholders futuros -->
+      <!-- Placeholders de departamentos futuros -->
+      {% if nav_placeholders %}
       <div class="mt-3 space-y-1">
+        {% for ph in nav_placeholders %}
         <div class="flex items-center justify-between px-2.5 py-2 rounded-[9px] text-[13px] text-t3 opacity-30 cursor-default">
-          <span>Mensagens</span>
-          <span class="text-[9px]">em breve</span>
+          <span>{{ ph.label }}</span>
+          <span class="text-[9px]">{{ ph.sublabel }}</span>
         </div>
-        <div class="flex items-center justify-between px-2.5 py-2 rounded-[9px] text-[13px] text-t3 opacity-30 cursor-default">
-          <span>Analises</span>
-          <span class="text-[9px]">em breve</span>
-        </div>
+        {% endfor %}
       </div>
+      {% endif %}
 
       <!-- Footer -->
       <div class="mt-auto flex items-center gap-2 pt-3 px-2 border-t border-bdr">

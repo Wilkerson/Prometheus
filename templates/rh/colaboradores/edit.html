@@ -135,13 +135,22 @@
             </select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <div>
             <label class="label">Departamento <span class="text-red-500">*</span></label>
             <select name="departamento" required class="input">
               <option value="">Selecione...</option>
               {% for d in departamentos %}
               <option value="{{ d.pk }}" {% if colab.departamento_id == d.pk %}selected{% endif %}>{{ d.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="label">Setor</label>
+            <select name="setor" class="input">
+              <option value="">Selecione...</option>
+              {% for s in setores %}
+              <option value="{{ s.pk }}" {% if colab.setor_id == s.pk %}selected{% endif %}>{{ s.nome }} ({{ s.departamento.nome }})</option>
               {% endfor %}
             </select>
           </div>

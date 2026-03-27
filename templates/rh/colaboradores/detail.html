@@ -82,8 +82,14 @@
       {% endif %}
       <div class="flex justify-between">
         <dt class="text-t3">Departamento</dt>
-        <dd><a href="{% url 'web:rh-departamento-detail' colab.departamento.pk %}" class="text-ruch-accent hover:text-t1 no-underline">{{ colab.departamento.nome }}</a></dd>
+        <dd class="text-t2">{{ colab.departamento.nome }}</dd>
       </div>
+      {% if colab.setor %}
+      <div class="flex justify-between">
+        <dt class="text-t3">Setor</dt>
+        <dd class="text-t2">{{ colab.setor.nome }}</dd>
+      </div>
+      {% endif %}
       <div class="flex justify-between">
         <dt class="text-t3">Cargo</dt>
         <dd><a href="{% url 'web:rh-cargo-detail' colab.cargo.pk %}" class="text-ruch-accent hover:text-t1 no-underline">{{ colab.cargo.nome }}</a></dd>

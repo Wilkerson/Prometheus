@@ -17,7 +17,7 @@ from apps.comissoes.models import Comissao
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
-from apps.rh.models import Cargo, Colaborador, Departamento, HistoricoColaborador
+from apps.rh.models import Cargo, Colaborador, Departamento, HistoricoColaborador, Setor
 
 from .mixins import HtmxMixin, is_htmx
 
@@ -1168,9 +1168,9 @@ MODULOS_PERMISSOES = [
     {"label": "Usuarios", "app": "accounts", "model": "usuario"},
     {"label": "Parceiros", "app": "crm", "model": "entidadeparceira"},
     {"label": "Tokens API", "app": "integracao", "model": "tokenintegracao"},
-    {"label": "Departamentos", "app": "rh", "model": "departamento"},
-    {"label": "Cargos", "app": "rh", "model": "cargo"},
     {"label": "Colaboradores", "app": "rh", "model": "colaborador"},
+    {"label": "Cargos", "app": "rh", "model": "cargo"},
+    {"label": "Setores", "app": "rh", "model": "setor"},
 ]
 
 ACOES = [
@@ -1373,101 +1373,113 @@ class NotificacaoPreferenciasView(LoginRequiredMixin, View):
 
 
 # ---------------------------------------------------------------------------
-# RH — Departamentos
+# RH — Setores
 # ---------------------------------------------------------------------------
-class DepartamentoListView(PermissionRequiredMixin, HtmxMixin, ListView):
-    template_name = "rh/departamentos/list.html"
-    partial_template_name = "rh/departamentos/_table.html"
-    context_object_name = "departamentos"
+class SetorListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/setores/list.html"
+    partial_template_name = "rh/setores/_table.html"
+    context_object_name = "setores"
     paginate_by = 20
-    permission_required = "rh.view_departamento"
+    permission_required = "rh.view_setor"
 
     def get_queryset(self):
-        qs = Departamento.objects.annotate(total_cargos=Count("cargos"))
+        qs = Setor.objects.select_related("departamento")
         search = self.request.GET.get("q")
         if search:
-            qs = qs.filter(nome__icontains=search)
+            qs = qs.filter(Q(nome__icontains=search) | Q(departamento__nome__icontains=search))
+        depto = self.request.GET.get("departamento")
+        if depto:
+            qs = qs.filter(departamento_id=depto)
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["can_add"] = self.request.user.has_perm("rh.add_departamento")
+        ctx["departamentos"] = Departamento.objects.filter(ativo=True)
+        ctx["current_depto"] = self.request.GET.get("departamento", "")
+        ctx["can_add"] = self.request.user.has_perm("rh.add_setor")
         return ctx
 
 
-class DepartamentoCreateView(PermissionRequiredMixin, View):
-    permission_required = "rh.add_departamento"
+class SetorCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_setor"
 
     def get(self, request):
-        return render(request, "rh/departamentos/create.html", {"erros": {}, "dados": {}})
+        return render(request, "rh/setores/create.html", {
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "erros": {}, "dados": {},
+        })
 
     def post(self, request):
         erros = {}
         nome = request.POST.get("nome", "").strip()
         if not nome:
             erros["nome"] = "O nome e obrigatorio."
-        elif Departamento.objects.filter(nome__iexact=nome).exists():
-            erros["nome"] = "Ja existe um departamento com esse nome."
+        depto_id = request.POST.get("departamento")
+        if not depto_id:
+            erros["departamento"] = "O departamento e obrigatorio."
         descricao = request.POST.get("descricao", "").strip()
-        dados = {"nome": nome, "descricao": descricao}
+        dados = {"nome": nome, "departamento": depto_id, "descricao": descricao}
+
+        if not erros and depto_id:
+            if Setor.objects.filter(nome__iexact=nome, departamento_id=depto_id).exists():
+                erros["nome"] = "Ja existe um setor com esse nome neste departamento."
 
         if erros:
-            return render(request, "rh/departamentos/create.html", {"erros": erros, "dados": dados})
+            return render(request, "rh/setores/create.html", {
+                "departamentos": Departamento.objects.filter(ativo=True),
+                "erros": erros, "dados": dados,
+            })
 
-        Departamento.objects.create(**dados)
-        return redirect("web:rh-departamentos")
+        Setor.objects.create(nome=nome, departamento_id=depto_id, descricao=descricao)
+        return redirect("web:rh-setores")
 
 
-class DepartamentoDetailView(PermissionRequiredMixin, View):
-    permission_required = "rh.view_departamento"
+class SetorUpdateView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_setor"
 
     def get(self, request, pk):
-        depto = get_object_or_404(Departamento, pk=pk)
-        cargos = depto.cargos.select_related("departamento").order_by("nome")
-        colaboradores = depto.colaboradores.select_related("cargo").order_by("nome_completo")
-        return render(request, "rh/departamentos/detail.html", {
-            "depto": depto,
-            "cargos": cargos,
-            "colaboradores": colaboradores,
-            "can_edit": request.user.has_perm("rh.change_departamento"),
+        setor = get_object_or_404(Setor.objects.select_related("departamento"), pk=pk)
+        return render(request, "rh/setores/edit.html", {
+            "setor": setor,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "erros": {},
         })
 
-
-class DepartamentoUpdateView(PermissionRequiredMixin, View):
-    permission_required = "rh.change_departamento"
-
-    def get(self, request, pk):
-        depto = get_object_or_404(Departamento, pk=pk)
-        return render(request, "rh/departamentos/edit.html", {"depto": depto, "erros": {}})
-
     def post(self, request, pk):
-        depto = get_object_or_404(Departamento, pk=pk)
-        erros = {}
+        setor = get_object_or_404(Setor, pk=pk)
         nome = request.POST.get("nome", "").strip()
+        depto_id = request.POST.get("departamento")
+        erros = {}
         if not nome:
             erros["nome"] = "O nome e obrigatorio."
-        elif Departamento.objects.filter(nome__iexact=nome).exclude(pk=pk).exists():
-            erros["nome"] = "Ja existe um departamento com esse nome."
-
+        if not depto_id:
+            erros["departamento"] = "O departamento e obrigatorio."
+        if not erros and depto_id:
+            if Setor.objects.filter(nome__iexact=nome, departamento_id=depto_id).exclude(pk=pk).exists():
+                erros["nome"] = "Ja existe um setor com esse nome neste departamento."
         if erros:
-            return render(request, "rh/departamentos/edit.html", {"depto": depto, "erros": erros})
+            return render(request, "rh/setores/edit.html", {
+                "setor": setor,
+                "departamentos": Departamento.objects.filter(ativo=True),
+                "erros": erros,
+            })
 
-        depto.nome = nome
-        depto.descricao = request.POST.get("descricao", "").strip()
-        depto.ativo = "ativo" in request.POST
-        depto.save()
-        return redirect("web:rh-departamento-detail", pk=pk)
+        setor.nome = nome
+        setor.departamento_id = depto_id
+        setor.descricao = request.POST.get("descricao", "").strip()
+        setor.ativo = "ativo" in request.POST
+        setor.save()
+        return redirect("web:rh-setores")
 
 
-class DepartamentoDeleteView(PermissionRequiredMixin, View):
-    permission_required = "rh.delete_departamento"
+class SetorDeleteView(PermissionRequiredMixin, View):
+    permission_required = "rh.delete_setor"
 
     def post(self, request, pk):
-        depto = get_object_or_404(Departamento, pk=pk)
-        depto.delete()
+        get_object_or_404(Setor, pk=pk).delete()
         if is_htmx(request):
-            return HttpResponse(headers={"HX-Redirect": "/rh/departamentos/"})
-        return redirect("web:rh-departamentos")
+            return HttpResponse(headers={"HX-Redirect": "/rh/setores/"})
+        return redirect("web:rh-setores")
 
 
 # ---------------------------------------------------------------------------
@@ -1741,6 +1753,7 @@ class ColaboradorCreateView(PermissionRequiredMixin, View):
             contato_emergencia_telefone=P.get("contato_emergencia_telefone", "").strip(),
             tipo_contrato=tipo_contrato, data_admissao=data_admissao,
             cargo_id=cargo_id, departamento_id=departamento_id,
+            setor_id=P.get("setor") or None,
             remuneracao=remuneracao,
             carga_horaria_semanal=P.get("carga_horaria_semanal", 40) or 40,
             endereco=endereco,
@@ -1776,6 +1789,7 @@ class ColaboradorCreateView(PermissionRequiredMixin, View):
             "tipo_choices": Colaborador.TipoContrato.choices,
             "regime_choices": Colaborador.RegimeTrabalho.choices,
             "departamentos": Departamento.objects.filter(ativo=True),
+            "setores": Setor.objects.filter(ativo=True).select_related("departamento"),
             "cargos": Cargo.objects.filter(ativo=True).select_related("departamento"),
             "uf_choices": Endereco.UF_CHOICES,
         }
@@ -1809,6 +1823,7 @@ class ColaboradorUpdateView(PermissionRequiredMixin, View):
             "regime_choices": Colaborador.RegimeTrabalho.choices,
             "status_choices": Colaborador.Status.choices,
             "departamentos": Departamento.objects.filter(ativo=True),
+            "setores": Setor.objects.filter(ativo=True).select_related("departamento"),
             "cargos": Cargo.objects.filter(ativo=True).select_related("departamento"),
             "uf_choices": Endereco.UF_CHOICES,
             "erros": {},
@@ -1838,6 +1853,7 @@ class ColaboradorUpdateView(PermissionRequiredMixin, View):
         colab.tipo_contrato = P.get("tipo_contrato", colab.tipo_contrato)
         colab.cargo_id = P.get("cargo", colab.cargo_id)
         colab.departamento_id = P.get("departamento", colab.departamento_id)
+        colab.setor_id = P.get("setor") or None
         new_rem = P.get("remuneracao", "").strip()
         if new_rem:
             colab.remuneracao = new_rem

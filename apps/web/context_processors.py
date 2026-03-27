@@ -11,22 +11,16 @@ def navigation(request):
         {"url": "/dashboard/", "label": "Dashboard", "permission": None},
     ]
 
-    # Grupos colapsaveis
+    # Grupos colapsaveis — departamentos como menus da sidebar
     groups_def = [
         {
-            "key": "clientes",
-            "label": "Clientes",
+            "key": "comercial",
+            "label": "Comercial",
             "items": [
-                {"url": "/clientes/", "label": "Listagem", "permission": "crm.view_cliente"},
+                {"url": "/clientes/", "label": "Clientes", "permission": "crm.view_cliente"},
                 {"url": "/clientes/pipeline/", "label": "Pipeline", "permission": "crm.change_cliente"},
                 {"url": "/clientes/calendario/", "label": "Calendario", "permission": "crm.view_cliente"},
-                {"url": "/clientes/novo/", "label": "+ Novo", "permission": "crm.add_cliente"},
-            ],
-        },
-        {
-            "key": "catalogo",
-            "label": "Catalogo",
-            "items": [
+                {"url": "/clientes/novo/", "label": "+ Novo Cliente", "permission": "crm.add_cliente"},
                 {"url": "/produtos/", "label": "Produtos", "permission": "crm.view_produto"},
                 {"url": "/planos/", "label": "Planos", "permission": "crm.view_plano"},
             ],
@@ -44,7 +38,7 @@ def navigation(request):
             "items": [
                 {"url": "/rh/colaboradores/", "label": "Colaboradores", "permission": "rh.view_colaborador"},
                 {"url": "/rh/cargos/", "label": "Cargos", "permission": "rh.view_cargo"},
-                {"url": "/rh/departamentos/", "label": "Departamentos", "permission": "rh.view_departamento"},
+                {"url": "/rh/setores/", "label": "Setores", "permission": "rh.view_setor"},
             ],
         },
         {
@@ -58,10 +52,16 @@ def navigation(request):
         },
     ]
 
-    # Adiciona Grupos (so superuser)
+    # Adiciona Grupos e Admin Django (so superuser)
     if user.is_superuser:
         groups_def[-1]["items"].append({"url": "/grupos/", "label": "Grupos", "permission": None})
         groups_def[-1]["items"].append({"url": "/admin/", "label": "Admin Django", "permission": None})
+
+    # Placeholders de departamentos futuros
+    placeholders = [
+        {"label": "Marketing", "sublabel": "em breve"},
+        {"label": "Tecnologia", "sublabel": "em breve"},
+    ]
 
     # Filtra itens por permissao e detecta grupo ativo
     nav_standalone = []
@@ -106,6 +106,7 @@ def navigation(request):
     return {
         "nav_standalone": nav_standalone,
         "nav_groups": nav_groups,
+        "nav_placeholders": placeholders,
         "notif_count": notif_count,
         "notif_recentes": notif_recentes,
     }

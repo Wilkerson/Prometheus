@@ -253,8 +253,13 @@ COMISSAO (gerada automaticamente ao concluir cliente — soma dos planos)
 TOKEN_INTEGRACAO
   id, nome, token (auto-gerado), ativo, criado_em
 
-DEPARTAMENTO (app: rh)
-  id, nome (unique), descricao, ativo, criado_em, atualizado_em
+DEPARTAMENTO (app: rh) — system-managed, sem CRUD manual
+  id, nome (unique), slug (unique), descricao, icone, ordem, ativo, criado_em, atualizado_em
+  Seedados: comercial, financeiro, rh, marketing, tecnologia
+
+SETOR (app: rh) — subdivisao do departamento, gerenciado pelo usuario
+  id, nome, departamento_id (FK), descricao, ativo, criado_em, atualizado_em
+  unique_together: (nome, departamento)
 
 CARGO (app: rh)
   id, nome, departamento_id (FK), nivel [diretor|gerente|especialista|analista|assistente|estagiario],
@@ -265,7 +270,7 @@ COLABORADOR (app: rh)
   id, nome_completo, cpf (unique), data_nascimento, endereco_id (FK OneToOne -> Endereco),
   telefone, email_pessoal, contato_emergencia_nome, contato_emergencia_telefone,
   tipo_contrato [clt|pj], data_admissao, data_desligamento (nullable),
-  cargo_id (FK), departamento_id (FK), remuneracao, carga_horaria_semanal,
+  cargo_id (FK), departamento_id (FK), setor_id (FK nullable), remuneracao, carga_horaria_semanal,
   status [ativo|afastado|desligado],
   # CLT: pis_nit, ctps_numero, ctps_serie, banco_deposito, regime_trabalho
   # PJ: cnpj_pj, razao_social, banco_pagamento_pj, chave_pix
