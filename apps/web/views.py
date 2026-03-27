@@ -917,16 +917,34 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
         return redirect("web:usuarios")
 
 
+class UsuarioPermissoesGroupView(PermissionRequiredMixin, View):
+    """Partial HTMX: retorna a matriz de permissoes pre-populada com as do grupo selecionado."""
+    permission_required = "accounts.add_usuario"
+
+    def get(self, request):
+        group_id = request.GET.get("group_id")
+        group = None
+        if group_id:
+            group = Group.objects.filter(pk=group_id).first()
+        matrix = _build_permission_matrix(group=group) if group else _build_permission_matrix()
+        return render(request, "grupos/_form_matrix.html", {
+            "matrix": matrix,
+            "show_group_legend": bool(group),
+        })
+
+
 class UsuarioUpdateView(PermissionRequiredMixin, View):
     permission_required = "accounts.change_usuario"
 
     def get(self, request, pk):
         usuario = get_object_or_404(Usuario, pk=pk)
+        has_groups = usuario.groups.exists()
         return render(request, "usuarios/edit.html", {
             "usuario": usuario,
             "groups": Group.objects.all(),
             "usuario_groups": list(usuario.groups.values_list("id", flat=True)),
             "matrix": _build_permission_matrix(user=usuario),
+            "show_group_legend": has_groups,
             "erros": {},
         })
 

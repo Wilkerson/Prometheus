@@ -38,6 +38,7 @@ urlpatterns = [
     # Usuarios
     path("usuarios/", views.UsuarioListView.as_view(), name="usuarios"),
     path("usuarios/novo/", views.UsuarioCreateView.as_view(), name="usuario-create"),
+    path("usuarios/permissoes-grupo/", views.UsuarioPermissoesGroupView.as_view(), name="usuario-permissoes-grupo"),
     path("usuarios/<int:pk>/editar/", views.UsuarioUpdateView.as_view(), name="usuario-edit"),
     path("usuarios/<int:pk>/excluir/", views.UsuarioDeleteView.as_view(), name="usuario-delete"),
     # Entidades Parceiras

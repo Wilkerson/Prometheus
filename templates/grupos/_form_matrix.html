@@ -1,4 +1,12 @@
 <!-- Matriz de permissoes: modulos x acoes CRUD -->
+{% if show_group_legend %}
+<div class="flex items-center gap-2 mb-3 text-[11px] text-t3">
+  <span class="inline-block w-3 h-3 rounded border border-ruch-accent bg-ruch-accent/20"></span>
+  Herdada do grupo
+  <span class="inline-block w-3 h-3 rounded border border-bdr bg-bg3 ml-2"></span>
+  Individual
+</div>
+{% endif %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
     <thead>
@@ -16,14 +24,9 @@
         {% for acao in row.acoes %}
         <td class="py-3 text-center">
           {% if acao.perm_id %}
-          <div class="flex flex-col items-center gap-0.5">
-            <input type="checkbox" name="permissions" value="{{ acao.perm_id }}"
-                   {% if acao.checked %}checked{% endif %}
-                   class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green cursor-pointer{% if acao.from_group %} opacity-60{% endif %}">
-            {% if acao.from_group %}
-            <span class="text-[9px] text-t3">grupo</span>
-            {% endif %}
-          </div>
+          <input type="checkbox" name="permissions" value="{{ acao.perm_id }}"
+                 {% if acao.checked %}checked{% endif %}
+                 class="w-4 h-4 rounded cursor-pointer{% if acao.from_group %} accent-ruch-accent border-ruch-accent{% else %} border-bdr text-ruch-green focus:ring-ruch-green{% endif %}">
           {% else %}
           <span class="text-t3">-</span>
           {% endif %}

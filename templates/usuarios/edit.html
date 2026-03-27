@@ -57,7 +57,11 @@
 
         <div>
           <label for="groups" class="label">Grupo</label>
-          <select name="groups" id="groups" class="input">
+          <select name="groups" id="groups" class="input"
+                  hx-get="{% url 'web:usuario-permissoes-grupo' %}"
+                  hx-target="#matrix-container"
+                  hx-trigger="change"
+                  hx-vals='js:{"group_id": document.getElementById("groups").value}'>
             <option value="">Sem grupo</option>
             {% for group in groups %}
             <option value="{{ group.id }}" {% if group.id in usuario_groups %}selected{% endif %}>{{ group.name }}</option>
@@ -78,8 +82,7 @@
         </div>
       </div>
 
-      <!-- Permissoes diretas do usuario -->
-      {% if matrix %}
+      <!-- Permissoes do usuario -->
       <div class="mt-6 pt-4 border-t border-bdr" x-data="{ open: false }">
         <button type="button" @click="open = !open"
                 class="flex items-center gap-2 text-sm text-ruch-accent hover:text-t1 cursor-pointer">
@@ -87,11 +90,12 @@
           Configurar permissoes para este usuario
         </button>
         <div x-show="open" x-cloak x-transition class="mt-3">
-          <p class="text-xs text-t3 mb-3">Permissoes marcadas com <span class="text-[10px] text-t3 border border-bdr rounded px-1">grupo</span> sao herdadas do grupo. Voce pode adicionar permissoes extras diretamente.</p>
-          {% include "grupos/_form_matrix.html" %}
+          <p class="text-xs text-t3 mb-3">Ao trocar o grupo acima, as permissoes sao atualizadas automaticamente. Ajuste individualmente conforme necessario.</p>
+          <div id="matrix-container">
+            {% include "grupos/_form_matrix.html" %}
+          </div>
         </div>
       </div>
-      {% endif %}
 
       <div class="flex gap-3 mt-6">
         <button type="submit" class="btn-primary">Salvar Alteracoes</button>
