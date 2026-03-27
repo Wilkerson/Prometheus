@@ -454,14 +454,47 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 61. [x] Modulo de Notificacoes Fase 1: model, signals automaticos, right panel, historico
 62. [x] Modulo de Notificacoes Fase 2: preferencias do usuario + polling HTMX a cada 30s
 63. [x] Modulo RH Fase 1: app rh, models Departamento/Cargo/Colaborador/HistoricoColaborador, CRUD web completo, sidebar RH/Pessoas
-64. [ ] Modulo RH Fase 2: Onboarding (checklist) + Documentos e contratos
-65. [ ] Modulo RH Fase 3: Ferias e ausencias + Treinamento e capacitacao
-66. [ ] Modulo RH Fase 4: Metas e PDI + eNPS e engajamento
-67. [ ] Modulo RH Fase 5: Relatorios e indicadores + Integracoes
-68. [ ] Implementar modulos futuros: mensagens, analises, configuracoes
+64. [x] Refatorar Departamento como system-managed + criar model Setor (subdivisao operacional)
+65. [x] Reorganizar sidebar por departamentos (Comercial, Financeiro, RH, placeholders futuros)
+66. [x] Permissoes individuais por usuario (mesma matriz dos grupos, colapsavel, HTMX dinamico)
+67. [x] Grupos de permissoes alinhados aos departamentos (Administrador, Comercial, Financeiro, RH, Empresa Parceira)
+68. [x] Fixtures de dev para RH (setores, cargos, colaboradores, historico)
+69. [ ] Modulo RH Fase 2: Onboarding (checklist) + Documentos e contratos
+70. [ ] Modulo RH Fase 3: Ferias e ausencias + Treinamento e capacitacao
+71. [ ] Modulo RH Fase 4: Metas e PDI + eNPS e engajamento
+72. [ ] Modulo RH Fase 5: Relatorios e indicadores + Integracoes
+73. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
+
+---
+
+## 13. Mapa de departamentos do sistema
+
+Cada departamento corresponde a um grupo de menu na sidebar e a um grupo de permissoes.
+Novos modulos sao implementados como submenus dentro do departamento correspondente.
+
+| # | Departamento | Status | Submenus atuais | Submenus futuros |
+|---|---|---|---|---|
+| 1 | **Comercial** | Implementado | Clientes, Pipeline, Calendario, +Novo, Produtos, Planos | — |
+| 2 | **Financeiro** | Implementado (parcial) | Comissoes | Folha, Contas a Pagar/Receber |
+| 3 | **RH / Pessoas** | Implementado (Fase 1) | Colaboradores, Cargos, Setores | Ferias, Treinamento, Metas, eNPS |
+| 4 | **Marketing** | Placeholder | — | Campanhas, Leads de marketing, Analytics |
+| 5 | **Tecnologia** | Placeholder | — | Projetos, Roadmap, Infraestrutura |
+| 6 | **Juridico** | Placeholder | — | Contratos, Compliance, LGPD |
+| 7 | **Operacoes** | Placeholder | — | Onboarding de servicos, Suporte, SLA |
+| 8 | **Produto** | Placeholder | — | Gestao de produto, Roadmap, Backlog |
+
+**Menu Administracao** (customizado, nao e departamento):
+Usuarios, Parceiros, Tokens API, Grupos, Admin Django
+
+### Notas arquiteturais
+- Departamentos sao seedados via migration (system-managed, sem CRUD manual)
+- Cada departamento implementado ganha um grupo de permissoes correspondente no `setup_groups`
+- O modulo `organization` mencionado no doc de referencia do RH **nao foi criado** — Cargo/Departamento/Setor ficam no app `rh`
+- O submodulo 2 do doc (Cargos e estrutura) **ja foi implementado** na Fase 1
+- API REST dos modulos de RH ainda nao foi criada (apenas CRUD web)
 
 ---
 

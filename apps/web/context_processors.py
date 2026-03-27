@@ -61,6 +61,9 @@ def navigation(request):
     placeholders = [
         {"label": "Marketing", "sublabel": "em breve"},
         {"label": "Tecnologia", "sublabel": "em breve"},
+        {"label": "Juridico", "sublabel": "em breve"},
+        {"label": "Operacoes", "sublabel": "em breve"},
+        {"label": "Produto", "sublabel": "em breve"},
     ]
 
     # Filtra itens por permissao e detecta grupo ativo

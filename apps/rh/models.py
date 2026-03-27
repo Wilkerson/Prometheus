@@ -31,6 +31,9 @@ DEPARTAMENTOS_SISTEMA = [
     {"slug": "rh", "nome": "RH / Pessoas", "ordem": 3},
     {"slug": "marketing", "nome": "Marketing", "ordem": 4},
     {"slug": "tecnologia", "nome": "Tecnologia", "ordem": 5},
+    {"slug": "juridico", "nome": "Juridico", "ordem": 6},
+    {"slug": "operacoes", "nome": "Operacoes", "ordem": 7},
+    {"slug": "produto", "nome": "Produto", "ordem": 8},
 ]
 
 
