@@ -1,27 +1,8 @@
+{% load static %}
 {% comment %}
-Logo RUCH em SVG puro.
+Logo RUCH — imagem PNG com fundo transparente.
 Parametros via with:
   logo_height: altura em px (default: 28)
   logo_class: classes CSS extras (optional)
-  logo_text_color: cor do texto UCH (default: var(--color-t1) para tema adaptativo)
 {% endcomment %}
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" height="{{ logo_height|default:'28' }}" class="{{ logo_class|default:'' }}" aria-label="RUCH">
-  <!-- R estilizado (seta/arrow) — verde RUCH -->
-  <g fill="#2d4a3e">
-    <!-- Braco diagonal da seta -->
-    <polygon points="0,56 16,56 44,20 60,20 60,6 36,6"/>
-    <!-- Braco horizontal da seta -->
-    <polygon points="26,44 42,20 60,20 60,34 50,34 38,52"/>
-    <!-- Bloco pequeno inferior -->
-    <rect x="44" y="50" width="14" height="14" rx="2"/>
-  </g>
-  <!-- UCH -->
-  <g fill="{{ logo_text_color|default:'var(--color-t1)' }}">
-    <!-- U -->
-    <path d="M82,8 L96,8 L96,48 Q96,58 106,58 L108,58 Q118,58 118,48 L118,8 L132,8 L132,50 Q132,70 110,70 L104,70 Q82,70 82,50 Z"/>
-    <!-- C -->
-    <path d="M162,8 L194,8 L194,20 L174,20 Q168,20 168,26 L168,44 Q168,50 174,50 L194,50 L194,62 L162,62 Q148,62 148,48 L148,22 Q148,8 162,8 Z"/>
-    <!-- H -->
-    <path d="M208,8 L222,8 L222,30 L244,30 L244,8 L258,8 L258,62 L244,62 L244,42 L222,42 L222,62 L208,62 Z"/>
-  </g>
-</svg>
+<img src="{% static 'img/logo.png' %}" alt="RUCH" height="{{ logo_height|default:'28' }}" class="{{ logo_class|default:'' }}" style="height: {{ logo_height|default:'28' }}px; width: auto;">
