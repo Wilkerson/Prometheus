@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Preferencias de Notificacao{% endblock %}
+{% block page_title %}Preferencias de Notificacao{% endblock %}
+{% block page_actions %}
+<a href="{% url 'web:notificacoes' %}" class="btn-secondary text-xs">Voltar</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-lg">
+  <div class="card">
+    <p class="text-[13px] text-t2 mb-4">Escolha quais notificacoes voce deseja receber. Desmarque para silenciar.</p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="divide-y divide-bdr">
+        <label class="flex items-center justify-between py-3 cursor-pointer">
+          <div>
+            <div class="text-[13px] font-medium text-t1">Novo cliente cadastrado</div>
+            <div class="text-[11px] text-t3">Quando um parceiro cadastra um novo cliente</div>
+          </div>
+          <input type="checkbox" name="cliente_novo" {% if prefs.cliente_novo %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+        </label>
+
+        <label class="flex items-center justify-between py-3 cursor-pointer">
+          <div>
+            <div class="text-[13px] font-medium text-t1">Status do cliente alterado</div>
+            <div class="text-[11px] text-t3">Quando o status de um cliente muda no pipeline</div>
+          </div>
+          <input type="checkbox" name="cliente_status" {% if prefs.cliente_status %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+        </label>
+
+        <label class="flex items-center justify-between py-3 cursor-pointer">
+          <div>
+            <div class="text-[13px] font-medium text-t1">Implantacao concluida (Zypher)</div>
+            <div class="text-[11px] text-t3">Quando o sistema Zypher conclui uma implantacao</div>
+          </div>
+          <input type="checkbox" name="cliente_zypher_ok" {% if prefs.cliente_zypher_ok %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+        </label>
+
+        <label class="flex items-center justify-between py-3 cursor-pointer">
+          <div>
+            <div class="text-[13px] font-medium text-t1">Falha na implantacao (Zypher)</div>
+            <div class="text-[11px] text-t3">Quando o Zypher retorna erro na implantacao</div>
+          </div>
+          <input type="checkbox" name="cliente_zypher_falha" {% if prefs.cliente_zypher_falha %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+        </label>
+
+        <label class="flex items-center justify-between py-3 cursor-pointer">
+          <div>
+            <div class="text-[13px] font-medium text-t1">Comissao gerada</div>
+            <div class="text-[11px] text-t3">Quando uma nova comissao e gerada para voce</div>
+          </div>
+          <input type="checkbox" name="comissao_gerada" {% if prefs.comissao_gerada %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+        </label>
+
+        <label class="flex items-center justify-between py-3 cursor-pointer">
+          <div>
+            <div class="text-[13px] font-medium text-t1">Comissao paga</div>
+            <div class="text-[11px] text-t3">Quando uma comissao e marcada como paga</div>
+          </div>
+          <input type="checkbox" name="comissao_paga" {% if prefs.comissao_paga %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+        </label>
+
+        <label class="flex items-center justify-between py-3 cursor-pointer">
+          <div>
+            <div class="text-[13px] font-medium text-t1">Novo usuario criado</div>
+            <div class="text-[11px] text-t3">Quando um novo usuario e criado no sistema</div>
+          </div>
+          <input type="checkbox" name="usuario_criado" {% if prefs.usuario_criado %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+        </label>
+
+        <label class="flex items-center justify-between py-3 cursor-pointer">
+          <div>
+            <div class="text-[13px] font-medium text-t1">Notificacoes do sistema</div>
+            <div class="text-[11px] text-t3">Avisos gerais e atualizacoes do sistema</div>
+          </div>
+          <input type="checkbox" name="sistema" {% if prefs.sistema %}checked{% endif %}
+                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green">
+        </label>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary">Salvar Preferencias</button>
+        <a href="{% url 'web:notificacoes' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

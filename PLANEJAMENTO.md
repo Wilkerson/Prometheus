@@ -422,7 +422,7 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 59. [x] Avatar do usuario: upload local, Gravatar automatico, iniciais como fallback
 60. [x] Sidebar colapsavel com grupos accordion (Clientes, Catalogo, Financeiro, Administracao)
 61. [x] Modulo de Notificacoes Fase 1: model, signals automaticos, right panel, historico
-62. [ ] Modulo de Notificacoes Fase 2: preferencias do usuario, tempo real (WebSocket/SSE)
+62. [x] Modulo de Notificacoes Fase 2: preferencias do usuario + polling HTMX a cada 30s
 63. [ ] Implementar modulos futuros: mensagens, analises, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 

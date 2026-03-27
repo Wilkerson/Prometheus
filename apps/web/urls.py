@@ -53,6 +53,8 @@ urlpatterns = [
     path("notificacoes/", views.NotificacaoListView.as_view(), name="notificacoes"),
     path("notificacoes/<int:pk>/ler/", views.NotificacaoLerView.as_view(), name="notificacao-ler"),
     path("notificacoes/ler-todas/", views.NotificacaoLerTodasView.as_view(), name="notificacao-ler-todas"),
+    path("notificacoes/painel/", views.NotificacaoPainelView.as_view(), name="notificacao-painel"),
+    path("notificacoes/preferencias/", views.NotificacaoPreferenciasView.as_view(), name="notificacao-preferencias"),
     # Avatar
     path("perfil/avatar/", views.AvatarUpdateView.as_view(), name="avatar-update"),
     path("perfil/avatar/remover/", views.AvatarRemoveView.as_view(), name="avatar-remove"),

@@ -280,3 +280,32 @@ class Notificacao(models.Model):
 
     def __str__(self):
         return f"{self.titulo} -> {self.destinatario}"
+
+
+class PreferenciaNotificacao(models.Model):
+    """Preferencias do usuario: quais tipos de notificacao deseja receber."""
+
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="preferencias_notificacao",
+    )
+    cliente_novo = models.BooleanField("Novo cliente cadastrado", default=True)
+    cliente_status = models.BooleanField("Status do cliente alterado", default=True)
+    cliente_zypher_ok = models.BooleanField("Implantacao concluida (Zypher)", default=True)
+    cliente_zypher_falha = models.BooleanField("Falha na implantacao (Zypher)", default=True)
+    comissao_gerada = models.BooleanField("Comissao gerada", default=True)
+    comissao_paga = models.BooleanField("Comissao paga", default=True)
+    usuario_criado = models.BooleanField("Novo usuario criado", default=True)
+    sistema = models.BooleanField("Notificacoes do sistema", default=True)
+
+    class Meta:
+        verbose_name = "Preferencia de Notificacao"
+        verbose_name_plural = "Preferencias de Notificacao"
+
+    def __str__(self):
+        return f"Preferencias de {self.usuario}"
+
+    def aceita(self, tipo):
+        """Verifica se o usuario aceita notificacoes deste tipo."""
+        return getattr(self, tipo, True)

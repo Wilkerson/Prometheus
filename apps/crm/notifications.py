@@ -1,18 +1,26 @@
 """
 Servico de notificacoes — funcoes utilitarias.
-Uso: notificar(destinatario, tipo, titulo, mensagem, link)
-     notificar_grupo(usuarios_qs, tipo, titulo, mensagem, link)
-     notificar_admins(tipo, titulo, mensagem, link)
-     notificar_parceiro_do_cliente(cliente, tipo, titulo, mensagem, link)
+Respeita PreferenciaNotificacao de cada usuario.
 """
 
 from apps.accounts.models import Usuario
 
-from .models import Notificacao
+from .models import Notificacao, PreferenciaNotificacao
+
+
+def _usuario_aceita(user, tipo):
+    """Verifica se o usuario aceita notificacoes deste tipo."""
+    try:
+        prefs = user.preferencias_notificacao
+        return prefs.aceita(tipo)
+    except PreferenciaNotificacao.DoesNotExist:
+        return True  # Sem preferencias = aceita tudo
 
 
 def notificar(destinatario, tipo, titulo, mensagem="", link=""):
-    """Cria uma notificacao para um usuario."""
+    """Cria notificacao se o usuario aceita este tipo."""
+    if not _usuario_aceita(destinatario, tipo):
+        return None
     return Notificacao.objects.create(
         destinatario=destinatario,
         tipo=tipo,
@@ -23,22 +31,24 @@ def notificar(destinatario, tipo, titulo, mensagem="", link=""):
 
 
 def notificar_grupo(usuarios_qs, tipo, titulo, mensagem="", link=""):
-    """Cria notificacao para multiplos usuarios."""
-    notificacoes = [
-        Notificacao(
-            destinatario=user,
-            tipo=tipo,
-            titulo=titulo,
-            mensagem=mensagem,
-            link=link,
-        )
-        for user in usuarios_qs
-    ]
-    return Notificacao.objects.bulk_create(notificacoes)
+    """Cria notificacao para multiplos usuarios (respeitando preferencias)."""
+    notificacoes = []
+    for user in usuarios_qs:
+        if _usuario_aceita(user, tipo):
+            notificacoes.append(
+                Notificacao(
+                    destinatario=user,
+                    tipo=tipo,
+                    titulo=titulo,
+                    mensagem=mensagem,
+                    link=link,
+                )
+            )
+    return Notificacao.objects.bulk_create(notificacoes) if notificacoes else []
 
 
 def notificar_admins(tipo, titulo, mensagem="", link=""):
-    """Notifica todos os superusuarios e usuarios do grupo Administrador."""
+    """Notifica superusuarios e usuarios do grupo Administrador."""
     from django.contrib.auth.models import Group
 
     admins = Usuario.objects.filter(is_superuser=True)

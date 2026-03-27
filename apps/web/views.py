@@ -1247,3 +1247,36 @@ class NotificacaoLerTodasView(LoginRequiredMixin, View):
     def post(self, request):
         Notificacao.objects.filter(destinatario=request.user, lida=False).update(lida=True)
         return redirect("web:notificacoes")
+
+
+class NotificacaoPainelView(LoginRequiredMixin, View):
+    """Partial HTMX: retorna o bloco de notificacoes do right panel (polling)."""
+
+    def get(self, request):
+        notif_nao_lidas = Notificacao.objects.filter(destinatario=request.user, lida=False)
+        return render(request, "notificacoes/_painel.html", {
+            "notif_count": notif_nao_lidas.count(),
+            "notif_recentes": notif_nao_lidas[:5],
+        })
+
+
+class NotificacaoPreferenciasView(LoginRequiredMixin, View):
+    def get(self, request):
+        from apps.crm.models import PreferenciaNotificacao
+        prefs, _ = PreferenciaNotificacao.objects.get_or_create(usuario=request.user)
+        return render(request, "notificacoes/preferencias.html", {"prefs": prefs})
+
+    def post(self, request):
+        from apps.crm.models import PreferenciaNotificacao
+        prefs, _ = PreferenciaNotificacao.objects.get_or_create(usuario=request.user)
+
+        campos = [
+            "cliente_novo", "cliente_status", "cliente_zypher_ok",
+            "cliente_zypher_falha", "comissao_gerada", "comissao_paga",
+            "usuario_criado", "sistema",
+        ]
+        for campo in campos:
+            setattr(prefs, campo, campo in request.POST)
+        prefs.save()
+
+        return redirect("web:notificacao-preferencias")

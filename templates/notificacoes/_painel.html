@@ -1,0 +1,38 @@
+<!-- Partial HTMX: atualizado a cada 30s via polling -->
+<div class="flex items-center justify-between mb-3">
+  <div class="flex items-center gap-2">
+    <span class="text-[15px] font-bold">Notificacoes</span>
+    {% if notif_count > 0 %}
+    <span class="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{{ notif_count }}</span>
+    {% endif %}
+  </div>
+  <a href="{% url 'web:notificacoes' %}" class="text-[11px] text-ruch-accent hover:text-t1 no-underline">Ver todas</a>
+</div>
+
+{% if notif_recentes %}
+<div class="space-y-0">
+  {% for notif in notif_recentes %}
+  <form method="post" action="{% url 'web:notificacao-ler' notif.pk %}" class="flex items-start gap-2.5 py-2 border-b border-bdr group cursor-pointer hover:bg-bg3 rounded-lg px-1 -mx-1">
+    {% csrf_token %}
+    <button type="submit" class="flex items-start gap-2.5 w-full text-left">
+      <div class="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-ruch-accent"></div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[12px] font-medium text-t1 truncate">{{ notif.titulo }}</div>
+        <div class="text-[11px] text-t3 mt-0.5 truncate">{{ notif.mensagem }}</div>
+        <div class="text-[10px] text-t3 mt-0.5">{{ notif.criado_em|timesince }} atras</div>
+      </div>
+    </button>
+  </form>
+  {% endfor %}
+</div>
+
+{% if notif_count > 0 %}
+<form method="post" action="{% url 'web:notificacao-ler-todas' %}" class="mt-2">
+  {% csrf_token %}
+  <button type="submit" class="text-[11px] text-t3 hover:text-t1">Marcar todas como lidas</button>
+</form>
+{% endif %}
+
+{% else %}
+<div class="text-[12px] text-t3 py-2">Nenhuma notificacao.</div>
+{% endif %}
