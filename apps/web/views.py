@@ -3,7 +3,7 @@ import calendar
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, F, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -3121,7 +3121,7 @@ class RelatoriosRHView(PermissionRequiredMixin, View):
         ferias_vencidas = SaldoFerias.objects.filter(
             colaborador__status="ativo",
             periodo_fim__lt=hoje - timezone.timedelta(days=365),
-        ).exclude(dias_usufruidos__gte=models.F("dias_direito")).count()
+        ).exclude(dias_usufruidos__gte=F("dias_direito")).count()
 
         # Documentos a vencer (proximos 30 dias)
         docs_vencer = DocumentoColaborador.objects.filter(
