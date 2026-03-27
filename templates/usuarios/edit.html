@@ -80,10 +80,16 @@
 
       <!-- Permissoes diretas do usuario -->
       {% if matrix %}
-      <div class="mt-6 pt-4 border-t border-bdr">
-        <h3 class="text-sm font-semibold text-t2 mb-3">Permissoes individuais</h3>
-        <p class="text-xs text-t3 mb-3">Alem das permissoes herdadas do grupo, voce pode conceder permissoes diretamente a este usuario.</p>
-        {% include "grupos/_form_matrix.html" %}
+      <div class="mt-6 pt-4 border-t border-bdr" x-data="{ open: false }">
+        <button type="button" @click="open = !open"
+                class="flex items-center gap-2 text-sm text-ruch-accent hover:text-t1 cursor-pointer">
+          <span class="text-[10px]" :style="open ? 'transform:rotate(90deg)' : ''" style="transition:transform .15s">&#9656;</span>
+          Configurar permissoes para este usuario
+        </button>
+        <div x-show="open" x-cloak x-transition class="mt-3">
+          <p class="text-xs text-t3 mb-3">Permissoes marcadas com <span class="text-[10px] text-t3 border border-bdr rounded px-1">grupo</span> sao herdadas do grupo. Voce pode adicionar permissoes extras diretamente.</p>
+          {% include "grupos/_form_matrix.html" %}
+        </div>
       </div>
       {% endif %}
 

@@ -16,9 +16,14 @@
         {% for acao in row.acoes %}
         <td class="py-3 text-center">
           {% if acao.perm_id %}
-          <input type="checkbox" name="permissions" value="{{ acao.perm_id }}"
-                 {% if acao.checked %}checked{% endif %}
-                 class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green cursor-pointer">
+          <div class="flex flex-col items-center gap-0.5">
+            <input type="checkbox" name="permissions" value="{{ acao.perm_id }}"
+                   {% if acao.checked %}checked{% endif %}
+                   class="w-4 h-4 rounded border-bdr text-ruch-green focus:ring-ruch-green cursor-pointer{% if acao.from_group %} opacity-60{% endif %}">
+            {% if acao.from_group %}
+            <span class="text-[9px] text-t3">grupo</span>
+            {% endif %}
+          </div>
           {% else %}
           <span class="text-t3">-</span>
           {% endif %}

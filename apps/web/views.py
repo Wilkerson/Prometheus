@@ -1123,14 +1123,22 @@ ACOES = [
 def _build_permission_matrix(group=None, user=None):
     """Monta a matriz de modulos x acoes com estado checked.
     Aceita group (permissoes do grupo) ou user (permissoes diretas do usuario).
+    Para user: marca permissoes diretas E herdadas do grupo, diferenciando a origem.
     """
     from django.contrib.auth.models import Permission
 
     checked_codenames = set()
+    group_codenames = set()
+
     if group:
         checked_codenames = set(group.permissions.values_list("codename", flat=True))
     elif user:
+        # Permissoes diretas do usuario
         checked_codenames = set(user.user_permissions.values_list("codename", flat=True))
+        # Permissoes herdadas dos grupos
+        group_codenames = set(
+            Permission.objects.filter(group__user=user).values_list("codename", flat=True)
+        )
 
     matrix = []
     for mod in MODULOS_PERMISSOES:
@@ -1141,11 +1149,14 @@ def _build_permission_matrix(group=None, user=None):
                 codename=codename,
                 content_type__app_label=mod["app"],
             ).first()
+            is_direct = codename in checked_codenames
+            is_from_group = codename in group_codenames
             row["acoes"].append({
                 "label": acao["label"],
                 "perm_id": perm.id if perm else None,
                 "codename": codename,
-                "checked": codename in checked_codenames,
+                "checked": is_direct or is_from_group,
+                "from_group": is_from_group and not is_direct,
             })
         matrix.append(row)
     return matrix
