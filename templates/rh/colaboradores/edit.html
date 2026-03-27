@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ colab.nome_completo }}{% endblock %}
+{% block page_title %}Editar Colaborador{% endblock %}
+{% block page_actions %}<a href="{% url 'web:rh-colaborador-detail' colab.pk %}" class="btn-secondary">Voltar</a>{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card">
+    <form method="post" x-data="{ tipo: '{{ colab.tipo_contrato }}' }">
+      {% csrf_token %}
+      {% if erros %}{% include "clientes/_form_errors.html" %}{% endif %}
+
+      <!-- Dados pessoais -->
+      <h3 class="text-sm font-semibold text-t2 mb-3">Dados pessoais</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="label">Nome completo <span class="text-red-500">*</span></label>
+          <input type="text" name="nome_completo" required class="input" value="{{ colab.nome_completo }}">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">CPF <span class="text-red-500">*</span></label>
+            <input type="text" name="cpf" required class="input" value="{{ colab.cpf }}">
+          </div>
+          <div>
+            <label class="label">Data de nascimento <span class="text-red-500">*</span></label>
+            <input type="date" name="data_nascimento" required class="input" value="{{ colab.data_nascimento|date:'Y-m-d' }}">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Telefone <span class="text-red-500">*</span></label>
+            <input type="text" name="telefone" required class="input" value="{{ colab.telefone }}">
+          </div>
+          <div>
+            <label class="label">E-mail pessoal <span class="text-red-500">*</span></label>
+            <input type="email" name="email_pessoal" required class="input" value="{{ colab.email_pessoal }}">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Contato emergencia — nome</label>
+            <input type="text" name="contato_emergencia_nome" class="input" value="{{ colab.contato_emergencia_nome }}">
+          </div>
+          <div>
+            <label class="label">Contato emergencia — telefone</label>
+            <input type="text" name="contato_emergencia_telefone" class="input" value="{{ colab.contato_emergencia_telefone }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Endereco -->
+      <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Endereco</h3>
+      <div class="space-y-4" x-data="{ semNumero: {{ colab.endereco.numero|default:'' }} === 'S/N' }">
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="label">CEP</label>
+            <input type="text" name="cep" class="input" value="{{ colab.endereco.cep|default:'' }}" placeholder="00000-000"
+                   x-on:blur="
+                     let v = $el.value.replace(/\D/g,'');
+                     if(v.length===8){
+                       fetch('https://viacep.com.br/ws/'+v+'/json/')
+                         .then(r=>r.json())
+                         .then(d=>{
+                           if(!d.erro){
+                             document.querySelector('[name=logradouro]').value=d.logradouro||'';
+                             document.querySelector('[name=bairro]').value=d.bairro||'';
+                             document.querySelector('[name=cidade]').value=d.localidade||'';
+                             document.querySelector('[name=uf]').value=d.uf||'';
+                           }
+                         })
+                     }">
+          </div>
+          <div>
+            <label class="label">Numero</label>
+            <input type="text" name="numero" class="input" value="{{ colab.endereco.numero|default:'' }}" x-bind:disabled="semNumero">
+          </div>
+          <div class="flex items-end pb-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="sem_numero" x-model="semNumero" class="w-4 h-4 rounded border-bdr">
+              <span class="text-sm text-t2">Sem numero</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="label">Logradouro</label>
+          <input type="text" name="logradouro" class="input" value="{{ colab.endereco.logradouro|default:'' }}">
+        </div>
+        <div>
+          <label class="label">Complemento</label>
+          <input type="text" name="complemento" class="input" value="{{ colab.endereco.complemento|default:'' }}">
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="label">Bairro</label>
+            <input type="text" name="bairro" class="input" value="{{ colab.endereco.bairro|default:'' }}">
+          </div>
+          <div>
+            <label class="label">Cidade</label>
+            <input type="text" name="cidade" class="input" value="{{ colab.endereco.cidade|default:'' }}">
+          </div>
+          <div>
+            <label class="label">UF</label>
+            <select name="uf" class="input">
+              <option value="">--</option>
+              {% for sigla, label in uf_choices %}
+              <option value="{{ sigla }}" {% if colab.endereco.uf == sigla %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dados contratuais -->
+      <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados contratuais</h3>
+      <div class="space-y-4">
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="label">Tipo de contrato <span class="text-red-500">*</span></label>
+            <select name="tipo_contrato" required class="input" x-model="tipo">
+              {% for v, l in tipo_choices %}
+              <option value="{{ v }}" {% if colab.tipo_contrato == v %}selected{% endif %}>{{ l }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="label">Data de admissao <span class="text-red-500">*</span></label>
+            <input type="date" name="data_admissao" required class="input" value="{{ colab.data_admissao|date:'Y-m-d' }}">
+          </div>
+          <div>
+            <label class="label">Status</label>
+            <select name="status" class="input">
+              {% for v, l in status_choices %}
+              <option value="{{ v }}" {% if colab.status == v %}selected{% endif %}>{{ l }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Departamento <span class="text-red-500">*</span></label>
+            <select name="departamento" required class="input">
+              <option value="">Selecione...</option>
+              {% for d in departamentos %}
+              <option value="{{ d.pk }}" {% if colab.departamento_id == d.pk %}selected{% endif %}>{{ d.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="label">Cargo <span class="text-red-500">*</span></label>
+            <select name="cargo" required class="input">
+              <option value="">Selecione...</option>
+              {% for c in cargos %}
+              <option value="{{ c.pk }}" {% if colab.cargo_id == c.pk %}selected{% endif %}>{{ c.nome }} ({{ c.departamento.nome }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Remuneracao (R$) <span class="text-red-500">*</span></label>
+            <input type="number" step="0.01" name="remuneracao" required class="input" value="{{ colab.remuneracao }}">
+          </div>
+          <div>
+            <label class="label">Carga horaria semanal (h)</label>
+            <input type="number" name="carga_horaria_semanal" class="input" value="{{ colab.carga_horaria_semanal }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Campos CLT -->
+      <div x-show="tipo === 'clt'" x-cloak>
+        <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados CLT</h3>
+        <div class="space-y-4">
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="label">PIS / NIT</label>
+              <input type="text" name="pis_nit" class="input" value="{{ colab.pis_nit }}">
+            </div>
+            <div>
+              <label class="label">CTPS — numero</label>
+              <input type="text" name="ctps_numero" class="input" value="{{ colab.ctps_numero }}">
+            </div>
+            <div>
+              <label class="label">CTPS — serie</label>
+              <input type="text" name="ctps_serie" class="input" value="{{ colab.ctps_serie }}">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="label">Banco para deposito</label>
+              <input type="text" name="banco_deposito" class="input" value="{{ colab.banco_deposito }}">
+            </div>
+            <div>
+              <label class="label">Regime de trabalho</label>
+              <select name="regime_trabalho" class="input">
+                <option value="">Selecione...</option>
+                {% for v, l in regime_choices %}
+                <option value="{{ v }}" {% if colab.regime_trabalho == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campos PJ -->
+      <div x-show="tipo === 'pj'" x-cloak>
+        <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados PJ</h3>
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="label">CNPJ ou CPF (MEI)</label>
+              <input type="text" name="cnpj_pj" class="input" value="{{ colab.cnpj_pj }}">
+            </div>
+            <div>
+              <label class="label">Razao social</label>
+              <input type="text" name="razao_social" class="input" value="{{ colab.razao_social }}">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="label">Banco para pagamento</label>
+              <input type="text" name="banco_pagamento_pj" class="input" value="{{ colab.banco_pagamento_pj }}">
+            </div>
+            <div>
+              <label class="label">Chave Pix</label>
+              <input type="text" name="chave_pix" class="input" value="{{ colab.chave_pix }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-6 pt-4 border-t border-bdr">
+        <button type="submit" class="btn-primary">Salvar</button>
+        <a href="{% url 'web:rh-colaborador-detail' colab.pk %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

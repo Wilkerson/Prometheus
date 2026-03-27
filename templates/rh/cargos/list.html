@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Cargos{% endblock %}
+{% block page_title %}Cargos{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:rh-cargo-create' %}" class="btn-primary">+ Novo Cargo</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" placeholder="Nome do cargo ou departamento..." class="input"
+             hx-get="{% url 'web:rh-cargos' %}" hx-target="#table" hx-trigger="input changed delay:300ms"
+             hx-include="[name='nivel'],[name='departamento']" hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Nivel</label>
+      <select name="nivel" class="input"
+              hx-get="{% url 'web:rh-cargos' %}" hx-target="#table" hx-include="[name='q'],[name='departamento']" hx-push-url="true">
+        <option value="">Todos</option>
+        {% for v, l in nivel_choices %}
+        <option value="{{ v }}" {% if current_nivel == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="label">Departamento</label>
+      <select name="departamento" class="input"
+              hx-get="{% url 'web:rh-cargos' %}" hx-target="#table" hx-include="[name='q'],[name='nivel']" hx-push-url="true">
+        <option value="">Todos</option>
+        {% for d in departamentos %}
+        <option value="{{ d.pk }}" {% if current_depto == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card" id="table">{% include "rh/cargos/_table.html" %}</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}{{ colab.nome_completo }}{% endblock %}
+{% block page_title %}Colaborador: {{ colab.nome_completo }}{% endblock %}
+{% block page_actions %}
+<div class="flex gap-2">
+  {% if can_edit %}<a href="{% url 'web:rh-colaborador-edit' colab.pk %}" class="btn-primary">Editar</a>{% endif %}
+  <a href="{% url 'web:rh-colaboradores' %}" class="btn-secondary">Voltar</a>
+</div>
+{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <!-- Dados pessoais -->
+  <div class="card">
+    <h3 class="text-sm font-semibold text-t2 mb-3">Dados pessoais</h3>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <dt class="text-t3">Nome</dt>
+        <dd class="text-t1 font-medium">{{ colab.nome_completo }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">CPF</dt>
+        <dd class="text-t2">{{ colab.cpf }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Nascimento</dt>
+        <dd class="text-t2">{{ colab.data_nascimento|date:"d/m/Y" }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Telefone</dt>
+        <dd class="text-t2">{{ colab.telefone }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">E-mail pessoal</dt>
+        <dd class="text-t2">{{ colab.email_pessoal }}</dd>
+      </div>
+      {% if colab.contato_emergencia_nome %}
+      <div class="flex justify-between">
+        <dt class="text-t3">Emergencia</dt>
+        <dd class="text-t2">{{ colab.contato_emergencia_nome }} — {{ colab.contato_emergencia_telefone }}</dd>
+      </div>
+      {% endif %}
+    </dl>
+    {% if colab.endereco %}
+    <div class="mt-4 pt-3 border-t border-bdr">
+      <h4 class="text-sm font-medium text-t3 mb-1">Endereco</h4>
+      <p class="text-sm text-t2">{{ colab.endereco }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Dados contratuais -->
+  <div class="card">
+    <h3 class="text-sm font-semibold text-t2 mb-3">Dados contratuais</h3>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <dt class="text-t3">Contrato</dt>
+        <dd>
+          {% if colab.tipo_contrato == 'clt' %}
+          <span class="badge bg-blue-500/15 text-blue-500">CLT</span>
+          {% else %}
+          <span class="badge bg-purple-500/15 text-purple-500">PJ</span>
+          {% endif %}
+        </dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Status</dt>
+        <dd>
+          {% if colab.status == 'ativo' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
+          {% elif colab.status == 'afastado' %}<span class="badge bg-amber-500/15 text-amber-500">Afastado</span>
+          {% else %}<span class="badge bg-bg4 text-t3">Desligado</span>{% endif %}
+        </dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Admissao</dt>
+        <dd class="text-t2">{{ colab.data_admissao|date:"d/m/Y" }}</dd>
+      </div>
+      {% if colab.data_desligamento %}
+      <div class="flex justify-between">
+        <dt class="text-t3">Desligamento</dt>
+        <dd class="text-t2">{{ colab.data_desligamento|date:"d/m/Y" }}</dd>
+      </div>
+      {% endif %}
+      <div class="flex justify-between">
+        <dt class="text-t3">Departamento</dt>
+        <dd><a href="{% url 'web:rh-departamento-detail' colab.departamento.pk %}" class="text-ruch-accent hover:text-t1 no-underline">{{ colab.departamento.nome }}</a></dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Cargo</dt>
+        <dd><a href="{% url 'web:rh-cargo-detail' colab.cargo.pk %}" class="text-ruch-accent hover:text-t1 no-underline">{{ colab.cargo.nome }}</a></dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Remuneracao</dt>
+        <dd class="text-t1 font-medium">R$ {{ colab.remuneracao|floatformat:2 }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Carga horaria</dt>
+        <dd class="text-t2">{{ colab.carga_horaria_semanal }}h/semana</dd>
+      </div>
+    </dl>
+
+    {% if colab.is_clt %}
+    <div class="mt-4 pt-3 border-t border-bdr">
+      <h4 class="text-sm font-medium text-t3 mb-2">Dados CLT</h4>
+      <dl class="space-y-2 text-sm">
+        {% if colab.pis_nit %}<div class="flex justify-between"><dt class="text-t3">PIS/NIT</dt><dd class="text-t2">{{ colab.pis_nit }}</dd></div>{% endif %}
+        {% if colab.ctps_numero %}<div class="flex justify-between"><dt class="text-t3">CTPS</dt><dd class="text-t2">{{ colab.ctps_numero }} / {{ colab.ctps_serie }}</dd></div>{% endif %}
+        {% if colab.banco_deposito %}<div class="flex justify-between"><dt class="text-t3">Banco</dt><dd class="text-t2">{{ colab.banco_deposito }}</dd></div>{% endif %}
+        {% if colab.regime_trabalho %}<div class="flex justify-between"><dt class="text-t3">Regime</dt><dd class="text-t2">{{ colab.get_regime_trabalho_display }}</dd></div>{% endif %}
+      </dl>
+    </div>
+    {% endif %}
+
+    {% if colab.is_pj %}
+    <div class="mt-4 pt-3 border-t border-bdr">
+      <h4 class="text-sm font-medium text-t3 mb-2">Dados PJ</h4>
+      <dl class="space-y-2 text-sm">
+        {% if colab.cnpj_pj %}<div class="flex justify-between"><dt class="text-t3">CNPJ/CPF</dt><dd class="text-t2">{{ colab.cnpj_pj }}</dd></div>{% endif %}
+        {% if colab.razao_social %}<div class="flex justify-between"><dt class="text-t3">Razao social</dt><dd class="text-t2">{{ colab.razao_social }}</dd></div>{% endif %}
+        {% if colab.banco_pagamento_pj %}<div class="flex justify-between"><dt class="text-t3">Banco</dt><dd class="text-t2">{{ colab.banco_pagamento_pj }}</dd></div>{% endif %}
+        {% if colab.chave_pix %}<div class="flex justify-between"><dt class="text-t3">Chave Pix</dt><dd class="text-t2">{{ colab.chave_pix }}</dd></div>{% endif %}
+      </dl>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Historico -->
+<div class="card mt-4">
+  <h3 class="text-sm font-semibold text-t2 mb-3">Historico</h3>
+  {% if historico %}
+  <div class="space-y-3">
+    {% for h in historico %}
+    <div class="flex items-start gap-3 p-3 rounded-lg bg-bg3">
+      <div class="w-2 h-2 mt-1.5 rounded-full flex-shrink-0
+        {% if h.tipo == 'admissao' %}bg-emerald-500
+        {% elif h.tipo == 'promocao' %}bg-blue-500
+        {% elif h.tipo == 'transferencia' %}bg-purple-500
+        {% elif h.tipo == 'reajuste' %}bg-amber-500
+        {% elif h.tipo == 'desligamento' %}bg-red-500
+        {% else %}bg-t3{% endif %}"></div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-t1">{{ h.get_tipo_display }}</span>
+          <span class="text-[11px] text-t3">{{ h.criado_em|date:"d/m/Y H:i" }}</span>
+        </div>
+        {% if h.cargo_anterior and h.cargo_novo %}
+        <p class="text-[12px] text-t2 mt-0.5">{{ h.cargo_anterior }} &rarr; {{ h.cargo_novo }}</p>
+        {% endif %}
+        {% if h.departamento_anterior and h.departamento_novo %}
+        <p class="text-[12px] text-t2 mt-0.5">{{ h.departamento_anterior }} &rarr; {{ h.departamento_novo }}</p>
+        {% endif %}
+        {% if h.remuneracao_anterior and h.remuneracao_nova %}
+        <p class="text-[12px] text-t2 mt-0.5">R$ {{ h.remuneracao_anterior|floatformat:2 }} &rarr; R$ {{ h.remuneracao_nova|floatformat:2 }}</p>
+        {% endif %}
+        {% if h.observacao %}
+        <p class="text-[12px] text-t3 mt-0.5">{{ h.observacao }}</p>
+        {% endif %}
+        {% if h.registrado_por %}
+        <p class="text-[11px] text-t3 mt-1">Por {{ h.registrado_por.get_full_name|default:h.registrado_por.username }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-sm text-t3">Nenhum registro no historico.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -39,6 +39,15 @@ def navigation(request):
             ],
         },
         {
+            "key": "rh",
+            "label": "RH / Pessoas",
+            "items": [
+                {"url": "/rh/colaboradores/", "label": "Colaboradores", "permission": "rh.view_colaborador"},
+                {"url": "/rh/cargos/", "label": "Cargos", "permission": "rh.view_cargo"},
+                {"url": "/rh/departamentos/", "label": "Departamentos", "permission": "rh.view_departamento"},
+            ],
+        },
+        {
             "key": "admin",
             "label": "Administracao",
             "items": [

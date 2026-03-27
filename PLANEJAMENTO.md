@@ -214,8 +214,9 @@ Navegador (Admin / Parceiro)          Sistema Externo
 
 ```
 USUARIO (AbstractUser)
-  id, username, email, first_name, last_name, perfil [super_admin|operador|parceiro],
+  id, username, email, first_name, last_name, avatar,
   is_active, date_joined
+  (controle de acesso 100% por grupos/permissoes Django)
 
 ENTIDADE_PARCEIRA
   id, usuario_id (FK OneToOne), nome_entidade, percentual_comissao, ativo, criado_em
@@ -251,6 +252,30 @@ COMISSAO (gerada automaticamente ao concluir cliente — soma dos planos)
 
 TOKEN_INTEGRACAO
   id, nome, token (auto-gerado), ativo, criado_em
+
+DEPARTAMENTO (app: rh)
+  id, nome (unique), descricao, ativo, criado_em, atualizado_em
+
+CARGO (app: rh)
+  id, nome, departamento_id (FK), nivel [diretor|gerente|especialista|analista|assistente|estagiario],
+  faixa_salarial_min, faixa_salarial_max, descricao, requisitos, ativo, criado_em, atualizado_em
+  unique_together: (nome, departamento)
+
+COLABORADOR (app: rh)
+  id, nome_completo, cpf (unique), data_nascimento, endereco_id (FK OneToOne -> Endereco),
+  telefone, email_pessoal, contato_emergencia_nome, contato_emergencia_telefone,
+  tipo_contrato [clt|pj], data_admissao, data_desligamento (nullable),
+  cargo_id (FK), departamento_id (FK), remuneracao, carga_horaria_semanal,
+  status [ativo|afastado|desligado],
+  # CLT: pis_nit, ctps_numero, ctps_serie, banco_deposito, regime_trabalho
+  # PJ: cnpj_pj, razao_social, banco_pagamento_pj, chave_pix
+  usuario_id (FK OneToOne nullable -> Usuario),
+  criado_em, atualizado_em
+
+HISTORICO_COLABORADOR (app: rh)
+  id, colaborador_id (FK), tipo [admissao|promocao|transferencia|reajuste|afastamento|retorno|desligamento],
+  cargo_anterior, cargo_novo, departamento_anterior, departamento_novo,
+  remuneracao_anterior, remuneracao_nova, observacao, registrado_por_id (FK), criado_em
 ```
 
 ### Transicoes validas de status do Cliente
@@ -423,7 +448,12 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 60. [x] Sidebar colapsavel com grupos accordion (Clientes, Catalogo, Financeiro, Administracao)
 61. [x] Modulo de Notificacoes Fase 1: model, signals automaticos, right panel, historico
 62. [x] Modulo de Notificacoes Fase 2: preferencias do usuario + polling HTMX a cada 30s
-63. [ ] Implementar modulos futuros: mensagens, analises, configuracoes
+63. [x] Modulo RH Fase 1: app rh, models Departamento/Cargo/Colaborador/HistoricoColaborador, CRUD web completo, sidebar RH/Pessoas
+64. [ ] Modulo RH Fase 2: Onboarding (checklist) + Documentos e contratos
+65. [ ] Modulo RH Fase 3: Ferias e ausencias + Treinamento e capacitacao
+66. [ ] Modulo RH Fase 4: Metas e PDI + eNPS e engajamento
+67. [ ] Modulo RH Fase 5: Relatorios e indicadores + Integracoes
+68. [ ] Implementar modulos futuros: mensagens, analises, configuracoes
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.

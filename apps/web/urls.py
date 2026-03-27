@@ -63,4 +63,22 @@ urlpatterns = [
     path("grupos/novo/", views.GrupoCreateView.as_view(), name="grupo-create"),
     path("grupos/<int:pk>/editar/", views.GrupoUpdateView.as_view(), name="grupo-edit"),
     path("grupos/<int:pk>/excluir/", views.GrupoDeleteView.as_view(), name="grupo-delete"),
+    # RH — Departamentos
+    path("rh/departamentos/", views.DepartamentoListView.as_view(), name="rh-departamentos"),
+    path("rh/departamentos/novo/", views.DepartamentoCreateView.as_view(), name="rh-departamento-create"),
+    path("rh/departamentos/<int:pk>/", views.DepartamentoDetailView.as_view(), name="rh-departamento-detail"),
+    path("rh/departamentos/<int:pk>/editar/", views.DepartamentoUpdateView.as_view(), name="rh-departamento-edit"),
+    path("rh/departamentos/<int:pk>/excluir/", views.DepartamentoDeleteView.as_view(), name="rh-departamento-delete"),
+    # RH — Cargos
+    path("rh/cargos/", views.CargoListView.as_view(), name="rh-cargos"),
+    path("rh/cargos/novo/", views.CargoCreateView.as_view(), name="rh-cargo-create"),
+    path("rh/cargos/<int:pk>/", views.CargoDetailView.as_view(), name="rh-cargo-detail"),
+    path("rh/cargos/<int:pk>/editar/", views.CargoUpdateView.as_view(), name="rh-cargo-edit"),
+    path("rh/cargos/<int:pk>/excluir/", views.CargoDeleteView.as_view(), name="rh-cargo-delete"),
+    # RH — Colaboradores
+    path("rh/colaboradores/", views.ColaboradorListView.as_view(), name="rh-colaboradores"),
+    path("rh/colaboradores/novo/", views.ColaboradorCreateView.as_view(), name="rh-colaborador-create"),
+    path("rh/colaboradores/<int:pk>/", views.ColaboradorDetailView.as_view(), name="rh-colaborador-detail"),
+    path("rh/colaboradores/<int:pk>/editar/", views.ColaboradorUpdateView.as_view(), name="rh-colaborador-edit"),
+    path("rh/colaboradores/<int:pk>/excluir/", views.ColaboradorDeleteView.as_view(), name="rh-colaborador-delete"),
 ]

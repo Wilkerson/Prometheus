@@ -17,6 +17,7 @@ from apps.comissoes.models import Comissao
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
+from apps.rh.models import Cargo, Colaborador, Departamento, HistoricoColaborador
 
 from .mixins import HtmxMixin, is_htmx
 
@@ -1280,3 +1281,559 @@ class NotificacaoPreferenciasView(LoginRequiredMixin, View):
         prefs.save()
 
         return redirect("web:notificacao-preferencias")
+
+
+# ---------------------------------------------------------------------------
+# RH — Departamentos
+# ---------------------------------------------------------------------------
+class DepartamentoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/departamentos/list.html"
+    partial_template_name = "rh/departamentos/_table.html"
+    context_object_name = "departamentos"
+    paginate_by = 20
+    permission_required = "rh.view_departamento"
+
+    def get_queryset(self):
+        qs = Departamento.objects.annotate(total_cargos=Count("cargos"))
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(nome__icontains=search)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("rh.add_departamento")
+        return ctx
+
+
+class DepartamentoCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_departamento"
+
+    def get(self, request):
+        return render(request, "rh/departamentos/create.html", {"erros": {}, "dados": {}})
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        elif Departamento.objects.filter(nome__iexact=nome).exists():
+            erros["nome"] = "Ja existe um departamento com esse nome."
+        descricao = request.POST.get("descricao", "").strip()
+        dados = {"nome": nome, "descricao": descricao}
+
+        if erros:
+            return render(request, "rh/departamentos/create.html", {"erros": erros, "dados": dados})
+
+        Departamento.objects.create(**dados)
+        return redirect("web:rh-departamentos")
+
+
+class DepartamentoDetailView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_departamento"
+
+    def get(self, request, pk):
+        depto = get_object_or_404(Departamento, pk=pk)
+        cargos = depto.cargos.select_related("departamento").order_by("nome")
+        colaboradores = depto.colaboradores.select_related("cargo").order_by("nome_completo")
+        return render(request, "rh/departamentos/detail.html", {
+            "depto": depto,
+            "cargos": cargos,
+            "colaboradores": colaboradores,
+            "can_edit": request.user.has_perm("rh.change_departamento"),
+        })
+
+
+class DepartamentoUpdateView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_departamento"
+
+    def get(self, request, pk):
+        depto = get_object_or_404(Departamento, pk=pk)
+        return render(request, "rh/departamentos/edit.html", {"depto": depto, "erros": {}})
+
+    def post(self, request, pk):
+        depto = get_object_or_404(Departamento, pk=pk)
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        elif Departamento.objects.filter(nome__iexact=nome).exclude(pk=pk).exists():
+            erros["nome"] = "Ja existe um departamento com esse nome."
+
+        if erros:
+            return render(request, "rh/departamentos/edit.html", {"depto": depto, "erros": erros})
+
+        depto.nome = nome
+        depto.descricao = request.POST.get("descricao", "").strip()
+        depto.ativo = "ativo" in request.POST
+        depto.save()
+        return redirect("web:rh-departamento-detail", pk=pk)
+
+
+class DepartamentoDeleteView(PermissionRequiredMixin, View):
+    permission_required = "rh.delete_departamento"
+
+    def post(self, request, pk):
+        depto = get_object_or_404(Departamento, pk=pk)
+        depto.delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/rh/departamentos/"})
+        return redirect("web:rh-departamentos")
+
+
+# ---------------------------------------------------------------------------
+# RH — Cargos
+# ---------------------------------------------------------------------------
+class CargoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/cargos/list.html"
+    partial_template_name = "rh/cargos/_table.html"
+    context_object_name = "cargos"
+    paginate_by = 20
+    permission_required = "rh.view_cargo"
+
+    def get_queryset(self):
+        qs = Cargo.objects.select_related("departamento")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(Q(nome__icontains=search) | Q(departamento__nome__icontains=search))
+        nivel = self.request.GET.get("nivel")
+        if nivel:
+            qs = qs.filter(nivel=nivel)
+        depto = self.request.GET.get("departamento")
+        if depto:
+            qs = qs.filter(departamento_id=depto)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["nivel_choices"] = Cargo.Nivel.choices
+        ctx["current_nivel"] = self.request.GET.get("nivel", "")
+        ctx["departamentos"] = Departamento.objects.filter(ativo=True)
+        ctx["current_depto"] = self.request.GET.get("departamento", "")
+        ctx["can_add"] = self.request.user.has_perm("rh.add_cargo")
+        return ctx
+
+
+class CargoCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_cargo"
+
+    def get(self, request):
+        return render(request, "rh/cargos/create.html", {
+            "nivel_choices": Cargo.Nivel.choices,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "erros": {}, "dados": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        depto_id = request.POST.get("departamento")
+        if not depto_id:
+            erros["departamento"] = "O departamento e obrigatorio."
+        nivel = request.POST.get("nivel", "analista")
+        descricao = request.POST.get("descricao", "").strip()
+        requisitos = request.POST.get("requisitos", "").strip()
+        faixa_min = request.POST.get("faixa_salarial_min", "").strip() or None
+        faixa_max = request.POST.get("faixa_salarial_max", "").strip() or None
+        dados = {
+            "nome": nome, "departamento": depto_id, "nivel": nivel,
+            "descricao": descricao, "requisitos": requisitos,
+            "faixa_salarial_min": faixa_min, "faixa_salarial_max": faixa_max,
+        }
+
+        if not erros and depto_id:
+            if Cargo.objects.filter(nome__iexact=nome, departamento_id=depto_id).exists():
+                erros["nome"] = "Ja existe um cargo com esse nome neste departamento."
+
+        if erros:
+            return render(request, "rh/cargos/create.html", {
+                "nivel_choices": Cargo.Nivel.choices,
+                "departamentos": Departamento.objects.filter(ativo=True),
+                "erros": erros, "dados": dados,
+            })
+
+        Cargo.objects.create(
+            nome=nome, departamento_id=depto_id, nivel=nivel,
+            descricao=descricao, requisitos=requisitos,
+            faixa_salarial_min=faixa_min, faixa_salarial_max=faixa_max,
+        )
+        return redirect("web:rh-cargos")
+
+
+class CargoDetailView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_cargo"
+
+    def get(self, request, pk):
+        cargo = get_object_or_404(Cargo.objects.select_related("departamento"), pk=pk)
+        colaboradores = cargo.colaboradores.order_by("nome_completo")
+        return render(request, "rh/cargos/detail.html", {
+            "cargo": cargo,
+            "colaboradores": colaboradores,
+            "can_edit": request.user.has_perm("rh.change_cargo"),
+        })
+
+
+class CargoUpdateView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_cargo"
+
+    def get(self, request, pk):
+        cargo = get_object_or_404(Cargo, pk=pk)
+        return render(request, "rh/cargos/edit.html", {
+            "cargo": cargo,
+            "nivel_choices": Cargo.Nivel.choices,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        cargo = get_object_or_404(Cargo, pk=pk)
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        depto_id = request.POST.get("departamento")
+        if not depto_id:
+            erros["departamento"] = "O departamento e obrigatorio."
+
+        if not erros and depto_id:
+            if Cargo.objects.filter(nome__iexact=nome, departamento_id=depto_id).exclude(pk=pk).exists():
+                erros["nome"] = "Ja existe um cargo com esse nome neste departamento."
+
+        if erros:
+            return render(request, "rh/cargos/edit.html", {
+                "cargo": cargo,
+                "nivel_choices": Cargo.Nivel.choices,
+                "departamentos": Departamento.objects.filter(ativo=True),
+                "erros": erros,
+            })
+
+        cargo.nome = nome
+        cargo.departamento_id = depto_id
+        cargo.nivel = request.POST.get("nivel", cargo.nivel)
+        cargo.descricao = request.POST.get("descricao", "").strip()
+        cargo.requisitos = request.POST.get("requisitos", "").strip()
+        cargo.faixa_salarial_min = request.POST.get("faixa_salarial_min", "").strip() or None
+        cargo.faixa_salarial_max = request.POST.get("faixa_salarial_max", "").strip() or None
+        cargo.ativo = "ativo" in request.POST
+        cargo.save()
+        return redirect("web:rh-cargo-detail", pk=pk)
+
+
+class CargoDeleteView(PermissionRequiredMixin, View):
+    permission_required = "rh.delete_cargo"
+
+    def post(self, request, pk):
+        cargo = get_object_or_404(Cargo, pk=pk)
+        cargo.delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/rh/cargos/"})
+        return redirect("web:rh-cargos")
+
+
+# ---------------------------------------------------------------------------
+# RH — Colaboradores
+# ---------------------------------------------------------------------------
+class ColaboradorListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/colaboradores/list.html"
+    partial_template_name = "rh/colaboradores/_table.html"
+    context_object_name = "colaboradores"
+    paginate_by = 20
+    permission_required = "rh.view_colaborador"
+
+    def get_queryset(self):
+        qs = Colaborador.objects.select_related("cargo", "departamento")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(
+                Q(nome_completo__icontains=search)
+                | Q(cpf__icontains=search)
+                | Q(email_pessoal__icontains=search)
+            )
+        status = self.request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        tipo = self.request.GET.get("tipo")
+        if tipo:
+            qs = qs.filter(tipo_contrato=tipo)
+        depto = self.request.GET.get("departamento")
+        if depto:
+            qs = qs.filter(departamento_id=depto)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["status_choices"] = Colaborador.Status.choices
+        ctx["tipo_choices"] = Colaborador.TipoContrato.choices
+        ctx["departamentos"] = Departamento.objects.filter(ativo=True)
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["current_depto"] = self.request.GET.get("departamento", "")
+        ctx["can_add"] = self.request.user.has_perm("rh.add_colaborador")
+        return ctx
+
+
+class ColaboradorCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_colaborador"
+
+    def get(self, request):
+        return render(request, "rh/colaboradores/create.html", self._ctx({}))
+
+    def post(self, request):
+        erros = {}
+        P = request.POST
+
+        # Dados pessoais
+        nome_completo = P.get("nome_completo", "").strip()
+        if not nome_completo:
+            erros["nome_completo"] = "O nome completo e obrigatorio."
+        cpf = P.get("cpf", "").strip()
+        if not cpf:
+            erros["cpf"] = "O CPF e obrigatorio."
+        elif Colaborador.objects.filter(cpf=cpf).exists():
+            erros["cpf"] = "Ja existe um colaborador com esse CPF."
+        data_nascimento = P.get("data_nascimento", "").strip()
+        if not data_nascimento:
+            erros["data_nascimento"] = "A data de nascimento e obrigatoria."
+        telefone = P.get("telefone", "").strip()
+        if not telefone:
+            erros["telefone"] = "O telefone e obrigatorio."
+        email_pessoal = P.get("email_pessoal", "").strip()
+        if not email_pessoal:
+            erros["email_pessoal"] = "O e-mail pessoal e obrigatorio."
+
+        # Dados contratuais
+        tipo_contrato = P.get("tipo_contrato", "").strip()
+        if not tipo_contrato:
+            erros["tipo_contrato"] = "O tipo de contrato e obrigatorio."
+        data_admissao = P.get("data_admissao", "").strip()
+        if not data_admissao:
+            erros["data_admissao"] = "A data de admissao e obrigatoria."
+        cargo_id = P.get("cargo")
+        if not cargo_id:
+            erros["cargo"] = "O cargo e obrigatorio."
+        departamento_id = P.get("departamento")
+        if not departamento_id:
+            erros["departamento"] = "O departamento e obrigatorio."
+        remuneracao = P.get("remuneracao", "").strip()
+        if not remuneracao:
+            erros["remuneracao"] = "A remuneracao e obrigatoria."
+
+        # Endereco
+        cep = P.get("cep", "").strip()
+        logradouro = P.get("logradouro", "").strip()
+        numero = P.get("numero", "").strip()
+        sem_numero = "sem_numero" in P
+        if sem_numero:
+            numero = "S/N"
+        bairro = P.get("bairro", "").strip()
+        cidade = P.get("cidade", "").strip()
+        uf = P.get("uf", "").strip()
+        complemento = P.get("complemento", "").strip()
+
+        dados = dict(P)
+
+        if erros:
+            return render(request, "rh/colaboradores/create.html", {**self._ctx(erros), "dados": P})
+
+        # Criar endereco
+        endereco = None
+        if cep and logradouro and numero and bairro and cidade and uf:
+            endereco = Endereco.objects.create(
+                cep=cep, logradouro=logradouro, numero=numero,
+                complemento=complemento, bairro=bairro, cidade=cidade, uf=uf,
+            )
+
+        colab = Colaborador.objects.create(
+            nome_completo=nome_completo, cpf=cpf, data_nascimento=data_nascimento,
+            telefone=telefone, email_pessoal=email_pessoal,
+            contato_emergencia_nome=P.get("contato_emergencia_nome", "").strip(),
+            contato_emergencia_telefone=P.get("contato_emergencia_telefone", "").strip(),
+            tipo_contrato=tipo_contrato, data_admissao=data_admissao,
+            cargo_id=cargo_id, departamento_id=departamento_id,
+            remuneracao=remuneracao,
+            carga_horaria_semanal=P.get("carga_horaria_semanal", 40) or 40,
+            endereco=endereco,
+            # CLT
+            pis_nit=P.get("pis_nit", "").strip(),
+            ctps_numero=P.get("ctps_numero", "").strip(),
+            ctps_serie=P.get("ctps_serie", "").strip(),
+            banco_deposito=P.get("banco_deposito", "").strip(),
+            regime_trabalho=P.get("regime_trabalho", "").strip(),
+            # PJ
+            cnpj_pj=P.get("cnpj_pj", "").strip(),
+            razao_social=P.get("razao_social", "").strip(),
+            banco_pagamento_pj=P.get("banco_pagamento_pj", "").strip(),
+            chave_pix=P.get("chave_pix", "").strip(),
+        )
+
+        # Registrar historico de admissao
+        HistoricoColaborador.objects.create(
+            colaborador=colab,
+            tipo=HistoricoColaborador.TipoEvento.ADMISSAO,
+            cargo_novo=str(colab.cargo),
+            departamento_novo=str(colab.departamento),
+            remuneracao_nova=colab.remuneracao,
+            registrado_por=request.user,
+            observacao="Admissao registrada no sistema.",
+        )
+
+        return redirect("web:rh-colaborador-detail", pk=colab.pk)
+
+    def _ctx(self, erros):
+        return {
+            "erros": erros,
+            "tipo_choices": Colaborador.TipoContrato.choices,
+            "regime_choices": Colaborador.RegimeTrabalho.choices,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "cargos": Cargo.objects.filter(ativo=True).select_related("departamento"),
+            "uf_choices": Endereco.UF_CHOICES,
+        }
+
+
+class ColaboradorDetailView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_colaborador"
+
+    def get(self, request, pk):
+        colab = get_object_or_404(
+            Colaborador.objects.select_related("cargo", "departamento", "endereco"), pk=pk
+        )
+        historico = colab.historico.select_related("registrado_por").order_by("-criado_em")
+        return render(request, "rh/colaboradores/detail.html", {
+            "colab": colab,
+            "historico": historico,
+            "can_edit": request.user.has_perm("rh.change_colaborador"),
+        })
+
+
+class ColaboradorUpdateView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_colaborador"
+
+    def get(self, request, pk):
+        colab = get_object_or_404(
+            Colaborador.objects.select_related("cargo", "departamento", "endereco"), pk=pk
+        )
+        return render(request, "rh/colaboradores/edit.html", {
+            "colab": colab,
+            "tipo_choices": Colaborador.TipoContrato.choices,
+            "regime_choices": Colaborador.RegimeTrabalho.choices,
+            "status_choices": Colaborador.Status.choices,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "cargos": Cargo.objects.filter(ativo=True).select_related("departamento"),
+            "uf_choices": Endereco.UF_CHOICES,
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        colab = get_object_or_404(
+            Colaborador.objects.select_related("cargo", "departamento", "endereco"), pk=pk
+        )
+        P = request.POST
+
+        # Rastrear mudancas para historico
+        old_cargo = str(colab.cargo)
+        old_depto = str(colab.departamento)
+        old_rem = colab.remuneracao
+
+        # Atualizar dados pessoais
+        colab.nome_completo = P.get("nome_completo", colab.nome_completo).strip()
+        colab.cpf = P.get("cpf", colab.cpf).strip()
+        colab.data_nascimento = P.get("data_nascimento", colab.data_nascimento)
+        colab.telefone = P.get("telefone", colab.telefone).strip()
+        colab.email_pessoal = P.get("email_pessoal", colab.email_pessoal).strip()
+        colab.contato_emergencia_nome = P.get("contato_emergencia_nome", "").strip()
+        colab.contato_emergencia_telefone = P.get("contato_emergencia_telefone", "").strip()
+
+        # Contratuais
+        colab.tipo_contrato = P.get("tipo_contrato", colab.tipo_contrato)
+        colab.cargo_id = P.get("cargo", colab.cargo_id)
+        colab.departamento_id = P.get("departamento", colab.departamento_id)
+        new_rem = P.get("remuneracao", "").strip()
+        if new_rem:
+            colab.remuneracao = new_rem
+        colab.carga_horaria_semanal = P.get("carga_horaria_semanal", colab.carga_horaria_semanal) or 40
+        colab.status = P.get("status", colab.status)
+
+        # CLT
+        colab.pis_nit = P.get("pis_nit", "").strip()
+        colab.ctps_numero = P.get("ctps_numero", "").strip()
+        colab.ctps_serie = P.get("ctps_serie", "").strip()
+        colab.banco_deposito = P.get("banco_deposito", "").strip()
+        colab.regime_trabalho = P.get("regime_trabalho", "").strip()
+
+        # PJ
+        colab.cnpj_pj = P.get("cnpj_pj", "").strip()
+        colab.razao_social = P.get("razao_social", "").strip()
+        colab.banco_pagamento_pj = P.get("banco_pagamento_pj", "").strip()
+        colab.chave_pix = P.get("chave_pix", "").strip()
+
+        # Endereco
+        cep = P.get("cep", "").strip()
+        logradouro = P.get("logradouro", "").strip()
+        numero = P.get("numero", "").strip()
+        sem_numero = "sem_numero" in P
+        if sem_numero:
+            numero = "S/N"
+        bairro = P.get("bairro", "").strip()
+        cidade = P.get("cidade", "").strip()
+        uf = P.get("uf", "").strip()
+        complemento = P.get("complemento", "").strip()
+
+        if cep and logradouro and numero and bairro and cidade and uf:
+            if colab.endereco:
+                end = colab.endereco
+                end.cep = cep
+                end.logradouro = logradouro
+                end.numero = numero
+                end.complemento = complemento
+                end.bairro = bairro
+                end.cidade = cidade
+                end.uf = uf
+                end.save()
+            else:
+                colab.endereco = Endereco.objects.create(
+                    cep=cep, logradouro=logradouro, numero=numero,
+                    complemento=complemento, bairro=bairro, cidade=cidade, uf=uf,
+                )
+
+        colab.save()
+
+        # Gerar historico automatico se houve mudancas relevantes
+        new_cargo = str(colab.cargo)
+        new_depto = str(colab.departamento)
+        new_rem_val = colab.remuneracao
+
+        if old_cargo != new_cargo:
+            HistoricoColaborador.objects.create(
+                colaborador=colab,
+                tipo=HistoricoColaborador.TipoEvento.PROMOCAO,
+                cargo_anterior=old_cargo, cargo_novo=new_cargo,
+                registrado_por=request.user,
+            )
+        if old_depto != new_depto:
+            HistoricoColaborador.objects.create(
+                colaborador=colab,
+                tipo=HistoricoColaborador.TipoEvento.TRANSFERENCIA,
+                departamento_anterior=old_depto, departamento_novo=new_depto,
+                registrado_por=request.user,
+            )
+        if old_rem != new_rem_val:
+            HistoricoColaborador.objects.create(
+                colaborador=colab,
+                tipo=HistoricoColaborador.TipoEvento.REAJUSTE,
+                remuneracao_anterior=old_rem, remuneracao_nova=new_rem_val,
+                registrado_por=request.user,
+            )
+
+        return redirect("web:rh-colaborador-detail", pk=pk)
+
+
+class ColaboradorDeleteView(PermissionRequiredMixin, View):
+    permission_required = "rh.delete_colaborador"
+
+    def post(self, request, pk):
+        get_object_or_404(Colaborador, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/rh/colaboradores/"})
+        return redirect("web:rh-colaboradores")
