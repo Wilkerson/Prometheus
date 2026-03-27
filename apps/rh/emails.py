@@ -82,3 +82,48 @@ def enviar_ausencia_rejeitada(ausencia):
         html_message=corpo_html,
         fail_silently=True,
     )
+
+
+def enviar_pesquisa_enps_ativa(pesquisa, colaboradores_emails):
+    """Envia email para todos os colaboradores sobre nova pesquisa eNPS."""
+    assunto = f"RUCH — Nova pesquisa eNPS: {pesquisa.titulo}"
+    corpo_texto = (
+        f"Uma nova pesquisa de satisfacao foi aberta.\n\n"
+        f"Titulo: {pesquisa.titulo}\n"
+        f"Responda ate: {pesquisa.data_encerramento:%d/%m/%Y}\n\n"
+        f"Sua opiniao e muito importante para a RUCH.\n"
+        f"Acesse o sistema para responder.\n\n"
+        f"Atenciosamente,\nRUCH Solutions"
+    )
+    for email in colaboradores_emails:
+        send_mail(
+            subject=assunto,
+            message=corpo_texto,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=True,
+        )
+
+
+def enviar_documento_vencendo(documento):
+    """Envia email ao colaborador sobre documento proximo do vencimento."""
+    colab = documento.colaborador
+    if not colab.email_pessoal:
+        return
+    from django.utils import timezone
+    dias = (documento.data_vencimento - timezone.now().date()).days
+    assunto = f"RUCH — Documento a vencer: {documento.nome}"
+    corpo_texto = (
+        f"Ola {colab.nome_completo},\n\n"
+        f"Seu documento '{documento.nome}' vence em {dias} dia(s) "
+        f"({documento.data_vencimento:%d/%m/%Y}).\n\n"
+        f"Entre em contato com o RH para providenciar a renovacao.\n\n"
+        f"Atenciosamente,\nRUCH Solutions"
+    )
+    send_mail(
+        subject=assunto,
+        message=corpo_texto,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[colab.email_pessoal],
+        fail_silently=True,
+    )

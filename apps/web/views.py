@@ -1760,6 +1760,9 @@ class ColaboradorCreateView(PermissionRequiredMixin, View):
             observacao="Admissao registrada no sistema.",
         )
 
+        from apps.rh.notifications import notificar_novo_colaborador
+        notificar_novo_colaborador(colab)
+
         return redirect("web:rh-colaborador-detail", pk=colab.pk)
 
     def _ctx(self, erros):
@@ -1911,6 +1914,11 @@ class ColaboradorUpdateView(PermissionRequiredMixin, View):
                 remuneracao_anterior=old_rem, remuneracao_nova=new_rem_val,
                 registrado_por=request.user,
             )
+
+        # Notificar se foi desligado
+        if colab.status == "desligado":
+            from apps.rh.notifications import notificar_colaborador_desligado
+            notificar_colaborador_desligado(colab)
 
         return redirect("web:rh-colaborador-detail", pk=pk)
 
@@ -2324,6 +2332,9 @@ class OnboardingIniciarView(PermissionRequiredMixin, View):
                 ordem=item.ordem,
             )
 
+        from apps.rh.notifications import notificar_onboarding_iniciado
+        notificar_onboarding_iniciado(onboarding)
+
         return redirect("web:rh-onboarding-detail", pk=onboarding.pk)
 
 
@@ -2366,6 +2377,8 @@ class OnboardingToggleItemView(PermissionRequiredMixin, View):
         if onboarding.progresso == 100:
             onboarding.concluido_em = timezone.now()
             onboarding.save(update_fields=["concluido_em"])
+            from apps.rh.notifications import notificar_onboarding_concluido
+            notificar_onboarding_concluido(onboarding)
         elif onboarding.concluido_em:
             onboarding.concluido_em = None
             onboarding.save(update_fields=["concluido_em"])
@@ -2475,7 +2488,7 @@ class AusenciaCreateView(PermissionRequiredMixin, View):
                 "erros": erros,
             })
 
-        SolicitacaoAusencia.objects.create(
+        ausencia = SolicitacaoAusencia.objects.create(
             colaborador_id=colab_id,
             tipo=tipo,
             data_inicio=data_inicio,
@@ -2483,6 +2496,8 @@ class AusenciaCreateView(PermissionRequiredMixin, View):
             total_dias=0,
             observacao=request.POST.get("observacao", "").strip(),
         )
+        from apps.rh.notifications import notificar_nova_solicitacao_ausencia
+        notificar_nova_solicitacao_ausencia(ausencia)
         return redirect("web:rh-ausencias")
 
 
@@ -2499,14 +2514,18 @@ class AusenciaAprovarView(PermissionRequiredMixin, View):
             ausencia.aprovado_por = request.user
             ausencia.save()
             from apps.rh.emails import enviar_ausencia_aprovada
+            from apps.rh.notifications import notificar_ausencia_aprovada
             enviar_ausencia_aprovada(ausencia)
+            notificar_ausencia_aprovada(ausencia)
         elif acao == "rejeitar":
             ausencia.status = SolicitacaoAusencia.StatusSolicitacao.REJEITADA
             ausencia.aprovado_por = request.user
             ausencia.justificativa_rejeicao = request.POST.get("justificativa", "").strip()
             ausencia.save()
             from apps.rh.emails import enviar_ausencia_rejeitada
+            from apps.rh.notifications import notificar_ausencia_rejeitada
             enviar_ausencia_rejeitada(ausencia)
+            notificar_ausencia_rejeitada(ausencia)
         elif acao == "cancelar":
             ausencia.status = SolicitacaoAusencia.StatusSolicitacao.CANCELADA
             ausencia.save()
@@ -2692,7 +2711,7 @@ class ParticipacaoCreateView(PermissionRequiredMixin, View):
         if not colab_id:
             return redirect("web:rh-treinamento-detail", pk=treinamento_pk)
 
-        ParticipacaoTreinamento.objects.get_or_create(
+        part, created = ParticipacaoTreinamento.objects.get_or_create(
             colaborador_id=colab_id,
             treinamento=treinamento,
             defaults={
@@ -2701,6 +2720,9 @@ class ParticipacaoCreateView(PermissionRequiredMixin, View):
                 "observacao": request.POST.get("observacao", "").strip(),
             },
         )
+        if created:
+            from apps.rh.notifications import notificar_inscricao_treinamento
+            notificar_inscricao_treinamento(part)
         return redirect("web:rh-treinamento-detail", pk=treinamento_pk)
 
 
@@ -2718,7 +2740,11 @@ class ParticipacaoUpdateView(PermissionRequiredMixin, View):
         if cert:
             part.certificado = cert
         part.observacao = request.POST.get("observacao", "").strip()
+        old_status = ParticipacaoTreinamento.objects.filter(pk=pk).values_list("status", flat=True).first()
         part.save()
+        if part.status == "concluido" and old_status != "concluido":
+            from apps.rh.notifications import notificar_treinamento_concluido
+            notificar_treinamento_concluido(part)
         return redirect("web:rh-treinamento-detail", pk=part.treinamento_id)
 
 
@@ -2761,11 +2787,13 @@ class CicloCreateView(PermissionRequiredMixin, View):
         if erros:
             return render(request, "rh/metas/ciclo_create.html", {"erros": erros})
 
-        CicloAvaliacao.objects.create(
+        ciclo = CicloAvaliacao.objects.create(
             nome=nome, periodo_inicio=inicio, periodo_fim=fim,
             status=request.POST.get("status", "aberto"),
             descricao=request.POST.get("descricao", "").strip(),
         )
+        from apps.rh.notifications import notificar_novo_ciclo
+        notificar_novo_ciclo(ciclo)
         return redirect("web:rh-ciclos")
 
 
@@ -3081,8 +3109,22 @@ class ENPSStatusView(PermissionRequiredMixin, View):
 
     def post(self, request, pk):
         pesquisa = get_object_or_404(PesquisaENPS, pk=pk)
+        old_status = pesquisa.status
         pesquisa.status = request.POST.get("status", pesquisa.status)
         pesquisa.save(update_fields=["status"])
+
+        from apps.rh.notifications import notificar_pesquisa_ativa, notificar_pesquisa_encerrada
+        if pesquisa.status == "ativa" and old_status != "ativa":
+            notificar_pesquisa_ativa(pesquisa)
+            # Email para todos os colaboradores ativos
+            from apps.rh.emails import enviar_pesquisa_enps_ativa
+            emails = list(Colaborador.objects.filter(status="ativo").exclude(
+                email_pessoal=""
+            ).values_list("email_pessoal", flat=True))
+            enviar_pesquisa_enps_ativa(pesquisa, emails)
+        elif pesquisa.status == "encerrada" and old_status != "encerrada":
+            notificar_pesquisa_encerrada(pesquisa)
+
         return redirect("web:rh-enps-detail", pk=pk)
 
 

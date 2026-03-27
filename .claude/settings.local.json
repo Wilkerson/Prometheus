@@ -9,7 +9,8 @@
       "Bash(source venv/Scripts/activate)",
       "Bash(DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps --verbosity=1)",
       "Bash(python manage.py makemigrations rh -n metas_pdi_enps)",
-      "Bash(python manage.py check)"
+      "Bash(python manage.py check)",
+      "Bash(python manage.py makemigrations crm -n notificacao_tipos_rh)"
     ]
   }
 }

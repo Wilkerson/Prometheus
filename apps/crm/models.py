@@ -259,6 +259,14 @@ class Notificacao(models.Model):
         COMISSAO_GERADA = "comissao_gerada", "Comissao gerada"
         COMISSAO_PAGA = "comissao_paga", "Comissao paga"
         USUARIO_CRIADO = "usuario_criado", "Novo usuario criado"
+        # RH
+        RH_COLABORADOR = "rh_colaborador", "Colaborador"
+        RH_DOCUMENTO = "rh_documento", "Documento RH"
+        RH_ONBOARDING = "rh_onboarding", "Onboarding"
+        RH_AUSENCIA = "rh_ausencia", "Ausencia"
+        RH_TREINAMENTO = "rh_treinamento", "Treinamento"
+        RH_META = "rh_meta", "Meta/PDI"
+        RH_ENPS = "rh_enps", "eNPS"
         SISTEMA = "sistema", "Sistema"
 
     destinatario = models.ForeignKey(
