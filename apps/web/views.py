@@ -18,9 +18,11 @@ from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceir
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
 from apps.rh.models import (
-    Cargo, Colaborador, Departamento, DocumentoColaborador, HistoricoColaborador,
-    OnboardingColaborador, OnboardingItem, OnboardingTemplate, OnboardingTemplateItem,
-    ParticipacaoTreinamento, SaldoFerias, Setor, SolicitacaoAusencia, Treinamento,
+    AcaoPDI, Cargo, CicloAvaliacao, Colaborador, Departamento, DocumentoColaborador,
+    HistoricoColaborador, Meta, OnboardingColaborador, OnboardingItem,
+    OnboardingTemplate, OnboardingTemplateItem, ParticipacaoTreinamento, PDI,
+    PerguntaENPS, PesquisaENPS, RespostaENPS, SaldoFerias, Setor,
+    SolicitacaoAusencia, Treinamento,
 )
 
 from .mixins import HtmxMixin, is_htmx
@@ -1145,6 +1147,9 @@ MODULOS_PERMISSOES = [
     {"label": "Onboarding", "app": "rh", "model": "onboardingtemplate"},
     {"label": "Ausencias", "app": "rh", "model": "solicitacaoausencia"},
     {"label": "Treinamentos", "app": "rh", "model": "treinamento"},
+    {"label": "Ciclos/Metas", "app": "rh", "model": "cicloavaliacao"},
+    {"label": "PDI", "app": "rh", "model": "pdi"},
+    {"label": "eNPS", "app": "rh", "model": "pesquisaenps"},
 ]
 
 ACOES = [
@@ -2715,3 +2720,367 @@ class ParticipacaoUpdateView(PermissionRequiredMixin, View):
         part.observacao = request.POST.get("observacao", "").strip()
         part.save()
         return redirect("web:rh-treinamento-detail", pk=part.treinamento_id)
+
+
+# ---------------------------------------------------------------------------
+# RH — Ciclos de Avaliacao e Metas
+# ---------------------------------------------------------------------------
+class CicloListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/metas/ciclos_list.html"
+    partial_template_name = "rh/metas/_ciclos_table.html"
+    context_object_name = "ciclos"
+    paginate_by = 20
+    permission_required = "rh.view_cicloavaliacao"
+
+    def get_queryset(self):
+        return CicloAvaliacao.objects.annotate(total_metas=Count("metas"))
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("rh.add_cicloavaliacao")
+        return ctx
+
+
+class CicloCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_cicloavaliacao"
+
+    def get(self, request):
+        return render(request, "rh/metas/ciclo_create.html", {"erros": {}})
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        inicio = request.POST.get("periodo_inicio", "").strip()
+        if not inicio:
+            erros["periodo_inicio"] = "O inicio e obrigatorio."
+        fim = request.POST.get("periodo_fim", "").strip()
+        if not fim:
+            erros["periodo_fim"] = "O fim e obrigatorio."
+        if erros:
+            return render(request, "rh/metas/ciclo_create.html", {"erros": erros})
+
+        CicloAvaliacao.objects.create(
+            nome=nome, periodo_inicio=inicio, periodo_fim=fim,
+            status=request.POST.get("status", "aberto"),
+            descricao=request.POST.get("descricao", "").strip(),
+        )
+        return redirect("web:rh-ciclos")
+
+
+class CicloDetailView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_cicloavaliacao"
+
+    def get(self, request, pk):
+        ciclo = get_object_or_404(CicloAvaliacao, pk=pk)
+        metas = ciclo.metas.select_related("colaborador").order_by("colaborador__nome_completo")
+        # Agrupar metas por colaborador
+        metas_por_colab = {}
+        for m in metas:
+            if m.colaborador_id not in metas_por_colab:
+                metas_por_colab[m.colaborador_id] = {
+                    "colaborador": m.colaborador,
+                    "metas": [],
+                    "atingimento_geral": 0,
+                }
+            metas_por_colab[m.colaborador_id]["metas"].append(m)
+        # Calcular atingimento geral por colaborador
+        for data in metas_por_colab.values():
+            total_peso = sum(m.peso for m in data["metas"])
+            if total_peso > 0:
+                data["atingimento_geral"] = round(
+                    sum(m.atingimento_ponderado for m in data["metas"]) * 100 / total_peso
+                )
+        return render(request, "rh/metas/ciclo_detail.html", {
+            "ciclo": ciclo,
+            "metas_por_colab": metas_por_colab.values(),
+            "can_edit": request.user.has_perm("rh.change_cicloavaliacao"),
+            "can_add_meta": request.user.has_perm("rh.add_meta"),
+        })
+
+
+class MetaCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_meta"
+
+    def get(self, request, ciclo_pk):
+        ciclo = get_object_or_404(CicloAvaliacao, pk=ciclo_pk)
+        return render(request, "rh/metas/meta_create.html", {
+            "ciclo": ciclo,
+            "colaboradores": Colaborador.objects.filter(status="ativo"),
+            "erros": {},
+        })
+
+    def post(self, request, ciclo_pk):
+        ciclo = get_object_or_404(CicloAvaliacao, pk=ciclo_pk)
+        erros = {}
+        colab_id = request.POST.get("colaborador")
+        if not colab_id:
+            erros["colaborador"] = "O colaborador e obrigatorio."
+        descricao = request.POST.get("descricao", "").strip()
+        if not descricao:
+            erros["descricao"] = "A descricao e obrigatoria."
+        indicador = request.POST.get("indicador", "").strip()
+        if not indicador:
+            erros["indicador"] = "O indicador e obrigatorio."
+        valor_meta = request.POST.get("valor_meta", "").strip()
+        if not valor_meta:
+            erros["valor_meta"] = "O valor da meta e obrigatorio."
+
+        if erros:
+            return render(request, "rh/metas/meta_create.html", {
+                "ciclo": ciclo,
+                "colaboradores": Colaborador.objects.filter(status="ativo"),
+                "erros": erros,
+            })
+
+        Meta.objects.create(
+            ciclo=ciclo, colaborador_id=colab_id,
+            descricao=descricao, indicador=indicador,
+            valor_meta=valor_meta,
+            peso=request.POST.get("peso", 100) or 100,
+            observacao=request.POST.get("observacao", "").strip(),
+        )
+        return redirect("web:rh-ciclo-detail", pk=ciclo_pk)
+
+
+class MetaUpdateView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_meta"
+
+    def post(self, request, pk):
+        meta = get_object_or_404(Meta, pk=pk)
+        meta.valor_realizado = request.POST.get("valor_realizado", meta.valor_realizado)
+        meta.observacao = request.POST.get("observacao", "").strip()
+        meta.save()
+        return redirect("web:rh-ciclo-detail", pk=meta.ciclo_id)
+
+
+# ---------------------------------------------------------------------------
+# RH — PDI
+# ---------------------------------------------------------------------------
+class PDIListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/pdi/list.html"
+    partial_template_name = "rh/pdi/_table.html"
+    context_object_name = "pdis"
+    paginate_by = 20
+    permission_required = "rh.view_pdi"
+
+    def get_queryset(self):
+        qs = PDI.objects.select_related("colaborador").prefetch_related("acoes")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(
+                Q(colaborador__nome_completo__icontains=search) | Q(competencia__icontains=search)
+            )
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("rh.add_pdi")
+        return ctx
+
+
+class PDICreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_pdi"
+
+    def get(self, request):
+        return render(request, "rh/pdi/create.html", {
+            "colaboradores": Colaborador.objects.filter(status="ativo"),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        colab_id = request.POST.get("colaborador")
+        if not colab_id:
+            erros["colaborador"] = "O colaborador e obrigatorio."
+        competencia = request.POST.get("competencia", "").strip()
+        if not competencia:
+            erros["competencia"] = "A competencia e obrigatoria."
+        ano = request.POST.get("ano", "").strip()
+        if not ano:
+            erros["ano"] = "O ano e obrigatorio."
+
+        if erros:
+            return render(request, "rh/pdi/create.html", {
+                "colaboradores": Colaborador.objects.filter(status="ativo"),
+                "erros": erros,
+            })
+
+        pdi = PDI.objects.create(
+            colaborador_id=colab_id, competencia=competencia, ano=ano,
+            observacao=request.POST.get("observacao", "").strip(),
+        )
+        return redirect("web:rh-pdi-detail", pk=pdi.pk)
+
+
+class PDIDetailView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_pdi"
+
+    def get(self, request, pk):
+        pdi = get_object_or_404(
+            PDI.objects.select_related("colaborador").prefetch_related("acoes__treinamento"), pk=pk
+        )
+        return render(request, "rh/pdi/detail.html", {
+            "pdi": pdi,
+            "treinamentos": Treinamento.objects.filter(ativo=True),
+            "can_edit": request.user.has_perm("rh.change_pdi"),
+        })
+
+
+class AcaoPDICreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_acaopdi"
+
+    def post(self, request, pdi_pk):
+        pdi = get_object_or_404(PDI, pk=pdi_pk)
+        descricao = request.POST.get("descricao", "").strip()
+        if descricao:
+            AcaoPDI.objects.create(
+                pdi=pdi, descricao=descricao,
+                prazo=request.POST.get("prazo") or None,
+                responsavel=request.POST.get("responsavel", "").strip(),
+                treinamento_id=request.POST.get("treinamento") or None,
+            )
+        return redirect("web:rh-pdi-detail", pk=pdi_pk)
+
+
+class AcaoPDIUpdateView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_acaopdi"
+
+    def post(self, request, pk):
+        acao = get_object_or_404(AcaoPDI, pk=pk)
+        acao.status = request.POST.get("status", acao.status)
+        acao.save(update_fields=["status"])
+        return redirect("web:rh-pdi-detail", pk=acao.pdi_id)
+
+
+# ---------------------------------------------------------------------------
+# RH — eNPS
+# ---------------------------------------------------------------------------
+class ENPSListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/enps/list.html"
+    partial_template_name = "rh/enps/_table.html"
+    context_object_name = "pesquisas"
+    paginate_by = 20
+    permission_required = "rh.view_pesquisaenps"
+
+    def get_queryset(self):
+        return PesquisaENPS.objects.prefetch_related("perguntas").all()
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("rh.add_pesquisaenps")
+        return ctx
+
+
+class ENPSCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_pesquisaenps"
+
+    def get(self, request):
+        return render(request, "rh/enps/create.html", {
+            "tipo_choices": PerguntaENPS.TipoPergunta.choices,
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        titulo = request.POST.get("titulo", "").strip()
+        if not titulo:
+            erros["titulo"] = "O titulo e obrigatorio."
+        inicio = request.POST.get("data_inicio", "").strip()
+        if not inicio:
+            erros["data_inicio"] = "A data de inicio e obrigatoria."
+        fim = request.POST.get("data_encerramento", "").strip()
+        if not fim:
+            erros["data_encerramento"] = "A data de encerramento e obrigatoria."
+
+        if erros:
+            return render(request, "rh/enps/create.html", {
+                "tipo_choices": PerguntaENPS.TipoPergunta.choices,
+                "erros": erros,
+            })
+
+        pesquisa = PesquisaENPS.objects.create(
+            titulo=titulo, data_inicio=inicio, data_encerramento=fim,
+            descricao=request.POST.get("descricao", "").strip(),
+        )
+
+        # Perguntas dinamicas
+        textos = request.POST.getlist("pergunta_texto")
+        tipos = request.POST.getlist("pergunta_tipo")
+        for i, texto in enumerate(textos):
+            texto = texto.strip()
+            if texto:
+                tipo = tipos[i] if i < len(tipos) else "escala"
+                PerguntaENPS.objects.create(
+                    pesquisa=pesquisa, texto=texto, tipo=tipo, ordem=i,
+                )
+
+        return redirect("web:rh-enps")
+
+
+class ENPSDetailView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_pesquisaenps"
+
+    def get(self, request, pk):
+        pesquisa = get_object_or_404(
+            PesquisaENPS.objects.prefetch_related("perguntas"), pk=pk
+        )
+        return render(request, "rh/enps/detail.html", {
+            "pesquisa": pesquisa,
+            "can_edit": request.user.has_perm("rh.change_pesquisaenps"),
+            "can_respond": request.user.has_perm("rh.add_respostaenps"),
+        })
+
+
+class ENPSResponderView(PermissionRequiredMixin, View):
+    """Colaborador responde a pesquisa."""
+    permission_required = "rh.add_respostaenps"
+
+    def get(self, request, pk):
+        pesquisa = get_object_or_404(
+            PesquisaENPS.objects.prefetch_related("perguntas"), pk=pk
+        )
+        colab = getattr(request.user, "colaborador", None)
+        if not colab:
+            from django.contrib import messages
+            messages.error(request, "Seu usuario nao esta vinculado a um colaborador.")
+            return redirect("web:rh-enps-detail", pk=pk)
+        # Verificar se ja respondeu
+        ja_respondeu = RespostaENPS.objects.filter(pesquisa=pesquisa, colaborador=colab).exists()
+        return render(request, "rh/enps/responder.html", {
+            "pesquisa": pesquisa,
+            "colab": colab,
+            "ja_respondeu": ja_respondeu,
+        })
+
+    def post(self, request, pk):
+        pesquisa = get_object_or_404(
+            PesquisaENPS.objects.prefetch_related("perguntas"), pk=pk
+        )
+        colab = getattr(request.user, "colaborador", None)
+        if not colab:
+            return redirect("web:rh-enps-detail", pk=pk)
+
+        for pergunta in pesquisa.perguntas.all():
+            RespostaENPS.objects.update_or_create(
+                pesquisa=pesquisa, colaborador=colab, pergunta=pergunta,
+                defaults={
+                    "nota": request.POST.get(f"nota_{pergunta.pk}") or None,
+                    "texto": request.POST.get(f"texto_{pergunta.pk}", "").strip(),
+                },
+            )
+        from django.contrib import messages
+        messages.success(request, "Respostas registradas com sucesso!")
+        return redirect("web:rh-enps-detail", pk=pk)
+
+
+class ENPSStatusView(PermissionRequiredMixin, View):
+    """Altera status da pesquisa (ativar/encerrar)."""
+    permission_required = "rh.change_pesquisaenps"
+
+    def post(self, request, pk):
+        pesquisa = get_object_or_404(PesquisaENPS, pk=pk)
+        pesquisa.status = request.POST.get("status", pesquisa.status)
+        pesquisa.save(update_fields=["status"])
+        return redirect("web:rh-enps-detail", pk=pk)

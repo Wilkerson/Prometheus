@@ -1,0 +1,40 @@
+{% if pesquisas %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium">Pesquisa</th>
+        <th class="pb-3 font-medium">Periodo</th>
+        <th class="pb-3 font-medium">Perguntas</th>
+        <th class="pb-3 font-medium">eNPS</th>
+        <th class="pb-3 font-medium">Participacao</th>
+        <th class="pb-3 font-medium">Status</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for p in pesquisas %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium"><a href="{% url 'web:rh-enps-detail' p.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ p.titulo }}</a></td>
+        <td class="py-3 text-t2">{{ p.data_inicio|date:"d/m/Y" }} — {{ p.data_encerramento|date:"d/m/Y" }}</td>
+        <td class="py-3 text-t2">{{ p.perguntas.count }}</td>
+        <td class="py-3">
+          {% with score=p.enps_score %}
+          {% if score is not None %}
+          <span class="font-bold {% if score >= 50 %}text-emerald-500{% elif score >= 0 %}text-amber-500{% else %}text-red-500{% endif %}">{{ score }}</span>
+          {% else %}<span class="text-t3">—</span>{% endif %}
+          {% endwith %}
+        </td>
+        <td class="py-3 text-t2">{{ p.participacao }}%</td>
+        <td class="py-3">
+          {% if p.status == 'rascunho' %}<span class="badge bg-bg4 text-t3">Rascunho</span>
+          {% elif p.status == 'ativa' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativa</span>
+          {% else %}<span class="badge bg-blue-500/15 text-blue-500">Encerrada</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhuma pesquisa eNPS cadastrada.</p>
+{% endif %}

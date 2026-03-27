@@ -461,7 +461,7 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 68. [x] Fixtures de dev para RH (setores, cargos, colaboradores, historico)
 69. [x] Modulo RH Fase 2: Documentos (upload, vencimento, alertas) + Onboarding (templates, checklist, progresso)
 70. [x] Modulo RH Fase 3: Ferias/Ausencias (solicitacao, aprovacao, calendario) + Treinamentos (CRUD, inscricao, participacao)
-71. [ ] Modulo RH Fase 4: Metas e PDI + eNPS e engajamento
+71. [x] Modulo RH Fase 4: Metas/PDI (ciclos, atingimento ponderado, acoes) + eNPS (pesquisas, calculo score, respostas)
 72. [ ] Modulo RH Fase 5: Relatorios e indicadores + Integracoes
 73. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
 41. [ ] Aplicar design system (JSON) quando fornecido

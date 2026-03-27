@@ -386,5 +386,75 @@
     "colaborador": 6, "treinamento": 4, "data_inicio": "2026-03-10", "data_conclusao": null,
     "status": "inscrito", "nota": null, "certificado": "", "observacao": "Aguardando inicio da turma",
     "criado_em": "2026-03-10T10:00:00Z", "atualizado_em": "2026-03-10T10:00:00Z"
+  }},
+
+  {"model": "rh.cicloavaliacao", "pk": 1, "fields": {
+    "nome": "1o Semestre 2026", "periodo_inicio": "2026-01-01", "periodo_fim": "2026-06-30",
+    "status": "em_andamento", "descricao": "Ciclo de avaliacao do primeiro semestre.",
+    "criado_em": "2026-01-05T10:00:00Z"
+  }},
+
+  {"model": "rh.meta", "pk": 1, "fields": {
+    "ciclo": 1, "colaborador": 1, "descricao": "Fechar 5 novos contratos", "indicador": "Contratos fechados",
+    "valor_meta": "5.00", "valor_realizado": "3.00", "peso": 50, "observacao": "",
+    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
+  }},
+  {"model": "rh.meta", "pk": 2, "fields": {
+    "ciclo": 1, "colaborador": 1, "descricao": "NPS dos clientes >= 8", "indicador": "NPS medio",
+    "valor_meta": "8.00", "valor_realizado": "8.50", "peso": 50, "observacao": "",
+    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
+  }},
+  {"model": "rh.meta", "pk": 3, "fields": {
+    "ciclo": 1, "colaborador": 6, "descricao": "Entregar 3 projetos no prazo", "indicador": "% entregue no prazo",
+    "valor_meta": "100.00", "valor_realizado": "66.00", "peso": 60, "observacao": "",
+    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
+  }},
+  {"model": "rh.meta", "pk": 4, "fields": {
+    "ciclo": 1, "colaborador": 6, "descricao": "Certificacao Python avancado", "indicador": "Certificado obtido",
+    "valor_meta": "1.00", "valor_realizado": "0.00", "peso": 40, "observacao": "",
+    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
+  }},
+
+  {"model": "rh.pdi", "pk": 1, "fields": {
+    "colaborador": 2, "competencia": "Gestao de projetos", "ano": 2026,
+    "observacao": "Desenvolver habilidades de gestao para futura promocao.",
+    "criado_em": "2026-01-15T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.acaopdi", "pk": 1, "fields": {
+    "pdi": 1, "descricao": "Curso de metodologias ageis", "prazo": "2026-03-31",
+    "responsavel": "Colaborador", "status": "concluido", "treinamento": null,
+    "criado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.acaopdi", "pk": 2, "fields": {
+    "pdi": 1, "descricao": "Liderar 1 projeto como responsavel", "prazo": "2026-06-30",
+    "responsavel": "Gestor", "status": "em_andamento", "treinamento": null,
+    "criado_em": "2026-01-15T10:00:00Z"
+  }},
+  {"model": "rh.acaopdi", "pk": 3, "fields": {
+    "pdi": 1, "descricao": "Leitura: Scrum Guide", "prazo": "2026-04-30",
+    "responsavel": "Colaborador", "status": "pendente", "treinamento": null,
+    "criado_em": "2026-01-15T10:00:00Z"
+  }},
+
+  {"model": "rh.pesquisaenps", "pk": 1, "fields": {
+    "titulo": "eNPS 1T 2026", "descricao": "Pesquisa trimestral de satisfacao.",
+    "data_inicio": "2026-03-15", "data_encerramento": "2026-03-31", "status": "ativa",
+    "criado_em": "2026-03-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
+  }},
+  {"model": "rh.perguntaenps", "pk": 1, "fields": {
+    "pesquisa": 1, "texto": "Em uma escala de 0 a 10, o quanto voce recomendaria a RUCH como um bom lugar para trabalhar?",
+    "tipo": "enps", "ordem": 0
+  }},
+  {"model": "rh.perguntaenps", "pk": 2, "fields": {
+    "pesquisa": 1, "texto": "Voce se sente reconhecido pelo seu trabalho?",
+    "tipo": "escala", "ordem": 1
+  }},
+  {"model": "rh.perguntaenps", "pk": 3, "fields": {
+    "pesquisa": 1, "texto": "Voce tem as ferramentas e recursos para fazer um bom trabalho?",
+    "tipo": "escala", "ordem": 2
+  }},
+  {"model": "rh.perguntaenps", "pk": 4, "fields": {
+    "pesquisa": 1, "texto": "O que a RUCH poderia melhorar para voce?",
+    "tipo": "aberta", "ordem": 3
   }}
 ]

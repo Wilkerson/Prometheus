@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}eNPS{% endblock %}
+{% block page_title %}Pesquisas eNPS{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:rh-enps-create' %}" class="btn-primary">+ Nova Pesquisa</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card" id="table">{% include "rh/enps/_table.html" %}</div>
+{% endblock %}

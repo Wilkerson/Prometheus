@@ -1,0 +1,34 @@
+{% if pdis %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium">Colaborador</th>
+        <th class="pb-3 font-medium">Competencia</th>
+        <th class="pb-3 font-medium">Ano</th>
+        <th class="pb-3 font-medium">Progresso</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for p in pdis %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium"><a href="{% url 'web:rh-pdi-detail' p.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ p.colaborador.nome_completo }}</a></td>
+        <td class="py-3 text-t2">{{ p.competencia }}</td>
+        <td class="py-3 text-t2">{{ p.ano }}</td>
+        <td class="py-3">
+          <div class="flex items-center gap-2">
+            <div class="w-20 h-2 bg-bg4 rounded-full overflow-hidden">
+              <div class="h-full rounded-full {% if p.progresso == 100 %}bg-emerald-500{% elif p.progresso >= 50 %}bg-ruch-accent{% else %}bg-amber-500{% endif %}"
+                   style="width: {{ p.progresso }}%"></div>
+            </div>
+            <span class="text-[12px] font-medium text-t1">{{ p.progresso }}%</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhum PDI cadastrado.</p>
+{% endif %}

@@ -1,9 +1,10 @@
 from django.contrib import admin
 
 from .models import (
-    Cargo, Colaborador, Departamento, DocumentoColaborador,
-    HistoricoColaborador, OnboardingColaborador, OnboardingItem,
-    OnboardingTemplate, OnboardingTemplateItem, ParticipacaoTreinamento,
+    AcaoPDI, Cargo, CicloAvaliacao, Colaborador, Departamento,
+    DocumentoColaborador, HistoricoColaborador, Meta, OnboardingColaborador,
+    OnboardingItem, OnboardingTemplate, OnboardingTemplateItem, PDI,
+    ParticipacaoTreinamento, PerguntaENPS, PesquisaENPS, RespostaENPS,
     SaldoFerias, Setor, SolicitacaoAusencia, Treinamento,
 )
 
@@ -111,3 +112,40 @@ class ParticipacaoTreinamentoAdmin(admin.ModelAdmin):
     list_display = ("colaborador", "treinamento", "status", "data_inicio", "data_conclusao")
     list_filter = ("status",)
     search_fields = ("colaborador__nome_completo", "treinamento__nome")
+
+
+class MetaInline(admin.TabularInline):
+    model = Meta
+    extra = 0
+
+
+@admin.register(CicloAvaliacao)
+class CicloAvaliacaoAdmin(admin.ModelAdmin):
+    list_display = ("nome", "periodo_inicio", "periodo_fim", "status")
+    list_filter = ("status",)
+    inlines = [MetaInline]
+
+
+class AcaoPDIInline(admin.TabularInline):
+    model = AcaoPDI
+    extra = 0
+
+
+@admin.register(PDI)
+class PDIAdmin(admin.ModelAdmin):
+    list_display = ("colaborador", "competencia", "ano", "progresso")
+    list_filter = ("ano",)
+    search_fields = ("colaborador__nome_completo", "competencia")
+    inlines = [AcaoPDIInline]
+
+
+class PerguntaInline(admin.TabularInline):
+    model = PerguntaENPS
+    extra = 0
+
+
+@admin.register(PesquisaENPS)
+class PesquisaENPSAdmin(admin.ModelAdmin):
+    list_display = ("titulo", "data_inicio", "data_encerramento", "status", "enps_score")
+    list_filter = ("status",)
+    inlines = [PerguntaInline]

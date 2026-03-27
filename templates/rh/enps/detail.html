@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ pesquisa.titulo }}{% endblock %}
+{% block page_title %}{{ pesquisa.titulo }}{% endblock %}
+{% block page_actions %}
+<div class="flex gap-2">
+  {% if can_respond and pesquisa.status == 'ativa' %}
+  <a href="{% url 'web:rh-enps-responder' pesquisa.pk %}" class="btn-primary">Responder</a>
+  {% endif %}
+  <a href="{% url 'web:rh-enps' %}" class="btn-secondary">Voltar</a>
+</div>
+{% endblock %}
+{% block content %}
+<!-- Resumo -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+  <div class="card text-center">
+    <div class="text-3xl font-bold {% with s=pesquisa.enps_score %}{% if s is not None %}{% if s >= 50 %}text-emerald-500{% elif s >= 0 %}text-amber-500{% else %}text-red-500{% endif %}{% else %}text-t3{% endif %}{% endwith %}">
+      {% with s=pesquisa.enps_score %}{% if s is not None %}{{ s }}{% else %}—{% endif %}{% endwith %}
+    </div>
+    <div class="text-[11px] text-t3 mt-1">eNPS Score</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-t1">{{ pesquisa.total_respondentes }}</div>
+    <div class="text-[11px] text-t3 mt-1">Respondentes</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-t1">{{ pesquisa.participacao }}%</div>
+    <div class="text-[11px] text-t3 mt-1">Participacao</div>
+  </div>
+  <div class="card text-center">
+    {% if pesquisa.status == 'rascunho' %}<div class="text-lg font-bold text-t3">Rascunho</div>
+    {% elif pesquisa.status == 'ativa' %}<div class="text-lg font-bold text-emerald-500">Ativa</div>
+    {% else %}<div class="text-lg font-bold text-blue-500">Encerrada</div>{% endif %}
+    <div class="text-[11px] text-t3 mt-1">{{ pesquisa.data_inicio|date:"d/m" }} — {{ pesquisa.data_encerramento|date:"d/m" }}</div>
+    {% if can_edit %}
+    <div class="mt-2">
+      {% if pesquisa.status == 'rascunho' %}
+      <form method="post" action="{% url 'web:rh-enps-status' pesquisa.pk %}" class="inline">
+        {% csrf_token %}<input type="hidden" name="status" value="ativa">
+        <button type="submit" class="text-[11px] text-emerald-500 hover:text-emerald-400">Ativar</button>
+      </form>
+      {% elif pesquisa.status == 'ativa' %}
+      <form method="post" action="{% url 'web:rh-enps-status' pesquisa.pk %}" class="inline">
+        {% csrf_token %}<input type="hidden" name="status" value="encerrada">
+        <button type="submit" class="text-[11px] text-blue-500 hover:text-blue-400">Encerrar</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Perguntas e medias -->
+<div class="card">
+  <h3 class="text-sm font-semibold text-t2 mb-3">Resultados por pergunta</h3>
+  {% for p in pesquisa.perguntas.all %}
+  <div class="p-3 rounded-lg bg-bg3 mb-2">
+    <div class="flex items-center justify-between">
+      <span class="text-sm text-t1">{{ p.texto }}</span>
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] text-t3">{{ p.get_tipo_display }}</span>
+        {% if p.tipo != 'aberta' and p.media_notas is not None %}
+        <span class="text-sm font-bold {% if p.media_notas >= 8 %}text-emerald-500{% elif p.media_notas >= 5 %}text-amber-500{% else %}text-red-500{% endif %}">{{ p.media_notas }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

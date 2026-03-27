@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}PDI{% endblock %}
+{% block page_title %}Planos de Desenvolvimento Individual{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:rh-pdi-create' %}" class="btn-primary">+ Novo PDI</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" placeholder="Colaborador ou competencia..." class="input"
+             hx-get="{% url 'web:rh-pdis' %}" hx-target="#table" hx-trigger="input changed delay:300ms" hx-push-url="true">
+    </div>
+  </div>
+</div>
+<div class="card" id="table">{% include "rh/pdi/_table.html" %}</div>
+{% endblock %}

@@ -108,4 +108,22 @@ urlpatterns = [
     path("rh/treinamentos/<int:pk>/excluir/", views.TreinamentoDeleteView.as_view(), name="rh-treinamento-delete"),
     path("rh/treinamentos/<int:treinamento_pk>/inscrever/", views.ParticipacaoCreateView.as_view(), name="rh-participacao-create"),
     path("rh/treinamentos/participacao/<int:pk>/", views.ParticipacaoUpdateView.as_view(), name="rh-participacao-update"),
+    # RH — Ciclos e Metas
+    path("rh/metas/", views.CicloListView.as_view(), name="rh-ciclos"),
+    path("rh/metas/novo/", views.CicloCreateView.as_view(), name="rh-ciclo-create"),
+    path("rh/metas/<int:pk>/", views.CicloDetailView.as_view(), name="rh-ciclo-detail"),
+    path("rh/metas/<int:ciclo_pk>/nova-meta/", views.MetaCreateView.as_view(), name="rh-meta-create"),
+    path("rh/metas/meta/<int:pk>/", views.MetaUpdateView.as_view(), name="rh-meta-update"),
+    # RH — PDI
+    path("rh/pdi/", views.PDIListView.as_view(), name="rh-pdis"),
+    path("rh/pdi/novo/", views.PDICreateView.as_view(), name="rh-pdi-create"),
+    path("rh/pdi/<int:pk>/", views.PDIDetailView.as_view(), name="rh-pdi-detail"),
+    path("rh/pdi/<int:pdi_pk>/nova-acao/", views.AcaoPDICreateView.as_view(), name="rh-acao-pdi-create"),
+    path("rh/pdi/acao/<int:pk>/", views.AcaoPDIUpdateView.as_view(), name="rh-acao-pdi-update"),
+    # RH — eNPS
+    path("rh/enps/", views.ENPSListView.as_view(), name="rh-enps"),
+    path("rh/enps/novo/", views.ENPSCreateView.as_view(), name="rh-enps-create"),
+    path("rh/enps/<int:pk>/", views.ENPSDetailView.as_view(), name="rh-enps-detail"),
+    path("rh/enps/<int:pk>/responder/", views.ENPSResponderView.as_view(), name="rh-enps-responder"),
+    path("rh/enps/<int:pk>/status/", views.ENPSStatusView.as_view(), name="rh-enps-status"),
 ]

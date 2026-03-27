@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}PDI — {{ pdi.colaborador.nome_completo }}{% endblock %}
+{% block page_title %}PDI — {{ pdi.competencia }}{% endblock %}
+{% block page_actions %}<a href="{% url 'web:rh-pdis' %}" class="btn-secondary">Voltar</a>{% endblock %}
+{% block content %}
+<!-- Info -->
+<div class="card mb-4">
+  <div class="flex items-center justify-between mb-2">
+    <div>
+      <a href="{% url 'web:rh-colaborador-detail' pdi.colaborador.pk %}" class="text-sm font-semibold text-t1 hover:text-ruch-accent no-underline">{{ pdi.colaborador.nome_completo }}</a>
+      <span class="text-sm text-t3 ml-2">{{ pdi.ano }}</span>
+    </div>
+    <span class="text-sm font-bold text-t1">{{ pdi.progresso }}%</span>
+  </div>
+  <div class="w-full h-2 bg-bg4 rounded-full overflow-hidden">
+    <div class="h-full rounded-full transition-all duration-300
+      {% if pdi.progresso == 100 %}bg-emerald-500{% elif pdi.progresso >= 50 %}bg-ruch-accent{% else %}bg-amber-500{% endif %}"
+         style="width: {{ pdi.progresso }}%"></div>
+  </div>
+  <div class="text-[11px] text-t3 mt-1">{{ pdi.acoes_concluidas }} de {{ pdi.total_acoes }} acoes concluidas</div>
+</div>
+
+<!-- Acoes -->
+<div class="card mb-4">
+  <h3 class="text-sm font-semibold text-t2 mb-3">Acoes</h3>
+  {% if pdi.acoes.exists %}
+  <div class="space-y-2">
+    {% for acao in pdi.acoes.all %}
+    <div class="flex items-center gap-3 p-3 rounded-lg bg-bg3 {% if acao.atrasado %}border border-red-500/20{% endif %}">
+      {% if can_edit %}
+      <form method="post" action="{% url 'web:rh-acao-pdi-update' acao.pk %}">
+        {% csrf_token %}
+        <select name="status" onchange="this.form.submit()" class="text-[11px] py-0.5 px-1 rounded border border-bdr bg-bg text-t1 cursor-pointer">
+          <option value="pendente" {% if acao.status == 'pendente' %}selected{% endif %}>Pendente</option>
+          <option value="em_andamento" {% if acao.status == 'em_andamento' %}selected{% endif %}>Andamento</option>
+          <option value="concluido" {% if acao.status == 'concluido' %}selected{% endif %}>Concluido</option>
+        </select>
+      </form>
+      {% endif %}
+      <div class="flex-1 min-w-0">
+        <span class="text-sm {% if acao.status == 'concluido' %}text-t3 line-through{% else %}text-t1{% endif %}">{{ acao.descricao }}</span>
+        {% if acao.treinamento %}
+        <span class="text-[10px] text-ruch-accent ml-1">{{ acao.treinamento.nome }}</span>
+        {% endif %}
+        {% if acao.responsavel %}
+        <span class="text-[10px] text-t3 ml-1">· {{ acao.responsavel }}</span>
+        {% endif %}
+      </div>
+      {% if acao.prazo %}
+      <span class="text-[10px] flex-shrink-0 {% if acao.atrasado %}text-red-400{% else %}text-t3{% endif %}">{{ acao.prazo|date:"d/m/Y" }}</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-sm text-t3">Nenhuma acao cadastrada.</p>
+  {% endif %}
+</div>
+
+<!-- Adicionar acao -->
+{% if can_edit %}
+<div class="card">
+  <h3 class="text-sm font-semibold text-t2 mb-3">Adicionar acao</h3>
+  <form method="post" action="{% url 'web:rh-acao-pdi-create' pdi.pk %}">
+    {% csrf_token %}
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div class="md:col-span-2">
+        <input type="text" name="descricao" required class="input" placeholder="Descricao da acao...">
+      </div>
+      <div>
+        <input type="date" name="prazo" class="input" placeholder="Prazo">
+      </div>
+      <div>
+        <input type="text" name="responsavel" class="input" placeholder="Responsavel">
+      </div>
+    </div>
+    <div class="flex gap-3 mt-3 items-end">
+      <div class="flex-1">
+        <label class="text-[11px] text-t3">Treinamento vinculado (opcional)</label>
+        <select name="treinamento" class="input mt-1">
+          <option value="">Nenhum</option>
+          {% for t in treinamentos %}
+          <option value="{{ t.pk }}">{{ t.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn-primary">Adicionar</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

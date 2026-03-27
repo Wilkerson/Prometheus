@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ ciclo.nome }}{% endblock %}
+{% block page_title %}{{ ciclo.nome }}{% endblock %}
+{% block page_actions %}
+<div class="flex gap-2">
+  {% if can_add_meta %}<a href="{% url 'web:rh-meta-create' ciclo.pk %}" class="btn-primary">+ Nova Meta</a>{% endif %}
+  <a href="{% url 'web:rh-ciclos' %}" class="btn-secondary">Voltar</a>
+</div>
+{% endblock %}
+{% block content %}
+<!-- Info do ciclo -->
+<div class="card mb-4">
+  <div class="flex items-center justify-between">
+    <div class="text-sm text-t2">{{ ciclo.periodo_inicio|date:"d/m/Y" }} — {{ ciclo.periodo_fim|date:"d/m/Y" }}</div>
+    {% if ciclo.status == 'aberto' %}<span class="badge bg-blue-500/15 text-blue-500">Aberto</span>
+    {% elif ciclo.status == 'em_andamento' %}<span class="badge bg-amber-500/15 text-amber-500">Em andamento</span>
+    {% else %}<span class="badge bg-emerald-500/15 text-emerald-500">Encerrado</span>{% endif %}
+  </div>
+  {% if ciclo.descricao %}<p class="text-sm text-t3 mt-2">{{ ciclo.descricao }}</p>{% endif %}
+</div>
+
+<!-- Metas por colaborador -->
+{% for data in metas_por_colab %}
+<div class="card mb-3">
+  <div class="flex items-center justify-between mb-3">
+    <a href="{% url 'web:rh-colaborador-detail' data.colaborador.pk %}" class="text-sm font-semibold text-t1 hover:text-ruch-accent no-underline">{{ data.colaborador.nome_completo }}</a>
+    <div class="flex items-center gap-2">
+      <div class="w-24 h-2 bg-bg4 rounded-full overflow-hidden">
+        <div class="h-full rounded-full {% if data.atingimento_geral >= 90 %}bg-emerald-500{% elif data.atingimento_geral >= 50 %}bg-ruch-accent{% else %}bg-amber-500{% endif %}"
+             style="width: {{ data.atingimento_geral }}%"></div>
+      </div>
+      <span class="text-sm font-bold text-t1">{{ data.atingimento_geral }}%</span>
+    </div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-bdr text-left text-t3">
+          <th class="pb-2 font-medium">Meta</th>
+          <th class="pb-2 font-medium">Indicador</th>
+          <th class="pb-2 font-medium">Meta</th>
+          <th class="pb-2 font-medium">Realizado</th>
+          <th class="pb-2 font-medium">Peso</th>
+          <th class="pb-2 font-medium">Atingimento</th>
+          {% if can_edit %}<th class="pb-2 font-medium">Atualizar</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-bdr">
+        {% for m in data.metas %}
+        <tr class="hover:bg-bg3">
+          <td class="py-2 text-t1">{{ m.descricao }}</td>
+          <td class="py-2 text-t2">{{ m.indicador }}</td>
+          <td class="py-2 text-t2">{{ m.valor_meta }}</td>
+          <td class="py-2 text-t1 font-medium">{{ m.valor_realizado }}</td>
+          <td class="py-2 text-t2">{{ m.peso }}%</td>
+          <td class="py-2">
+            <span class="font-medium {% if m.atingimento >= 90 %}text-emerald-500{% elif m.atingimento >= 50 %}text-ruch-accent{% else %}text-amber-500{% endif %}">{{ m.atingimento }}%</span>
+          </td>
+          {% if can_edit %}
+          <td class="py-2">
+            <form method="post" action="{% url 'web:rh-meta-update' m.pk %}" class="flex gap-1">
+              {% csrf_token %}
+              <input type="number" step="0.01" name="valor_realizado" value="{{ m.valor_realizado }}" class="input text-[11px] py-0.5 w-20">
+              <button type="submit" class="text-[11px] text-ruch-accent hover:text-t1">OK</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% empty %}
+<div class="card">
+  <p class="text-sm text-t3 py-4">Nenhuma meta cadastrada neste ciclo.</p>
+</div>
+{% endfor %}
+{% endblock %}

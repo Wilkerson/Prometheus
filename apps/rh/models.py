@@ -746,3 +746,305 @@ class ParticipacaoTreinamento(models.Model):
 
     def __str__(self):
         return f"{self.colaborador} — {self.treinamento}"
+
+
+# =========================================================================
+# Metas e PDI
+# =========================================================================
+class CicloAvaliacao(models.Model):
+    class StatusCiclo(models.TextChoices):
+        ABERTO = "aberto", "Aberto"
+        EM_ANDAMENTO = "em_andamento", "Em andamento"
+        ENCERRADO = "encerrado", "Encerrado"
+
+    nome = models.CharField("Nome do ciclo", max_length=100)
+    periodo_inicio = models.DateField("Inicio do periodo")
+    periodo_fim = models.DateField("Fim do periodo")
+    status = models.CharField(
+        "Status",
+        max_length=15,
+        choices=StatusCiclo.choices,
+        default=StatusCiclo.ABERTO,
+    )
+    descricao = models.TextField("Descricao", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Ciclo de avaliacao"
+        verbose_name_plural = "Ciclos de avaliacao"
+        ordering = ["-periodo_inicio"]
+
+    def __str__(self):
+        return self.nome
+
+
+class Meta(models.Model):
+    ciclo = models.ForeignKey(
+        CicloAvaliacao,
+        on_delete=models.CASCADE,
+        related_name="metas",
+        verbose_name="Ciclo",
+    )
+    colaborador = models.ForeignKey(
+        Colaborador,
+        on_delete=models.CASCADE,
+        related_name="metas",
+        verbose_name="Colaborador",
+    )
+    descricao = models.CharField("Descricao da meta", max_length=300)
+    indicador = models.CharField("Indicador de medicao", max_length=200)
+    valor_meta = models.DecimalField(
+        "Valor da meta",
+        max_digits=10,
+        decimal_places=2,
+    )
+    valor_realizado = models.DecimalField(
+        "Valor realizado",
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+    )
+    peso = models.PositiveSmallIntegerField("Peso (%)", default=100)
+    observacao = models.TextField("Observacao", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Meta"
+        verbose_name_plural = "Metas"
+        ordering = ["-peso"]
+
+    def __str__(self):
+        return f"{self.colaborador} — {self.descricao}"
+
+    @property
+    def atingimento(self):
+        """Percentual de atingimento da meta."""
+        if not self.valor_meta:
+            return 0
+        return round((self.valor_realizado / self.valor_meta) * 100)
+
+    @property
+    def atingimento_ponderado(self):
+        """Atingimento ponderado pelo peso."""
+        return round(self.atingimento * self.peso / 100)
+
+
+class PDI(models.Model):
+    colaborador = models.ForeignKey(
+        Colaborador,
+        on_delete=models.CASCADE,
+        related_name="pdis",
+        verbose_name="Colaborador",
+    )
+    competencia = models.CharField("Competencia / Area de desenvolvimento", max_length=200)
+    ano = models.PositiveSmallIntegerField("Ano")
+    observacao = models.TextField("Observacao", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "PDI"
+        verbose_name_plural = "PDIs"
+        ordering = ["-ano", "competencia"]
+
+    def __str__(self):
+        return f"{self.colaborador} — {self.competencia} ({self.ano})"
+
+    @property
+    def total_acoes(self):
+        return self.acoes.count()
+
+    @property
+    def acoes_concluidas(self):
+        return self.acoes.filter(status="concluido").count()
+
+    @property
+    def progresso(self):
+        total = self.total_acoes
+        if total == 0:
+            return 0
+        return round((self.acoes_concluidas / total) * 100)
+
+
+class AcaoPDI(models.Model):
+    class StatusAcao(models.TextChoices):
+        PENDENTE = "pendente", "Pendente"
+        EM_ANDAMENTO = "em_andamento", "Em andamento"
+        CONCLUIDO = "concluido", "Concluido"
+
+    pdi = models.ForeignKey(
+        PDI,
+        on_delete=models.CASCADE,
+        related_name="acoes",
+        verbose_name="PDI",
+    )
+    descricao = models.CharField("Descricao da acao", max_length=300)
+    prazo = models.DateField("Prazo", null=True, blank=True)
+    responsavel = models.CharField(
+        "Responsavel",
+        max_length=100,
+        blank=True,
+        help_text="Colaborador, gestor ou RH",
+    )
+    status = models.CharField(
+        "Status",
+        max_length=15,
+        choices=StatusAcao.choices,
+        default=StatusAcao.PENDENTE,
+    )
+    treinamento = models.ForeignKey(
+        Treinamento,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="acoes_pdi",
+        verbose_name="Treinamento vinculado",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Acao do PDI"
+        verbose_name_plural = "Acoes do PDI"
+        ordering = ["prazo", "descricao"]
+
+    def __str__(self):
+        return self.descricao
+
+    @property
+    def atrasado(self):
+        if self.status == "concluido" or not self.prazo:
+            return False
+        from django.utils import timezone
+        return self.prazo < timezone.now().date()
+
+
+# =========================================================================
+# eNPS e Engajamento
+# =========================================================================
+class PesquisaENPS(models.Model):
+    class StatusPesquisa(models.TextChoices):
+        RASCUNHO = "rascunho", "Rascunho"
+        ATIVA = "ativa", "Ativa"
+        ENCERRADA = "encerrada", "Encerrada"
+
+    titulo = models.CharField("Titulo", max_length=200)
+    descricao = models.TextField("Descricao", blank=True)
+    data_inicio = models.DateField("Data de inicio")
+    data_encerramento = models.DateField("Data de encerramento")
+    status = models.CharField(
+        "Status",
+        max_length=12,
+        choices=StatusPesquisa.choices,
+        default=StatusPesquisa.RASCUNHO,
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Pesquisa eNPS"
+        verbose_name_plural = "Pesquisas eNPS"
+        ordering = ["-data_inicio"]
+
+    def __str__(self):
+        return self.titulo
+
+    @property
+    def total_respondentes(self):
+        return self.respostas.values("colaborador").distinct().count()
+
+    @property
+    def total_colaboradores_ativos(self):
+        return Colaborador.objects.filter(status="ativo").count()
+
+    @property
+    def participacao(self):
+        total = self.total_colaboradores_ativos
+        if total == 0:
+            return 0
+        return round((self.total_respondentes / total) * 100)
+
+    @property
+    def enps_score(self):
+        """Calcula eNPS: %promotores - %detratores (pergunta principal, nota 0-10)."""
+        principal = self.perguntas.filter(tipo="enps").first()
+        if not principal:
+            return None
+        respostas = self.respostas.filter(pergunta=principal, nota__isnull=False)
+        total = respostas.count()
+        if total == 0:
+            return None
+        promotores = respostas.filter(nota__gte=9).count()
+        detratores = respostas.filter(nota__lte=6).count()
+        return round((promotores - detratores) / total * 100)
+
+
+class PerguntaENPS(models.Model):
+    class TipoPergunta(models.TextChoices):
+        ENPS = "enps", "eNPS (0-10)"
+        ESCALA = "escala", "Escala (1-10)"
+        ABERTA = "aberta", "Aberta (texto)"
+
+    pesquisa = models.ForeignKey(
+        PesquisaENPS,
+        on_delete=models.CASCADE,
+        related_name="perguntas",
+        verbose_name="Pesquisa",
+    )
+    texto = models.CharField("Pergunta", max_length=500)
+    tipo = models.CharField(
+        "Tipo",
+        max_length=10,
+        choices=TipoPergunta.choices,
+    )
+    ordem = models.PositiveSmallIntegerField("Ordem", default=0)
+
+    class Meta:
+        verbose_name = "Pergunta"
+        verbose_name_plural = "Perguntas"
+        ordering = ["ordem"]
+
+    def __str__(self):
+        return self.texto
+
+    @property
+    def media_notas(self):
+        """Media das notas para perguntas de escala/enps."""
+        respostas = self.respostas.filter(nota__isnull=False)
+        total = respostas.count()
+        if total == 0:
+            return None
+        from django.db.models import Avg
+        return round(respostas.aggregate(m=Avg("nota"))["m"], 1)
+
+
+class RespostaENPS(models.Model):
+    pesquisa = models.ForeignKey(
+        PesquisaENPS,
+        on_delete=models.CASCADE,
+        related_name="respostas",
+        verbose_name="Pesquisa",
+    )
+    colaborador = models.ForeignKey(
+        Colaborador,
+        on_delete=models.CASCADE,
+        related_name="respostas_enps",
+        verbose_name="Colaborador",
+    )
+    pergunta = models.ForeignKey(
+        PerguntaENPS,
+        on_delete=models.CASCADE,
+        related_name="respostas",
+        verbose_name="Pergunta",
+    )
+    nota = models.PositiveSmallIntegerField("Nota", null=True, blank=True)
+    texto = models.TextField("Resposta aberta", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Resposta"
+        verbose_name_plural = "Respostas"
+        unique_together = [("colaborador", "pergunta")]
+
+    def __str__(self):
+        return f"{self.colaborador} — {self.pergunta}"

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Responder — {{ pesquisa.titulo }}{% endblock %}
+{% block page_title %}{{ pesquisa.titulo }}{% endblock %}
+{% block page_actions %}<a href="{% url 'web:rh-enps-detail' pesquisa.pk %}" class="btn-secondary">Voltar</a>{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  {% if ja_respondeu %}
+  <div class="card">
+    <div class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-400">
+      Voce ja respondeu esta pesquisa. Obrigado pela participacao!
+    </div>
+  </div>
+  {% else %}
+  <div class="card">
+    <p class="text-sm text-t2 mb-6">Respondendo como <strong class="text-t1">{{ colab.nome_completo }}</strong>. Suas respostas sao confidenciais.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="space-y-6">
+        {% for p in pesquisa.perguntas.all %}
+        <div class="p-4 rounded-lg bg-bg3">
+          <p class="text-sm font-medium text-t1 mb-3">{{ forloop.counter }}. {{ p.texto }}</p>
+          {% if p.tipo == 'enps' %}
+          <div class="flex flex-wrap gap-2">
+            {% for i in "0123456789" %}
+            <label class="cursor-pointer">
+              <input type="radio" name="nota_{{ p.pk }}" value="{{ i }}" required class="sr-only peer">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-bdr text-sm font-medium text-t2
+                peer-checked:bg-ruch-green peer-checked:text-white peer-checked:border-ruch-green hover:bg-bg4">{{ i }}</span>
+            </label>
+            {% endfor %}
+            <label class="cursor-pointer">
+              <input type="radio" name="nota_{{ p.pk }}" value="10" required class="sr-only peer">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-bdr text-sm font-medium text-t2
+                peer-checked:bg-ruch-green peer-checked:text-white peer-checked:border-ruch-green hover:bg-bg4">10</span>
+            </label>
+          </div>
+          <div class="flex justify-between mt-2 text-[10px] text-t3">
+            <span>Nada provavel</span>
+            <span>Muito provavel</span>
+          </div>
+          {% elif p.tipo == 'escala' %}
+          <div class="flex flex-wrap gap-2">
+            {% for i in "12345678" %}
+            <label class="cursor-pointer">
+              <input type="radio" name="nota_{{ p.pk }}" value="{{ i }}" required class="sr-only peer">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-bdr text-sm font-medium text-t2
+                peer-checked:bg-ruch-green peer-checked:text-white peer-checked:border-ruch-green hover:bg-bg4">{{ i }}</span>
+            </label>
+            {% endfor %}
+            <label class="cursor-pointer">
+              <input type="radio" name="nota_{{ p.pk }}" value="9" required class="sr-only peer">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-bdr text-sm font-medium text-t2
+                peer-checked:bg-ruch-green peer-checked:text-white peer-checked:border-ruch-green hover:bg-bg4">9</span>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="nota_{{ p.pk }}" value="10" required class="sr-only peer">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-bdr text-sm font-medium text-t2
+                peer-checked:bg-ruch-green peer-checked:text-white peer-checked:border-ruch-green hover:bg-bg4">10</span>
+            </label>
+          </div>
+          {% else %}
+          <textarea name="texto_{{ p.pk }}" rows="3" class="input" placeholder="Sua resposta (anonima)..."></textarea>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary">Enviar Respostas</button>
+        <a href="{% url 'web:rh-enps-detail' pesquisa.pk %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

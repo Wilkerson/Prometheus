@@ -60,6 +60,13 @@ class Command(BaseCommand):
             "view_saldoferias", "add_saldoferias", "change_saldoferias", "delete_saldoferias",
             "view_treinamento", "add_treinamento", "change_treinamento", "delete_treinamento",
             "view_participacaotreinamento", "add_participacaotreinamento", "change_participacaotreinamento", "delete_participacaotreinamento",
+            "view_cicloavaliacao", "add_cicloavaliacao", "change_cicloavaliacao", "delete_cicloavaliacao",
+            "view_meta", "add_meta", "change_meta", "delete_meta",
+            "view_pdi", "add_pdi", "change_pdi", "delete_pdi",
+            "view_acaopdi", "add_acaopdi", "change_acaopdi", "delete_acaopdi",
+            "view_pesquisaenps", "add_pesquisaenps", "change_pesquisaenps", "delete_pesquisaenps",
+            "view_perguntaenps", "add_perguntaenps", "change_perguntaenps", "delete_perguntaenps",
+            "view_respostaenps", "add_respostaenps", "change_respostaenps", "delete_respostaenps",
         ])
         g.permissions.set(perms)
         self._log(g, created)
@@ -75,6 +82,9 @@ class Command(BaseCommand):
             "view_documentocolaborador",
             "view_onboardingcolaborador",
             "view_saldoferias",
+            "view_cicloavaliacao", "view_meta",
+            "view_pdi",
+            "view_pesquisaenps", "add_respostaenps",
         ])
         g.permissions.set(perms)
         self._log(g, created)
