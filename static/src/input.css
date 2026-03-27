@@ -119,7 +119,11 @@ html.light {
 }
 
 @utility badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  @apply inline-flex items-center rounded-full font-medium;
+  padding: 4px 12px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 
 /* Badges — cores que funcionam em ambos os temas via override */
