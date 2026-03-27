@@ -78,6 +78,15 @@
         </div>
       </div>
 
+      <!-- Permissoes diretas do usuario -->
+      {% if matrix %}
+      <div class="mt-6 pt-4 border-t border-bdr">
+        <h3 class="text-sm font-semibold text-t2 mb-3">Permissoes individuais</h3>
+        <p class="text-xs text-t3 mb-3">Alem das permissoes herdadas do grupo, voce pode conceder permissoes diretamente a este usuario.</p>
+        {% include "grupos/_form_matrix.html" %}
+      </div>
+      {% endif %}
+
       <div class="flex gap-3 mt-6">
         <button type="submit" class="btn-primary">Salvar Alteracoes</button>
         <a href="{% url 'web:usuarios' %}" class="btn-secondary">Cancelar</a>

@@ -871,6 +871,7 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
     def get(self, request):
         return render(request, "usuarios/create.html", {
             "groups": Group.objects.all(),
+            "matrix": _build_permission_matrix(),
             "erros": {},
         })
 
@@ -896,6 +897,7 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
         if erros:
             ctx = {
                 "groups": Group.objects.all(),
+                "matrix": _build_permission_matrix(),
                 "erros": erros,
             }
             return render(request, "usuarios/create.html", ctx)
@@ -907,6 +909,10 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
         group_ids = request.POST.getlist("groups")
         if group_ids:
             user.groups.set(group_ids)
+
+        perm_ids = request.POST.getlist("permissions")
+        if perm_ids:
+            user.user_permissions.set(perm_ids)
 
         return redirect("web:usuarios")
 
@@ -920,6 +926,7 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
             "usuario": usuario,
             "groups": Group.objects.all(),
             "usuario_groups": list(usuario.groups.values_list("id", flat=True)),
+            "matrix": _build_permission_matrix(user=usuario),
             "erros": {},
         })
 
@@ -938,6 +945,9 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
 
         group_ids = request.POST.getlist("groups")
         usuario.groups.set(group_ids)
+
+        perm_ids = request.POST.getlist("permissions")
+        usuario.user_permissions.set(perm_ids)
 
         return redirect("web:usuarios")
 
@@ -1110,13 +1120,17 @@ ACOES = [
 ]
 
 
-def _build_permission_matrix(group=None):
-    """Monta a matriz de modulos x acoes com estado checked."""
+def _build_permission_matrix(group=None, user=None):
+    """Monta a matriz de modulos x acoes com estado checked.
+    Aceita group (permissoes do grupo) ou user (permissoes diretas do usuario).
+    """
     from django.contrib.auth.models import Permission
 
-    group_perm_codenames = set()
+    checked_codenames = set()
     if group:
-        group_perm_codenames = set(group.permissions.values_list("codename", flat=True))
+        checked_codenames = set(group.permissions.values_list("codename", flat=True))
+    elif user:
+        checked_codenames = set(user.user_permissions.values_list("codename", flat=True))
 
     matrix = []
     for mod in MODULOS_PERMISSOES:
@@ -1131,7 +1145,7 @@ def _build_permission_matrix(group=None):
                 "label": acao["label"],
                 "perm_id": perm.id if perm else None,
                 "codename": codename,
-                "checked": codename in group_perm_codenames,
+                "checked": codename in checked_codenames,
             })
         matrix.append(row)
     return matrix
