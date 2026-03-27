@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
+  <div style="max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0;">
+    <div style="background: #2d4a3e; padding: 24px; text-align: center;">
+      <div style="display: inline-block; background: #3d6b5a; border-radius: 8px; padding: 6px 12px;">
+        <span style="color: #ffffff; font-weight: 800; font-size: 16px;">RUCH</span>
+      </div>
+    </div>
+
+    <div style="padding: 32px 24px;">
+      <h2 style="color: #1a1a1a; font-size: 18px; margin: 0 0 8px;">Solicitacao rejeitada</h2>
+      <p style="color: #555; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+        Ola <strong>{{ colaborador.nome_completo }}</strong>, sua solicitacao de ausencia foi rejeitada.
+      </p>
+
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+        <table style="width: 100%; font-size: 14px;">
+          <tr>
+            <td style="color: #888; padding: 4px 0; width: 100px;">Tipo:</td>
+            <td style="color: #1a1a1a; font-weight: 600;">{{ ausencia.get_tipo_display }}</td>
+          </tr>
+          <tr>
+            <td style="color: #888; padding: 4px 0;">Periodo:</td>
+            <td style="color: #1a1a1a;">{{ ausencia.data_inicio|date:"d/m/Y" }} a {{ ausencia.data_fim|date:"d/m/Y" }}</td>
+          </tr>
+          <tr>
+            <td style="color: #888; padding: 4px 0;">Status:</td>
+            <td><span style="background: #fee2e2; color: #dc2626; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">Rejeitada</span></td>
+          </tr>
+          {% if ausencia.justificativa_rejeicao %}
+          <tr>
+            <td style="color: #888; padding: 4px 0; vertical-align: top;">Motivo:</td>
+            <td style="color: #1a1a1a;">{{ ausencia.justificativa_rejeicao }}</td>
+          </tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <p style="color: #555; font-size: 13px; margin: 0;">
+        Em caso de duvidas, entre em contato com o departamento de RH.
+      </p>
+    </div>
+
+    <div style="background: #f8f8f8; padding: 16px 24px; text-align: center; border-top: 1px solid #e8e8e8;">
+      <p style="color: #aaa; font-size: 11px; margin: 0;">RUCH Digital Technology &mdash; Prometheus</p>
+    </div>
+  </div>
+</body>
+</html>

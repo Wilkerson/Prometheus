@@ -2022,8 +2022,12 @@ class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
         colab.usuario = user
         colab.save(update_fields=["usuario"])
 
+        # Enviar email com dados de acesso
+        from apps.rh.emails import enviar_acesso_criado
+        enviar_acesso_criado(colab, username, password)
+
         from django.contrib import messages
-        messages.success(request, f"Acesso criado para {colab.nome_completo} (usuario: {username})")
+        messages.success(request, f"Acesso criado para {colab.nome_completo} (usuario: {username}). Email enviado para {colab.email_pessoal}.")
         return redirect("web:rh-colaborador-detail", pk=pk)
 
 
@@ -2460,18 +2464,26 @@ class AusenciaAprovarView(PermissionRequiredMixin, View):
     permission_required = "rh.change_solicitacaoausencia"
 
     def post(self, request, pk):
-        ausencia = get_object_or_404(SolicitacaoAusencia, pk=pk)
+        ausencia = get_object_or_404(
+            SolicitacaoAusencia.objects.select_related("colaborador"), pk=pk
+        )
         acao = request.POST.get("acao")
         if acao == "aprovar":
             ausencia.status = SolicitacaoAusencia.StatusSolicitacao.APROVADA
             ausencia.aprovado_por = request.user
+            ausencia.save()
+            from apps.rh.emails import enviar_ausencia_aprovada
+            enviar_ausencia_aprovada(ausencia)
         elif acao == "rejeitar":
             ausencia.status = SolicitacaoAusencia.StatusSolicitacao.REJEITADA
             ausencia.aprovado_por = request.user
             ausencia.justificativa_rejeicao = request.POST.get("justificativa", "").strip()
+            ausencia.save()
+            from apps.rh.emails import enviar_ausencia_rejeitada
+            enviar_ausencia_rejeitada(ausencia)
         elif acao == "cancelar":
             ausencia.status = SolicitacaoAusencia.StatusSolicitacao.CANCELADA
-        ausencia.save()
+            ausencia.save()
         return redirect("web:rh-ausencias")
 
 
