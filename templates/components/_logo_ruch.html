@@ -1,8 +1,15 @@
 {% load static %}
 {% comment %}
-Logo RUCH — imagem PNG com fundo transparente.
+Logo RUCH + "Solutions".
 Parametros via with:
-  logo_height: altura em px (default: 28)
-  logo_class: classes CSS extras (optional)
+  logo_height: altura da imagem em px (default: 28)
+  logo_class: classes CSS extras no container (optional)
+  hide_solutions: se "1", esconde o texto Solutions
+  solutions_color: cor do texto Solutions (default: #2d4a3e verde RUCH)
 {% endcomment %}
-<img src="{% static 'img/logo.png' %}" alt="RUCH" height="{{ logo_height|default:'28' }}" class="{{ logo_class|default:'' }}" style="height: {{ logo_height|default:'28' }}px; width: auto;">
+<div class="inline-flex flex-col items-center {{ logo_class|default:'' }}">
+  <img src="{% static 'img/logo.png' %}" alt="RUCH" style="height: {{ logo_height|default:'28' }}px; width: auto; display: block;">
+  {% if hide_solutions != "1" %}
+  <span style="font-size: {% if logo_height == '52' %}11{% elif logo_height == '48' %}10{% elif logo_height == '36' %}9{% elif logo_height == '28' %}8{% elif logo_height == '24' %}7{% else %}8{% endif %}px; letter-spacing: 0.25em; color: {{ solutions_color|default:'#2d4a3e' }}; font-weight: 500; margin-top: 2px; text-transform: uppercase;">Solutions</span>
+  {% endif %}
+</div>
