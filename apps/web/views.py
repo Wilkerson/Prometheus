@@ -906,13 +906,31 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
             username=username, email=email, password=password,
             first_name=first_name, last_name=last_name,
         )
-        group_ids = request.POST.getlist("groups")
-        if group_ids:
-            user.groups.set(group_ids)
 
-        perm_ids = request.POST.getlist("permissions")
-        if perm_ids:
-            user.user_permissions.set(perm_ids)
+        group_id = request.POST.get("groups")
+        customized = request.POST.get("permissions_customized") == "1"
+        perm_ids = set(request.POST.getlist("permissions"))
+
+        if customized and perm_ids:
+            # Usuario customizou a matriz — verificar se difere do grupo
+            if group_id:
+                group = Group.objects.filter(pk=group_id).first()
+                group_perm_ids = set(
+                    str(p) for p in group.permissions.values_list("id", flat=True)
+                ) if group else set()
+
+                if perm_ids == group_perm_ids:
+                    # Mesmas permissoes do grupo — manter grupo, sem individuais
+                    user.groups.set([group_id])
+                else:
+                    # Customizou — permissoes viram individuais, sai do grupo
+                    user.user_permissions.set(perm_ids)
+            else:
+                # Sem grupo — permissoes individuais
+                user.user_permissions.set(perm_ids)
+        elif group_id:
+            # Nao customizou — so herda do grupo
+            user.groups.set([group_id])
 
         return redirect("web:usuarios")
 
@@ -961,11 +979,36 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
             usuario.set_password(new_password)
             usuario.save()
 
-        group_ids = request.POST.getlist("groups")
-        usuario.groups.set(group_ids)
+        group_id = request.POST.get("groups")
+        customized = request.POST.get("permissions_customized") == "1"
+        perm_ids = set(request.POST.getlist("permissions"))
 
-        perm_ids = request.POST.getlist("permissions")
-        usuario.user_permissions.set(perm_ids)
+        if customized:
+            # Usuario abriu a matriz — ela e a fonte da verdade
+            if group_id:
+                group = Group.objects.filter(pk=group_id).first()
+                group_perm_ids = set(
+                    str(p) for p in group.permissions.values_list("id", flat=True)
+                ) if group else set()
+
+                if perm_ids == group_perm_ids:
+                    # Identico ao grupo — manter grupo, limpar individuais
+                    usuario.groups.set([group_id])
+                    usuario.user_permissions.clear()
+                else:
+                    # Customizou — permissoes viram individuais, sai do grupo
+                    usuario.groups.clear()
+                    usuario.user_permissions.set(perm_ids)
+            else:
+                # Sem grupo — permissoes individuais
+                usuario.groups.clear()
+                usuario.user_permissions.set(perm_ids)
+        else:
+            # Nao abriu a matriz — so atualiza o grupo
+            if group_id:
+                usuario.groups.set([group_id])
+            else:
+                usuario.groups.clear()
 
         return redirect("web:usuarios")
 
