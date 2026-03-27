@@ -1975,11 +1975,16 @@ class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
     """Cria usuario no sistema para o colaborador com grupo Colaborador."""
     permission_required = "rh.change_colaborador"
 
+    @staticmethod
+    def _gerar_senha():
+        """Gera senha temporaria segura (12 chars alfanumericos)."""
+        from django.utils.crypto import get_random_string
+        return get_random_string(12, "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789")
+
     def get(self, request, pk):
         colab = get_object_or_404(Colaborador, pk=pk)
         if colab.usuario:
             return redirect("web:rh-colaborador-detail", pk=pk)
-        # Sugerir username baseado no email pessoal
         email = colab.email_pessoal
         username_sugerido = email.split("@")[0] if email else colab.nome_completo.lower().replace(" ", ".")
         return render(request, "rh/colaboradores/criar_acesso.html", {
@@ -2005,10 +2010,6 @@ class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
         if not email:
             erros["email"] = "O email e obrigatorio."
 
-        password = request.POST.get("password", "").strip()
-        if not password or len(password) < 8:
-            erros["password"] = "A senha deve ter no minimo 8 caracteres."
-
         if erros:
             return render(request, "rh/colaboradores/criar_acesso.html", {
                 "colab": colab,
@@ -2016,6 +2017,9 @@ class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
                 "email": email,
                 "erros": erros,
             })
+
+        # Gerar senha temporaria automaticamente
+        password = self._gerar_senha()
 
         # Extrair nome/sobrenome do nome completo
         partes = colab.nome_completo.split()

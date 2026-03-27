@@ -6,7 +6,10 @@
 <div class="max-w-lg">
   <div class="card">
     <p class="text-sm text-t2 mb-4">Criar usuario de acesso ao sistema para <strong class="text-t1">{{ colab.nome_completo }}</strong>.</p>
-    <p class="text-[11px] text-t3 mb-4">O colaborador recebera acesso com permissoes limitadas (grupo Colaborador): solicitar ausencias, ver treinamentos e documentos.</p>
+    <div class="p-3 rounded-lg bg-bg3 border border-bdr mb-4">
+      <p class="text-[12px] text-t2">O colaborador recebera por email (<strong class="text-t1">{{ colab.email_pessoal }}</strong>) os dados de acesso com uma senha temporaria gerada automaticamente.</p>
+      <p class="text-[11px] text-t3 mt-1">Permissoes: grupo Colaborador (solicitar ausencias, ver treinamentos e documentos).</p>
+    </div>
     <form method="post">
       {% csrf_token %}
       {% if erros %}{% include "clientes/_form_errors.html" %}{% endif %}
@@ -19,14 +22,9 @@
           <label class="label">E-mail <span class="text-red-500">*</span></label>
           <input type="email" name="email" required class="input" value="{{ email }}">
         </div>
-        <div>
-          <label class="label">Senha temporaria <span class="text-red-500">*</span></label>
-          <input type="password" name="password" required class="input" placeholder="Minimo 8 caracteres">
-          <p class="text-[11px] text-t3 mt-1">Informe a senha ao colaborador para o primeiro acesso.</p>
-        </div>
       </div>
       <div class="flex gap-3 mt-6">
-        <button type="submit" class="btn-primary">Criar Acesso</button>
+        <button type="submit" class="btn-primary">Criar Acesso e Enviar Email</button>
         <a href="{% url 'web:rh-colaborador-detail' colab.pk %}" class="btn-secondary">Cancelar</a>
       </div>
     </form>
