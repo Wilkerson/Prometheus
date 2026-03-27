@@ -316,3 +316,224 @@ class HistoricoColaborador(models.Model):
 
     def __str__(self):
         return f"{self.colaborador} — {self.get_tipo_display()} em {self.criado_em:%d/%m/%Y}"
+
+
+# =========================================================================
+# Documentos
+# =========================================================================
+class DocumentoColaborador(models.Model):
+    class TipoDocumento(models.TextChoices):
+        CONTRATO_CLT = "contrato_clt", "Contrato de trabalho"
+        CONTRATO_PJ = "contrato_pj", "Contrato de prestacao de servicos"
+        NDA = "nda", "NDA / Confidencialidade"
+        ADITIVO = "aditivo", "Aditivo contratual"
+        EXAME_ADMISSIONAL = "exame_admissional", "Exame admissional"
+        EXAME_DEMISSIONAL = "exame_demissional", "Exame demissional"
+        TERMO_RESCISAO = "termo_rescisao", "Termo de rescisao"
+        DISTRATO = "distrato", "Distrato"
+        CERTIFICADO = "certificado", "Certificado / Diploma"
+        OUTRO = "outro", "Outro documento"
+
+    colaborador = models.ForeignKey(
+        Colaborador,
+        on_delete=models.CASCADE,
+        related_name="documentos",
+        verbose_name="Colaborador",
+    )
+    tipo = models.CharField(
+        "Tipo de documento",
+        max_length=20,
+        choices=TipoDocumento.choices,
+    )
+    nome = models.CharField("Nome / Descricao", max_length=200)
+    arquivo = models.FileField("Arquivo", upload_to="rh/documentos/%Y/%m/")
+    data_emissao = models.DateField("Data de emissao", null=True, blank=True)
+    data_vencimento = models.DateField("Data de vencimento", null=True, blank=True)
+    alerta_dias_antes = models.PositiveSmallIntegerField(
+        "Alertar X dias antes do vencimento",
+        default=30,
+    )
+    observacao = models.TextField("Observacao", blank=True)
+    enviado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="documentos_rh_enviados",
+        verbose_name="Enviado por",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Documento do colaborador"
+        verbose_name_plural = "Documentos dos colaboradores"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.nome} — {self.colaborador}"
+
+    @property
+    def vencido(self):
+        if not self.data_vencimento:
+            return False
+        from django.utils import timezone
+        return self.data_vencimento < timezone.now().date()
+
+    @property
+    def proximo_vencimento(self):
+        if not self.data_vencimento:
+            return False
+        from django.utils import timezone
+        delta = (self.data_vencimento - timezone.now().date()).days
+        return 0 <= delta <= self.alerta_dias_antes
+
+
+# =========================================================================
+# Onboarding — Templates e Checklists
+# =========================================================================
+class OnboardingTemplate(models.Model):
+    """Template reutilizavel de checklist de onboarding."""
+    nome = models.CharField("Nome do template", max_length=100)
+    tipo_contrato = models.CharField(
+        "Tipo de contrato",
+        max_length=3,
+        choices=Colaborador.TipoContrato.choices,
+        blank=True,
+        help_text="Deixe vazio para ambos os tipos",
+    )
+    departamento = models.ForeignKey(
+        Departamento,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="onboarding_templates",
+        verbose_name="Departamento",
+        help_text="Deixe vazio para todos os departamentos",
+    )
+    ativo = models.BooleanField("Ativo", default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Template de onboarding"
+        verbose_name_plural = "Templates de onboarding"
+        ordering = ["nome"]
+
+    def __str__(self):
+        return self.nome
+
+
+class OnboardingTemplateItem(models.Model):
+    class Fase(models.TextChoices):
+        ANTES = "antes", "Antes do 1o dia"
+        PRIMEIRO_DIA = "primeiro_dia", "Primeiro dia"
+        PRIMEIRA_SEMANA = "primeira_semana", "Primeira semana"
+        PRIMEIRO_MES = "primeiro_mes", "Primeiro mes"
+
+    template = models.ForeignKey(
+        OnboardingTemplate,
+        on_delete=models.CASCADE,
+        related_name="itens",
+        verbose_name="Template",
+    )
+    fase = models.CharField(
+        "Fase",
+        max_length=20,
+        choices=Fase.choices,
+    )
+    descricao = models.CharField("Descricao da tarefa", max_length=300)
+    ordem = models.PositiveSmallIntegerField("Ordem", default=0)
+
+    class Meta:
+        verbose_name = "Item do template"
+        verbose_name_plural = "Itens do template"
+        ordering = ["fase", "ordem"]
+
+    def __str__(self):
+        return self.descricao
+
+
+class OnboardingColaborador(models.Model):
+    """Checklist de onboarding instanciado para um colaborador especifico."""
+    colaborador = models.OneToOneField(
+        Colaborador,
+        on_delete=models.CASCADE,
+        related_name="onboarding",
+        verbose_name="Colaborador",
+    )
+    template = models.ForeignKey(
+        OnboardingTemplate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="instancias",
+        verbose_name="Template usado",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    concluido_em = models.DateTimeField("Concluido em", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Onboarding do colaborador"
+        verbose_name_plural = "Onboardings dos colaboradores"
+
+    def __str__(self):
+        return f"Onboarding — {self.colaborador}"
+
+    @property
+    def total_itens(self):
+        return self.itens.count()
+
+    @property
+    def itens_concluidos(self):
+        return self.itens.filter(concluido=True).count()
+
+    @property
+    def progresso(self):
+        total = self.total_itens
+        if total == 0:
+            return 0
+        return round((self.itens_concluidos / total) * 100)
+
+
+class OnboardingItem(models.Model):
+    """Item concreto do checklist de um colaborador."""
+    onboarding = models.ForeignKey(
+        OnboardingColaborador,
+        on_delete=models.CASCADE,
+        related_name="itens",
+        verbose_name="Onboarding",
+    )
+    fase = models.CharField(
+        "Fase",
+        max_length=20,
+        choices=OnboardingTemplateItem.Fase.choices,
+    )
+    descricao = models.CharField("Descricao", max_length=300)
+    responsavel = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="onboarding_itens_responsavel",
+        verbose_name="Responsavel",
+    )
+    prazo = models.DateField("Prazo", null=True, blank=True)
+    concluido = models.BooleanField("Concluido", default=False)
+    concluido_em = models.DateTimeField("Concluido em", null=True, blank=True)
+    ordem = models.PositiveSmallIntegerField("Ordem", default=0)
+
+    class Meta:
+        verbose_name = "Item do onboarding"
+        verbose_name_plural = "Itens do onboarding"
+        ordering = ["fase", "ordem"]
+
+    def __str__(self):
+        return self.descricao
+
+    @property
+    def atrasado(self):
+        if self.concluido or not self.prazo:
+            return False
+        from django.utils import timezone
+        return self.prazo < timezone.now().date()

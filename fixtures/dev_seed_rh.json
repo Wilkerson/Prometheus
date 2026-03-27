@@ -236,5 +236,62 @@
     "remuneracao_anterior": "5000.00", "remuneracao_nova": null,
     "observacao": "Contrato PJ encerrado por termino do projeto.", "registrado_por": null,
     "criado_em": "2026-01-31T10:00:00Z"
+  }},
+
+  {"model": "rh.onboardingtemplate", "pk": 1, "fields": {
+    "nome": "Onboarding CLT Geral", "tipo_contrato": "clt", "departamento": null,
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+  {"model": "rh.onboardingtemplate", "pk": 2, "fields": {
+    "nome": "Onboarding PJ Geral", "tipo_contrato": "pj", "departamento": null,
+    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+
+  {"model": "rh.onboardingtemplateitem", "pk": 1, "fields": {"template": 1, "fase": "antes", "descricao": "Contrato assinado e arquivado", "ordem": 0}},
+  {"model": "rh.onboardingtemplateitem", "pk": 2, "fields": {"template": 1, "fase": "antes", "descricao": "Acesso ao sistema criado (e-mail corporativo)", "ordem": 1}},
+  {"model": "rh.onboardingtemplateitem", "pk": 3, "fields": {"template": 1, "fase": "antes", "descricao": "Equipamentos preparados (notebook, perifericos)", "ordem": 2}},
+  {"model": "rh.onboardingtemplateitem", "pk": 4, "fields": {"template": 1, "fase": "antes", "descricao": "Ferramentas configuradas (Slack, N8N, etc.)", "ordem": 3}},
+  {"model": "rh.onboardingtemplateitem", "pk": 5, "fields": {"template": 1, "fase": "primeiro_dia", "descricao": "Boas-vindas e apresentacao a equipe", "ordem": 0}},
+  {"model": "rh.onboardingtemplateitem", "pk": 6, "fields": {"template": 1, "fase": "primeiro_dia", "descricao": "Tour pelas ferramentas e processos", "ordem": 1}},
+  {"model": "rh.onboardingtemplateitem", "pk": 7, "fields": {"template": 1, "fase": "primeiro_dia", "descricao": "Acesso confirmado em todos os sistemas", "ordem": 2}},
+  {"model": "rh.onboardingtemplateitem", "pk": 8, "fields": {"template": 1, "fase": "primeiro_dia", "descricao": "Documentos de RH assinados (NDA, politica interna)", "ordem": 3}},
+  {"model": "rh.onboardingtemplateitem", "pk": 9, "fields": {"template": 1, "fase": "primeira_semana", "descricao": "Reuniao com gestor direto (alinhamento de expectativas)", "ordem": 0}},
+  {"model": "rh.onboardingtemplateitem", "pk": 10, "fields": {"template": 1, "fase": "primeira_semana", "descricao": "Apresentacao dos projetos em andamento", "ordem": 1}},
+  {"model": "rh.onboardingtemplateitem", "pk": 11, "fields": {"template": 1, "fase": "primeira_semana", "descricao": "Acesso a documentacao interna", "ordem": 2}},
+  {"model": "rh.onboardingtemplateitem", "pk": 12, "fields": {"template": 1, "fase": "primeiro_mes", "descricao": "Check-in de 30 dias (feedback inicial)", "ordem": 0}},
+  {"model": "rh.onboardingtemplateitem", "pk": 13, "fields": {"template": 1, "fase": "primeiro_mes", "descricao": "Metas do periodo definidas", "ordem": 1}},
+  {"model": "rh.onboardingtemplateitem", "pk": 14, "fields": {"template": 1, "fase": "primeiro_mes", "descricao": "PDI inicial criado", "ordem": 2}},
+
+  {"model": "rh.onboardingtemplateitem", "pk": 15, "fields": {"template": 2, "fase": "antes", "descricao": "Contrato de prestacao de servicos assinado", "ordem": 0}},
+  {"model": "rh.onboardingtemplateitem", "pk": 16, "fields": {"template": 2, "fase": "antes", "descricao": "NDA assinado", "ordem": 1}},
+  {"model": "rh.onboardingtemplateitem", "pk": 17, "fields": {"template": 2, "fase": "antes", "descricao": "Acesso as ferramentas configurado", "ordem": 2}},
+  {"model": "rh.onboardingtemplateitem", "pk": 18, "fields": {"template": 2, "fase": "primeiro_dia", "descricao": "Apresentacao a equipe do projeto", "ordem": 0}},
+  {"model": "rh.onboardingtemplateitem", "pk": 19, "fields": {"template": 2, "fase": "primeiro_dia", "descricao": "Alinhamento de escopo e entregas", "ordem": 1}},
+  {"model": "rh.onboardingtemplateitem", "pk": 20, "fields": {"template": 2, "fase": "primeira_semana", "descricao": "Acesso a documentacao tecnica do projeto", "ordem": 0}},
+  {"model": "rh.onboardingtemplateitem", "pk": 21, "fields": {"template": 2, "fase": "primeira_semana", "descricao": "Primeira entrega ou checkpoint", "ordem": 1}},
+
+  {"model": "rh.documentocolaborador", "pk": 1, "fields": {
+    "colaborador": 1, "tipo": "contrato_clt", "nome": "Contrato de trabalho CLT 2025",
+    "arquivo": "", "data_emissao": "2025-06-01", "data_vencimento": null,
+    "alerta_dias_antes": 30, "observacao": "", "enviado_por": null,
+    "criado_em": "2025-06-01T10:00:00Z", "atualizado_em": "2025-06-01T10:00:00Z"
+  }},
+  {"model": "rh.documentocolaborador", "pk": 2, "fields": {
+    "colaborador": 1, "tipo": "nda", "nome": "NDA Confidencialidade",
+    "arquivo": "", "data_emissao": "2025-06-01", "data_vencimento": "2027-06-01",
+    "alerta_dias_antes": 60, "observacao": "Renovacao automatica", "enviado_por": null,
+    "criado_em": "2025-06-01T10:00:00Z", "atualizado_em": "2025-06-01T10:00:00Z"
+  }},
+  {"model": "rh.documentocolaborador", "pk": 3, "fields": {
+    "colaborador": 6, "tipo": "contrato_pj", "nome": "Contrato PJ Thiago Dev LTDA",
+    "arquivo": "", "data_emissao": "2025-11-01", "data_vencimento": "2026-11-01",
+    "alerta_dias_antes": 30, "observacao": "", "enviado_por": null,
+    "criado_em": "2025-11-01T10:00:00Z", "atualizado_em": "2025-11-01T10:00:00Z"
+  }},
+  {"model": "rh.documentocolaborador", "pk": 4, "fields": {
+    "colaborador": 8, "tipo": "distrato", "nome": "Distrato Fernando Consultoria",
+    "arquivo": "", "data_emissao": "2026-01-31", "data_vencimento": null,
+    "alerta_dias_antes": 30, "observacao": "Encerramento por termino do projeto", "enviado_por": null,
+    "criado_em": "2026-01-31T10:00:00Z", "atualizado_em": "2026-01-31T10:00:00Z"
   }}
 ]

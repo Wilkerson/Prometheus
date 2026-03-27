@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Templates de Onboarding{% endblock %}
+{% block page_title %}Templates de Onboarding{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:rh-onboarding-template-create' %}" class="btn-primary">+ Novo Template</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card" id="table">{% include "rh/onboarding/_templates_table.html" %}</div>
+{% endblock %}

@@ -459,7 +459,7 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 66. [x] Permissoes individuais por usuario (mesma matriz dos grupos, colapsavel, HTMX dinamico)
 67. [x] Grupos de permissoes alinhados aos departamentos (Administrador, Comercial, Financeiro, RH, Empresa Parceira)
 68. [x] Fixtures de dev para RH (setores, cargos, colaboradores, historico)
-69. [ ] Modulo RH Fase 2: Onboarding (checklist) + Documentos e contratos
+69. [x] Modulo RH Fase 2: Documentos (upload, vencimento, alertas) + Onboarding (templates, checklist, progresso)
 70. [ ] Modulo RH Fase 3: Ferias e ausencias + Treinamento e capacitacao
 71. [ ] Modulo RH Fase 4: Metas e PDI + eNPS e engajamento
 72. [ ] Modulo RH Fase 5: Relatorios e indicadores + Integracoes

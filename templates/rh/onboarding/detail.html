@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Onboarding — {{ onboarding.colaborador.nome_completo }}{% endblock %}
+{% block page_title %}Onboarding — {{ onboarding.colaborador.nome_completo }}{% endblock %}
+{% block page_actions %}
+<a href="{% url 'web:rh-colaborador-detail' onboarding.colaborador.pk %}" class="btn-secondary">Voltar ao colaborador</a>
+{% endblock %}
+{% block content %}
+
+<!-- Barra de progresso -->
+<div class="card mb-4">
+  <div class="flex items-center justify-between mb-2">
+    <div>
+      <span class="text-sm font-medium text-t1">Progresso do onboarding</span>
+      {% if onboarding.template %}
+      <span class="text-[11px] text-t3 ml-2">Template: {{ onboarding.template.nome }}</span>
+      {% endif %}
+    </div>
+    <span class="text-sm font-bold text-t1">{{ onboarding.progresso }}%</span>
+  </div>
+  <div class="w-full h-2 bg-bg4 rounded-full overflow-hidden">
+    <div class="h-full rounded-full transition-all duration-300
+      {% if onboarding.progresso == 100 %}bg-emerald-500
+      {% elif onboarding.progresso >= 50 %}bg-ruch-accent
+      {% else %}bg-amber-500{% endif %}"
+         style="width: {{ onboarding.progresso }}%"></div>
+  </div>
+  <div class="flex items-center justify-between mt-2 text-[11px] text-t3">
+    <span>{{ onboarding.itens_concluidos }} de {{ onboarding.total_itens }} concluidos</span>
+    {% if onboarding.concluido_em %}
+    <span class="text-emerald-500 font-medium">Concluido em {{ onboarding.concluido_em|date:"d/m/Y" }}</span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Itens por fase -->
+{% for fase_key, fase_data in itens_por_fase.items %}
+{% if fase_data.itens %}
+<div class="card mb-3">
+  <h3 class="text-sm font-semibold text-t2 mb-3">{{ fase_data.label }}</h3>
+  <div class="space-y-1">
+    {% for item in fase_data.itens %}
+    <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-bg3 {% if item.atrasado %}border border-red-500/20{% endif %}">
+      {% if can_edit %}
+      <form method="post" action="{% url 'web:rh-onboarding-toggle-item' item.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="w-5 h-5 rounded border flex items-center justify-center cursor-pointer
+          {% if item.concluido %}bg-emerald-500 border-emerald-500 text-white{% else %}border-bdr hover:border-t3{% endif %}">
+          {% if item.concluido %}<span class="text-[11px]">&#10003;</span>{% endif %}
+        </button>
+      </form>
+      {% else %}
+      <div class="w-5 h-5 rounded border flex items-center justify-center
+        {% if item.concluido %}bg-emerald-500 border-emerald-500 text-white{% else %}border-bdr{% endif %}">
+        {% if item.concluido %}<span class="text-[11px]">&#10003;</span>{% endif %}
+      </div>
+      {% endif %}
+      <div class="flex-1 min-w-0">
+        <span class="text-sm {% if item.concluido %}text-t3 line-through{% else %}text-t1{% endif %}">{{ item.descricao }}</span>
+        {% if item.prazo %}
+        <span class="text-[10px] ml-2 {% if item.atrasado %}text-red-400{% else %}text-t3{% endif %}">
+          Prazo: {{ item.prazo|date:"d/m/Y" }}
+        </span>
+        {% endif %}
+      </div>
+      {% if item.concluido_em %}
+      <span class="text-[10px] text-t3 flex-shrink-0">{{ item.concluido_em|date:"d/m/Y" }}</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% endblock %}

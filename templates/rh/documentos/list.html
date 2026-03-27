@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Documentos{% endblock %}
+{% block page_title %}Documentos{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:rh-documento-create' %}" class="btn-primary">+ Novo Documento</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" placeholder="Nome ou colaborador..." class="input"
+             hx-get="{% url 'web:rh-documentos' %}" hx-target="#table" hx-trigger="input changed delay:300ms"
+             hx-include="[name='tipo'],[name='vencimento']" hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Tipo</label>
+      <select name="tipo" class="input"
+              hx-get="{% url 'web:rh-documentos' %}" hx-target="#table" hx-include="[name='q'],[name='vencimento']" hx-push-url="true">
+        <option value="">Todos</option>
+        {% for v, l in tipo_choices %}
+        <option value="{{ v }}" {% if current_tipo == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="label">Vencimento</label>
+      <select name="vencimento" class="input"
+              hx-get="{% url 'web:rh-documentos' %}" hx-target="#table" hx-include="[name='q'],[name='tipo']" hx-push-url="true">
+        <option value="">Todos</option>
+        <option value="vencido" {% if current_vencimento == "vencido" %}selected{% endif %}>Vencidos</option>
+        <option value="proximo" {% if current_vencimento == "proximo" %}selected{% endif %}>Proximo a vencer</option>
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card" id="table">{% include "rh/documentos/_table.html" %}</div>
+{% endblock %}

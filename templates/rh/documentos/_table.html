@@ -1,0 +1,48 @@
+{% if documentos %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium">Documento</th>
+        <th class="pb-3 font-medium">Colaborador</th>
+        <th class="pb-3 font-medium">Tipo</th>
+        <th class="pb-3 font-medium">Vencimento</th>
+        <th class="pb-3 font-medium">Status</th>
+        <th class="pb-3 font-medium">Acoes</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for doc in documentos %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium text-t1">
+          <a href="{{ doc.arquivo.url }}" target="_blank" class="text-t1 hover:text-ruch-accent no-underline">{{ doc.nome }}</a>
+        </td>
+        <td class="py-3 text-t2">
+          <a href="{% url 'web:rh-colaborador-detail' doc.colaborador.pk %}" class="text-t2 hover:text-ruch-accent no-underline">{{ doc.colaborador.nome_completo }}</a>
+        </td>
+        <td class="py-3 text-t2">{{ doc.get_tipo_display }}</td>
+        <td class="py-3 text-t2">{{ doc.data_vencimento|date:"d/m/Y"|default:"—" }}</td>
+        <td class="py-3">
+          {% if doc.vencido %}
+          <span class="badge bg-red-500/15 text-red-500">Vencido</span>
+          {% elif doc.proximo_vencimento %}
+          <span class="badge bg-amber-500/15 text-amber-500">A vencer</span>
+          {% else %}
+          <span class="badge bg-emerald-500/15 text-emerald-500">OK</span>
+          {% endif %}
+        </td>
+        <td class="py-3">
+          <form method="post" action="{% url 'web:rh-documento-delete' doc.pk %}" class="inline"
+                hx-post="{% url 'web:rh-documento-delete' doc.pk %}" hx-confirm="Excluir este documento?">
+            {% csrf_token %}
+            <button type="submit" class="text-[12px] text-red-400 hover:text-red-300">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhum documento cadastrado.</p>
+{% endif %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ template.nome }}{% endblock %}
+{% block page_title %}Editar Template de Onboarding{% endblock %}
+{% block page_actions %}<a href="{% url 'web:rh-onboarding-templates' %}" class="btn-secondary">Voltar</a>{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  <div class="card">
+    <form method="post" x-data="{ itens: [
+      {% for item in template.itens.all %}{ descricao: '{{ item.descricao|escapejs }}', fase: '{{ item.fase }}' }{% if not forloop.last %},{% endif %}{% endfor %}
+      {% if not template.itens.exists %}{ descricao: '', fase: 'antes' }{% endif %}
+    ] }">
+      {% csrf_token %}
+      {% if erros %}{% include "clientes/_form_errors.html" %}{% endif %}
+      <div class="space-y-4">
+        <div>
+          <label class="label">Nome do template <span class="text-red-500">*</span></label>
+          <input type="text" name="nome" required class="input" value="{{ template.nome }}">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Tipo de contrato</label>
+            <select name="tipo_contrato" class="input">
+              <option value="">Ambos (CLT e PJ)</option>
+              {% for v, l in tipo_choices %}
+              <option value="{{ v }}" {% if template.tipo_contrato == v %}selected{% endif %}>{{ l }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="label">Departamento</label>
+            <select name="departamento" class="input">
+              <option value="">Todos</option>
+              {% for d in departamentos %}
+              <option value="{{ d.pk }}" {% if template.departamento_id == d.pk %}selected{% endif %}>{{ d.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="label">Status</label>
+          <label class="flex items-center gap-2 mt-2 cursor-pointer">
+            <input type="checkbox" name="ativo" {% if template.ativo %}checked{% endif %}
+                   class="w-4 h-4 rounded border-bdr text-primary-600">
+            <span class="text-sm text-t2">Ativo</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Itens dinamicos -->
+      <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Itens do checklist</h3>
+      <div class="space-y-2">
+        <template x-for="(item, index) in itens" :key="index">
+          <div class="flex gap-2 items-start">
+            <select :name="'item_fase'" class="input w-40 flex-shrink-0" x-model="item.fase">
+              {% for v, l in fase_choices %}
+              <option value="{{ v }}">{{ l }}</option>
+              {% endfor %}
+            </select>
+            <input type="text" :name="'item_descricao'" class="input flex-1" placeholder="Descricao da tarefa..." x-model="item.descricao">
+            <button type="button" @click="itens.splice(index, 1)" class="text-red-400 hover:text-red-300 text-lg px-2" x-show="itens.length > 1">&times;</button>
+          </div>
+        </template>
+      </div>
+      <button type="button" @click="itens.push({ descricao: '', fase: 'antes' })"
+              class="text-[12px] text-ruch-accent hover:text-t1 mt-2">+ Adicionar item</button>
+
+      <div class="flex gap-3 mt-6 pt-4 border-t border-bdr">
+        <button type="submit" class="btn-primary">Salvar</button>
+        <a href="{% url 'web:rh-onboarding-templates' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

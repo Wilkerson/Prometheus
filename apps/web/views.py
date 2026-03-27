@@ -17,7 +17,10 @@ from apps.comissoes.models import Comissao
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
-from apps.rh.models import Cargo, Colaborador, Departamento, HistoricoColaborador, Setor
+from apps.rh.models import (
+    Cargo, Colaborador, Departamento, DocumentoColaborador, HistoricoColaborador,
+    OnboardingColaborador, OnboardingItem, OnboardingTemplate, OnboardingTemplateItem, Setor,
+)
 
 from .mixins import HtmxMixin, is_htmx
 
@@ -1171,6 +1174,8 @@ MODULOS_PERMISSOES = [
     {"label": "Colaboradores", "app": "rh", "model": "colaborador"},
     {"label": "Cargos", "app": "rh", "model": "cargo"},
     {"label": "Setores", "app": "rh", "model": "setor"},
+    {"label": "Documentos RH", "app": "rh", "model": "documentocolaborador"},
+    {"label": "Onboarding", "app": "rh", "model": "onboardingtemplate"},
 ]
 
 ACOES = [
@@ -1800,12 +1805,14 @@ class ColaboradorDetailView(PermissionRequiredMixin, View):
 
     def get(self, request, pk):
         colab = get_object_or_404(
-            Colaborador.objects.select_related("cargo", "departamento", "endereco"), pk=pk
+            Colaborador.objects.select_related("cargo", "departamento", "setor", "endereco"), pk=pk
         )
         historico = colab.historico.select_related("registrado_por").order_by("-criado_em")
+        documentos = colab.documentos.order_by("-criado_em")
         return render(request, "rh/colaboradores/detail.html", {
             "colab": colab,
             "historico": historico,
+            "documentos": documentos,
             "can_edit": request.user.has_perm("rh.change_colaborador"),
         })
 
@@ -1942,3 +1949,305 @@ class ColaboradorDeleteView(PermissionRequiredMixin, View):
         if is_htmx(request):
             return HttpResponse(headers={"HX-Redirect": "/rh/colaboradores/"})
         return redirect("web:rh-colaboradores")
+
+
+# ---------------------------------------------------------------------------
+# RH — Documentos do Colaborador
+# ---------------------------------------------------------------------------
+class DocumentoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/documentos/list.html"
+    partial_template_name = "rh/documentos/_table.html"
+    context_object_name = "documentos"
+    paginate_by = 20
+    permission_required = "rh.view_documentocolaborador"
+
+    def get_queryset(self):
+        qs = DocumentoColaborador.objects.select_related("colaborador", "enviado_por")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(
+                Q(nome__icontains=search)
+                | Q(colaborador__nome_completo__icontains=search)
+            )
+        tipo = self.request.GET.get("tipo")
+        if tipo:
+            qs = qs.filter(tipo=tipo)
+        vencimento = self.request.GET.get("vencimento")
+        if vencimento == "vencido":
+            from django.utils import timezone
+            qs = qs.filter(data_vencimento__lt=timezone.now().date())
+        elif vencimento == "proximo":
+            from django.utils import timezone
+            hoje = timezone.now().date()
+            qs = qs.filter(data_vencimento__gte=hoje, data_vencimento__lte=hoje + timezone.timedelta(days=30))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tipo_choices"] = DocumentoColaborador.TipoDocumento.choices
+        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["current_vencimento"] = self.request.GET.get("vencimento", "")
+        ctx["can_add"] = self.request.user.has_perm("rh.add_documentocolaborador")
+        return ctx
+
+
+class DocumentoCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_documentocolaborador"
+
+    def get(self, request):
+        colab_id = request.GET.get("colaborador")
+        return render(request, "rh/documentos/create.html", {
+            "tipo_choices": DocumentoColaborador.TipoDocumento.choices,
+            "colaboradores": Colaborador.objects.filter(status="ativo"),
+            "colab_id": int(colab_id) if colab_id else None,
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        colab_id = request.POST.get("colaborador")
+        if not colab_id:
+            erros["colaborador"] = "O colaborador e obrigatorio."
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo e obrigatorio."
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        arquivo = request.FILES.get("arquivo")
+        if not arquivo:
+            erros["arquivo"] = "O arquivo e obrigatorio."
+
+        if erros:
+            return render(request, "rh/documentos/create.html", {
+                "tipo_choices": DocumentoColaborador.TipoDocumento.choices,
+                "colaboradores": Colaborador.objects.filter(status="ativo"),
+                "erros": erros,
+            })
+
+        DocumentoColaborador.objects.create(
+            colaborador_id=colab_id,
+            tipo=tipo,
+            nome=nome,
+            arquivo=arquivo,
+            data_emissao=request.POST.get("data_emissao") or None,
+            data_vencimento=request.POST.get("data_vencimento") or None,
+            alerta_dias_antes=request.POST.get("alerta_dias_antes", 30) or 30,
+            observacao=request.POST.get("observacao", "").strip(),
+            enviado_por=request.user,
+        )
+        return redirect("web:rh-documentos")
+
+
+class DocumentoDeleteView(PermissionRequiredMixin, View):
+    permission_required = "rh.delete_documentocolaborador"
+
+    def post(self, request, pk):
+        get_object_or_404(DocumentoColaborador, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/rh/documentos/"})
+        return redirect("web:rh-documentos")
+
+
+# ---------------------------------------------------------------------------
+# RH — Onboarding Templates
+# ---------------------------------------------------------------------------
+class OnboardingTemplateListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "rh/onboarding/templates_list.html"
+    partial_template_name = "rh/onboarding/_templates_table.html"
+    context_object_name = "templates"
+    paginate_by = 20
+    permission_required = "rh.view_onboardingtemplate"
+
+    def get_queryset(self):
+        return OnboardingTemplate.objects.prefetch_related("itens").all()
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("rh.add_onboardingtemplate")
+        return ctx
+
+
+class OnboardingTemplateCreateView(PermissionRequiredMixin, View):
+    permission_required = "rh.add_onboardingtemplate"
+
+    def get(self, request):
+        return render(request, "rh/onboarding/template_create.html", {
+            "tipo_choices": Colaborador.TipoContrato.choices,
+            "fase_choices": OnboardingTemplateItem.Fase.choices,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        tipo_contrato = request.POST.get("tipo_contrato", "").strip()
+        depto_id = request.POST.get("departamento") or None
+
+        if erros:
+            return render(request, "rh/onboarding/template_create.html", {
+                "tipo_choices": Colaborador.TipoContrato.choices,
+                "fase_choices": OnboardingTemplateItem.Fase.choices,
+                "departamentos": Departamento.objects.filter(ativo=True),
+                "erros": erros,
+            })
+
+        template = OnboardingTemplate.objects.create(
+            nome=nome,
+            tipo_contrato=tipo_contrato,
+            departamento_id=depto_id,
+        )
+
+        # Salvar itens dinamicos
+        descricoes = request.POST.getlist("item_descricao")
+        fases = request.POST.getlist("item_fase")
+        for i, desc in enumerate(descricoes):
+            desc = desc.strip()
+            if desc:
+                fase = fases[i] if i < len(fases) else "antes"
+                OnboardingTemplateItem.objects.create(
+                    template=template,
+                    fase=fase,
+                    descricao=desc,
+                    ordem=i,
+                )
+
+        return redirect("web:rh-onboarding-templates")
+
+
+class OnboardingTemplateEditView(PermissionRequiredMixin, View):
+    permission_required = "rh.change_onboardingtemplate"
+
+    def get(self, request, pk):
+        template = get_object_or_404(OnboardingTemplate.objects.prefetch_related("itens"), pk=pk)
+        return render(request, "rh/onboarding/template_edit.html", {
+            "template": template,
+            "tipo_choices": Colaborador.TipoContrato.choices,
+            "fase_choices": OnboardingTemplateItem.Fase.choices,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        template = get_object_or_404(OnboardingTemplate, pk=pk)
+        template.nome = request.POST.get("nome", template.nome).strip()
+        template.tipo_contrato = request.POST.get("tipo_contrato", "").strip()
+        template.departamento_id = request.POST.get("departamento") or None
+        template.ativo = "ativo" in request.POST
+        template.save()
+
+        # Recriar itens
+        template.itens.all().delete()
+        descricoes = request.POST.getlist("item_descricao")
+        fases = request.POST.getlist("item_fase")
+        for i, desc in enumerate(descricoes):
+            desc = desc.strip()
+            if desc:
+                fase = fases[i] if i < len(fases) else "antes"
+                OnboardingTemplateItem.objects.create(
+                    template=template,
+                    fase=fase,
+                    descricao=desc,
+                    ordem=i,
+                )
+
+        return redirect("web:rh-onboarding-templates")
+
+
+class OnboardingTemplateDeleteView(PermissionRequiredMixin, View):
+    permission_required = "rh.delete_onboardingtemplate"
+
+    def post(self, request, pk):
+        get_object_or_404(OnboardingTemplate, pk=pk).delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/rh/onboarding/templates/"})
+        return redirect("web:rh-onboarding-templates")
+
+
+# ---------------------------------------------------------------------------
+# RH — Onboarding do Colaborador (instancia)
+# ---------------------------------------------------------------------------
+class OnboardingIniciarView(PermissionRequiredMixin, View):
+    """Inicia o onboarding de um colaborador a partir de um template."""
+    permission_required = "rh.add_onboardingcolaborador"
+
+    def get(self, request, colab_pk):
+        colab = get_object_or_404(Colaborador, pk=colab_pk)
+        templates = OnboardingTemplate.objects.filter(ativo=True).prefetch_related("itens")
+        return render(request, "rh/onboarding/iniciar.html", {
+            "colab": colab,
+            "templates": templates,
+        })
+
+    def post(self, request, colab_pk):
+        colab = get_object_or_404(Colaborador, pk=colab_pk)
+        template_id = request.POST.get("template")
+        template = get_object_or_404(OnboardingTemplate, pk=template_id)
+
+        # Criar onboarding do colaborador
+        onboarding, created = OnboardingColaborador.objects.get_or_create(
+            colaborador=colab,
+            defaults={"template": template},
+        )
+        if not created:
+            return redirect("web:rh-onboarding-detail", pk=onboarding.pk)
+
+        # Copiar itens do template
+        for item in template.itens.all():
+            OnboardingItem.objects.create(
+                onboarding=onboarding,
+                fase=item.fase,
+                descricao=item.descricao,
+                ordem=item.ordem,
+            )
+
+        return redirect("web:rh-onboarding-detail", pk=onboarding.pk)
+
+
+class OnboardingDetailView(PermissionRequiredMixin, View):
+    permission_required = "rh.view_onboardingcolaborador"
+
+    def get(self, request, pk):
+        onboarding = get_object_or_404(
+            OnboardingColaborador.objects.select_related("colaborador", "template")
+            .prefetch_related("itens__responsavel"),
+            pk=pk,
+        )
+        fases = OnboardingTemplateItem.Fase.choices
+        itens_por_fase = {}
+        for fase_key, fase_label in fases:
+            itens_por_fase[fase_key] = {
+                "label": fase_label,
+                "itens": onboarding.itens.filter(fase=fase_key),
+            }
+        return render(request, "rh/onboarding/detail.html", {
+            "onboarding": onboarding,
+            "itens_por_fase": itens_por_fase,
+            "can_edit": request.user.has_perm("rh.change_onboardingcolaborador"),
+        })
+
+
+class OnboardingToggleItemView(PermissionRequiredMixin, View):
+    """HTMX: marca/desmarca um item do onboarding."""
+    permission_required = "rh.change_onboardingcolaborador"
+
+    def post(self, request, item_pk):
+        item = get_object_or_404(OnboardingItem.objects.select_related("onboarding"), pk=item_pk)
+        from django.utils import timezone
+        item.concluido = not item.concluido
+        item.concluido_em = timezone.now() if item.concluido else None
+        item.save(update_fields=["concluido", "concluido_em"])
+
+        # Verificar se todos concluidos
+        onboarding = item.onboarding
+        if onboarding.progresso == 100:
+            onboarding.concluido_em = timezone.now()
+            onboarding.save(update_fields=["concluido_em"])
+        elif onboarding.concluido_em:
+            onboarding.concluido_em = None
+            onboarding.save(update_fields=["concluido_em"])
+
+        return redirect("web:rh-onboarding-detail", pk=onboarding.pk)

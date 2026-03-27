@@ -53,6 +53,9 @@ class Command(BaseCommand):
             "view_colaborador", "add_colaborador", "change_colaborador", "delete_colaborador",
             "view_cargo", "add_cargo", "change_cargo", "delete_cargo",
             "view_setor", "add_setor", "change_setor", "delete_setor",
+            "view_documentocolaborador", "add_documentocolaborador", "change_documentocolaborador", "delete_documentocolaborador",
+            "view_onboardingtemplate", "add_onboardingtemplate", "change_onboardingtemplate", "delete_onboardingtemplate",
+            "view_onboardingcolaborador", "add_onboardingcolaborador", "change_onboardingcolaborador", "delete_onboardingcolaborador",
         ])
         g.permissions.set(perms)
         self._log(g, created)

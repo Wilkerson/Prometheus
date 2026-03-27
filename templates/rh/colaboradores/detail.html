@@ -130,6 +130,67 @@
   </div>
 </div>
 
+<!-- Onboarding -->
+<div class="card mt-4">
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-sm font-semibold text-t2">Onboarding</h3>
+    {% if not colab.onboarding and can_edit %}
+    <a href="{% url 'web:rh-onboarding-iniciar' colab.pk %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Iniciar onboarding</a>
+    {% endif %}
+  </div>
+  {% if colab.onboarding %}
+  <div class="flex items-center gap-4">
+    <div class="flex-1">
+      <div class="w-full h-2 bg-bg4 rounded-full overflow-hidden">
+        <div class="h-full rounded-full transition-all duration-300
+          {% if colab.onboarding.progresso == 100 %}bg-emerald-500
+          {% elif colab.onboarding.progresso >= 50 %}bg-ruch-accent
+          {% else %}bg-amber-500{% endif %}"
+             style="width: {{ colab.onboarding.progresso }}%"></div>
+      </div>
+    </div>
+    <span class="text-sm font-bold text-t1">{{ colab.onboarding.progresso }}%</span>
+    <a href="{% url 'web:rh-onboarding-detail' colab.onboarding.pk %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Ver checklist</a>
+  </div>
+  {% else %}
+  <p class="text-sm text-t3">Onboarding ainda nao iniciado.</p>
+  {% endif %}
+</div>
+
+<!-- Documentos -->
+<div class="card mt-4">
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-sm font-semibold text-t2">Documentos ({{ documentos.count }})</h3>
+    {% if can_edit %}
+    <a href="{% url 'web:rh-documento-create' %}?colaborador={{ colab.pk }}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">+ Enviar documento</a>
+    {% endif %}
+  </div>
+  {% if documentos %}
+  <div class="space-y-2">
+    {% for doc in documentos %}
+    <div class="flex items-center justify-between p-2 rounded-lg hover:bg-bg3">
+      <div class="flex items-center gap-2">
+        <a href="{{ doc.arquivo.url }}" target="_blank" class="text-sm text-t1 hover:text-ruch-accent no-underline font-medium">{{ doc.nome }}</a>
+        <span class="text-[10px] text-t3">{{ doc.get_tipo_display }}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        {% if doc.vencido %}
+        <span class="badge bg-red-500/15 text-red-500">Vencido</span>
+        {% elif doc.proximo_vencimento %}
+        <span class="badge bg-amber-500/15 text-amber-500">A vencer</span>
+        {% endif %}
+        {% if doc.data_vencimento %}
+        <span class="text-[10px] text-t3">{{ doc.data_vencimento|date:"d/m/Y" }}</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-sm text-t3">Nenhum documento enviado.</p>
+  {% endif %}
+</div>
+
 <!-- Historico -->
 <div class="card mt-4">
   <h3 class="text-sm font-semibold text-t2 mb-3">Historico</h3>

@@ -1,0 +1,38 @@
+{% if templates %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium">Template</th>
+        <th class="pb-3 font-medium">Contrato</th>
+        <th class="pb-3 font-medium">Departamento</th>
+        <th class="pb-3 font-medium">Itens</th>
+        <th class="pb-3 font-medium">Status</th>
+        <th class="pb-3 font-medium">Acoes</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for t in templates %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium text-t1">{{ t.nome }}</td>
+        <td class="py-3 text-t2">{{ t.get_tipo_contrato_display|default:"Ambos" }}</td>
+        <td class="py-3 text-t2">{{ t.departamento.nome|default:"Todos" }}</td>
+        <td class="py-3 text-t2">{{ t.itens.count }} itens</td>
+        <td class="py-3">
+          {% if t.ativo %}
+          <span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
+          {% else %}
+          <span class="badge bg-bg4 text-t3">Inativo</span>
+          {% endif %}
+        </td>
+        <td class="py-3">
+          <a href="{% url 'web:rh-onboarding-template-edit' t.pk %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Editar</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhum template de onboarding cadastrado.</p>
+{% endif %}

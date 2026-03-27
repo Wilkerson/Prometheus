@@ -37,6 +37,8 @@ def navigation(request):
             "label": "RH / Pessoas",
             "items": [
                 {"url": "/rh/colaboradores/", "label": "Colaboradores", "permission": "rh.view_colaborador"},
+                {"url": "/rh/documentos/", "label": "Documentos", "permission": "rh.view_documentocolaborador"},
+                {"url": "/rh/onboarding/templates/", "label": "Onboarding", "permission": "rh.view_onboardingtemplate"},
                 {"url": "/rh/cargos/", "label": "Cargos", "permission": "rh.view_cargo"},
                 {"url": "/rh/setores/", "label": "Setores", "permission": "rh.view_setor"},
             ],

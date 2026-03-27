@@ -81,4 +81,17 @@ urlpatterns = [
     path("rh/colaboradores/<int:pk>/", views.ColaboradorDetailView.as_view(), name="rh-colaborador-detail"),
     path("rh/colaboradores/<int:pk>/editar/", views.ColaboradorUpdateView.as_view(), name="rh-colaborador-edit"),
     path("rh/colaboradores/<int:pk>/excluir/", views.ColaboradorDeleteView.as_view(), name="rh-colaborador-delete"),
+    # RH — Documentos
+    path("rh/documentos/", views.DocumentoListView.as_view(), name="rh-documentos"),
+    path("rh/documentos/novo/", views.DocumentoCreateView.as_view(), name="rh-documento-create"),
+    path("rh/documentos/<int:pk>/excluir/", views.DocumentoDeleteView.as_view(), name="rh-documento-delete"),
+    # RH — Onboarding Templates
+    path("rh/onboarding/templates/", views.OnboardingTemplateListView.as_view(), name="rh-onboarding-templates"),
+    path("rh/onboarding/templates/novo/", views.OnboardingTemplateCreateView.as_view(), name="rh-onboarding-template-create"),
+    path("rh/onboarding/templates/<int:pk>/editar/", views.OnboardingTemplateEditView.as_view(), name="rh-onboarding-template-edit"),
+    path("rh/onboarding/templates/<int:pk>/excluir/", views.OnboardingTemplateDeleteView.as_view(), name="rh-onboarding-template-delete"),
+    # RH — Onboarding do Colaborador
+    path("rh/onboarding/iniciar/<int:colab_pk>/", views.OnboardingIniciarView.as_view(), name="rh-onboarding-iniciar"),
+    path("rh/onboarding/<int:pk>/", views.OnboardingDetailView.as_view(), name="rh-onboarding-detail"),
+    path("rh/onboarding/item/<int:item_pk>/toggle/", views.OnboardingToggleItemView.as_view(), name="rh-onboarding-toggle-item"),
 ]
