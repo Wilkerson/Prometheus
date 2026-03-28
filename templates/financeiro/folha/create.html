@@ -12,11 +12,11 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="label">Departamento</label>
-            <select name="departamento_filtro" class="input"
+            <select name="departamento" class="input"
                     hx-get="{% url 'web:fin-folha-colaboradores' %}"
                     hx-target="#select-colaborador"
                     hx-trigger="change"
-                    hx-vals='js:{"departamento": this.value}'>
+                    hx-swap="innerHTML">
               <option value="">Todos</option>
               {% for d in departamentos %}
               <option value="{{ d.pk }}">{{ d.nome }}</option>
