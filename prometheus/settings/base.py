@@ -78,6 +78,9 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.web.context_processors.navigation",
             ],
+            "builtins": [
+                "apps.web.templatetags.fmt",
+            ],
         },
     },
 ]
