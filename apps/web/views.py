@@ -15,7 +15,7 @@ from django.contrib.auth.models import Group
 from apps.accounts.models import Usuario
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.financeiro.models import (
-    CategoriaFinanceira, Cobranca, ContaBancaria, Despesa,
+    CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria, Despesa,
     FolhaPagamento, Lancamento, NotaFiscal, Tributo,
 )
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
@@ -3926,3 +3926,43 @@ class TributoConfirmarView(PermissionRequiredMixin, View):
         tributo.comprovante = request.FILES.get("comprovante") or tributo.comprovante
         tributo.save()
         return redirect("web:fin-tributos")
+
+
+# ---------------------------------------------------------------------------
+# Configuracao de Folha
+# ---------------------------------------------------------------------------
+class ConfiguracaoFolhaView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.change_folhapagamento"
+
+    def get(self, request):
+        config = ConfiguracaoFolha.get()
+        return render(request, "financeiro/folha/configuracao.html", {
+            "config": config,
+            "contas": ContaBancaria.objects.filter(ativo=True),
+        })
+
+    def post(self, request):
+        config = ConfiguracaoFolha.get()
+        config.dia_pagamento = int(request.POST.get("dia_pagamento", 5))
+        config.gerar_salario = "gerar_salario" in request.POST
+        config.gerar_pj = "gerar_pj" in request.POST
+        config.gerar_pro_labore = "gerar_pro_labore" in request.POST
+        config.conta_padrao_id = request.POST.get("conta_padrao") or None
+        config.save()
+        from django.contrib import messages
+        messages.success(request, "Configuração de folha salva com sucesso!")
+        return redirect("web:fin-folha-config")
+
+
+class GerarFolhaView(PermissionRequiredMixin, View):
+    """Gera folha do mes corrente manualmente."""
+    permission_required = "financeiro.add_folhapagamento"
+
+    def post(self, request):
+        from django.core.management import call_command
+        from io import StringIO
+        out = StringIO()
+        call_command("gerar_folha_mensal", stdout=out)
+        from django.contrib import messages
+        messages.success(request, out.getvalue().strip())
+        return redirect("web:fin-folha")

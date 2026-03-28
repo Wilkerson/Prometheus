@@ -421,6 +421,45 @@ class NotaFiscal(models.Model):
 
 
 # =========================================================================
+# Configuracao de Folha
+# =========================================================================
+class ConfiguracaoFolha(models.Model):
+    """Configuracao unica — singleton."""
+    dia_pagamento = models.PositiveSmallIntegerField(
+        "Dia util para pagamento",
+        default=5,
+        help_text="Ex: 5 = quinto dia util do mes",
+    )
+    gerar_salario = models.BooleanField("Gerar salários CLT automaticamente", default=True)
+    gerar_pj = models.BooleanField("Gerar pagamentos PJ automaticamente", default=True)
+    gerar_pro_labore = models.BooleanField("Gerar pró-labore automaticamente", default=True)
+    conta_padrao = models.ForeignKey(
+        ContaBancaria,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Conta padrão para pagamentos",
+    )
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Configuração de folha"
+        verbose_name_plural = "Configuração de folha"
+
+    def __str__(self):
+        return f"Pagamento no {self.dia_pagamento}º dia útil"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1  # singleton
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+# =========================================================================
 # Folha de Pagamento
 # =========================================================================
 class FolhaPagamento(models.Model):

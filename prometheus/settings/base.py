@@ -209,6 +209,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60 * 60 * 24,  # verifica diariamente, gera so quando necessario
         "options": {"queue": "default"},
     },
+    "financeiro-folha-mensal": {
+        "task": "financeiro.gerar_folha_mensal",
+        "schedule": 60 * 60 * 24,  # verifica diariamente, gera no 1o dia do mes
+        "options": {"queue": "default"},
+    },
 }
 
 # -----------------------------------------------------------------------------

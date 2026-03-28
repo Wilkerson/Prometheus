@@ -2,7 +2,16 @@
 {% block title %}Folha de Pagamento{% endblock %}
 {% block page_title %}Folha de Pagamento{% endblock %}
 {% block page_actions %}
-{% if can_add %}<a href="{% url 'web:fin-folha-create' %}" class="btn-primary">+ Novo Pagamento</a>{% endif %}
+<div class="flex gap-2">
+  {% if can_add %}
+  <form method="post" action="{% url 'web:fin-folha-gerar' %}" class="inline">
+    {% csrf_token %}
+    <button type="submit" class="btn-secondary text-[12px]">Gerar folha do mês</button>
+  </form>
+  <a href="{% url 'web:fin-folha-create' %}" class="btn-primary">+ Novo Pagamento</a>
+  {% endif %}
+  <a href="{% url 'web:fin-folha-config' %}" class="btn-secondary text-[12px]">Configuração</a>
+</div>
 {% endblock %}
 {% block content %}
 <div class="card mb-4">

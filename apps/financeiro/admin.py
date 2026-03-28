@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CategoriaFinanceira, Cobranca, ContaBancaria, Despesa, FolhaPagamento, Lancamento, NotaFiscal, Tributo
+from .models import CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria, Despesa, FolhaPagamento, Lancamento, NotaFiscal, Tributo
 
 
 @admin.register(CategoriaFinanceira)
@@ -61,3 +61,8 @@ class TributoAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     search_fields = ("tipo",)
     date_hierarchy = "vencimento"
+
+
+@admin.register(ConfiguracaoFolha)
+class ConfiguracaoFolhaAdmin(admin.ModelAdmin):
+    list_display = ("dia_pagamento", "gerar_salario", "gerar_pj", "gerar_pro_labore")

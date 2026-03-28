@@ -149,6 +149,8 @@ urlpatterns = [
     path("financeiro/folha/colaboradores/", views.FolhaColaboradoresView.as_view(), name="fin-folha-colaboradores"),
     path("financeiro/folha/novo/", views.FolhaCreateView.as_view(), name="fin-folha-create"),
     path("financeiro/folha/<int:pk>/confirmar/", views.FolhaConfirmarView.as_view(), name="fin-folha-confirmar"),
+    path("financeiro/folha/configuracao/", views.ConfiguracaoFolhaView.as_view(), name="fin-folha-config"),
+    path("financeiro/folha/gerar/", views.GerarFolhaView.as_view(), name="fin-folha-gerar"),
     # Financeiro — Tributos
     path("financeiro/tributos/", views.TributoListView.as_view(), name="fin-tributos"),
     path("financeiro/tributos/novo/", views.TributoCreateView.as_view(), name="fin-tributo-create"),
