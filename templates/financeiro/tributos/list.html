@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Tributos{% endblock %}
+{% block page_title %}Impostos e Tributos{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:fin-tributo-create' %}" class="btn-primary">+ Nova Guia</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" placeholder="Tipo de tributo..." class="input"
+             hx-get="{% url 'web:fin-tributos' %}" hx-target="#table" hx-trigger="input changed delay:300ms"
+             hx-include="[name='status']" hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Status</label>
+      <select name="status" class="input"
+              hx-get="{% url 'web:fin-tributos' %}" hx-target="#table" hx-include="[name='q']" hx-push-url="true">
+        <option value="">Todos</option>
+        {% for v, l in status_choices %}
+        <option value="{{ v }}" {% if current_status == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card" id="table">{% include "financeiro/tributos/_table.html" %}</div>
+{% endblock %}

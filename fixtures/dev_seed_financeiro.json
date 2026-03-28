@@ -150,5 +150,47 @@
     "data_emissao": "2026-03-05", "cliente": null, "fornecedor": "Hostgator",
     "arquivo": "", "lancamento": 4, "observacao": "Servidor VPS março",
     "criado_em": "2026-03-05T10:00:00Z"
+  }},
+
+  {"model": "financeiro.folhapagamento", "pk": 1, "fields": {
+    "colaborador": 1, "tipo": "salario", "competencia": "2026-03-01",
+    "valor_bruto": "18000.00", "desconto_inss": "828.39", "desconto_ir": "1880.64",
+    "outros_descontos": "0.00", "valor_liquido": "15290.97",
+    "status": "pago", "data_pagamento": "2026-04-05", "conta": 1,
+    "lancamento": null, "observacao": "",
+    "criado_em": "2026-03-28T10:00:00Z", "atualizado_em": "2026-04-05T10:00:00Z"
+  }},
+  {"model": "financeiro.folhapagamento", "pk": 2, "fields": {
+    "colaborador": 3, "tipo": "salario", "competencia": "2026-03-01",
+    "valor_bruto": "12000.00", "desconto_inss": "828.39", "desconto_ir": "1065.24",
+    "outros_descontos": "0.00", "valor_liquido": "10106.37",
+    "status": "aprovado", "data_pagamento": null, "conta": 1,
+    "lancamento": null, "observacao": "",
+    "criado_em": "2026-03-28T10:00:00Z", "atualizado_em": "2026-03-28T10:00:00Z"
+  }},
+  {"model": "financeiro.folhapagamento", "pk": 3, "fields": {
+    "colaborador": 6, "tipo": "salario", "competencia": "2026-03-01",
+    "valor_bruto": "12000.00", "desconto_inss": "0.00", "desconto_ir": "0.00",
+    "outros_descontos": "0.00", "valor_liquido": "12000.00",
+    "status": "calculado", "data_pagamento": null, "conta": 1,
+    "lancamento": null, "observacao": "PJ — sem descontos",
+    "criado_em": "2026-03-28T10:00:00Z", "atualizado_em": "2026-03-28T10:00:00Z"
+  }},
+
+  {"model": "financeiro.tributo", "pk": 1, "fields": {
+    "tipo": "DAS (Simples Nacional)", "competencia": "2026-03-01",
+    "valor": "950.00", "vencimento": "2026-04-20",
+    "numero_guia": "", "status": "a_vencer",
+    "data_pagamento": null, "comprovante": "", "conta": 1,
+    "lancamento": null, "observacao": "Guia DAS ref. março",
+    "criado_em": "2026-03-28T10:00:00Z", "atualizado_em": "2026-03-28T10:00:00Z"
+  }},
+  {"model": "financeiro.tributo", "pk": 2, "fields": {
+    "tipo": "ISS", "competencia": "2026-03-01",
+    "valor": "265.00", "vencimento": "2026-04-10",
+    "numero_guia": "", "status": "a_vencer",
+    "data_pagamento": null, "comprovante": "", "conta": 1,
+    "lancamento": null, "observacao": "",
+    "criado_em": "2026-03-28T10:00:00Z", "atualizado_em": "2026-03-28T10:00:00Z"
   }}
 ]

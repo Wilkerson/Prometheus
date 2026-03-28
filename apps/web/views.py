@@ -14,7 +14,10 @@ from django.contrib.auth.models import Group
 
 from apps.accounts.models import Usuario
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
-from apps.financeiro.models import CategoriaFinanceira, Cobranca, ContaBancaria, Despesa, Lancamento, NotaFiscal
+from apps.financeiro.models import (
+    CategoriaFinanceira, Cobranca, ContaBancaria, Despesa,
+    FolhaPagamento, Lancamento, NotaFiscal, Tributo,
+)
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
 from apps.rh.models import (
@@ -1100,6 +1103,8 @@ MODULOS_PERMISSOES = [
     {"label": "Cobranças", "app": "financeiro", "model": "cobranca"},
     {"label": "Despesas", "app": "financeiro", "model": "despesa"},
     {"label": "Notas Fiscais", "app": "financeiro", "model": "notafiscal"},
+    {"label": "Folha Pgto", "app": "financeiro", "model": "folhapagamento"},
+    {"label": "Tributos", "app": "financeiro", "model": "tributo"},
 ]
 
 ACOES = [
@@ -3666,3 +3671,241 @@ class NotaFiscalCreateView(PermissionRequiredMixin, View):
             observacao=request.POST.get("observacao", "").strip(),
         )
         return redirect("web:fin-nfs")
+
+
+# ---------------------------------------------------------------------------
+# Folha de Pagamento
+# ---------------------------------------------------------------------------
+class FolhaListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "financeiro/folha/list.html"
+    partial_template_name = "financeiro/folha/_table.html"
+    context_object_name = "folhas"
+    paginate_by = 20
+    permission_required = "financeiro.view_folhapagamento"
+
+    def get_queryset(self):
+        qs = FolhaPagamento.objects.select_related("colaborador", "conta")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(colaborador__nome_completo__icontains=search)
+        tipo = self.request.GET.get("tipo")
+        if tipo:
+            qs = qs.filter(tipo=tipo)
+        status = self.request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tipo_choices"] = FolhaPagamento.TipoPagamento.choices
+        ctx["status_choices"] = FolhaPagamento.StatusFolha.choices
+        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["can_add"] = self.request.user.has_perm("financeiro.add_folhapagamento")
+        return ctx
+
+
+class FolhaCreateView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.add_folhapagamento"
+
+    def get(self, request):
+        return render(request, "financeiro/folha/create.html", {
+            "tipo_choices": FolhaPagamento.TipoPagamento.choices,
+            "colaboradores": Colaborador.objects.filter(status="ativo"),
+            "contas": ContaBancaria.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        colab_id = request.POST.get("colaborador")
+        if not colab_id:
+            erros["colaborador"] = "O colaborador é obrigatório."
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo é obrigatório."
+        competencia = request.POST.get("competencia", "").strip()
+        if not competencia:
+            erros["competencia"] = "A competência é obrigatória."
+        valor_bruto = request.POST.get("valor_bruto", "").strip()
+        if not valor_bruto:
+            erros["valor_bruto"] = "O valor bruto é obrigatório."
+
+        if erros:
+            return render(request, "financeiro/folha/create.html", {
+                "tipo_choices": FolhaPagamento.TipoPagamento.choices,
+                "colaboradores": Colaborador.objects.filter(status="ativo"),
+                "contas": ContaBancaria.objects.filter(ativo=True),
+                "erros": erros,
+            })
+
+        FolhaPagamento.objects.create(
+            colaborador_id=colab_id,
+            tipo=tipo,
+            competencia=competencia,
+            valor_bruto=valor_bruto,
+            desconto_inss=request.POST.get("desconto_inss", 0) or 0,
+            desconto_ir=request.POST.get("desconto_ir", 0) or 0,
+            outros_descontos=request.POST.get("outros_descontos", 0) or 0,
+            valor_liquido=0,  # calculado no save()
+            conta_id=request.POST.get("conta") or None,
+            observacao=request.POST.get("observacao", "").strip(),
+        )
+        return redirect("web:fin-folha")
+
+
+class FolhaConfirmarView(PermissionRequiredMixin, View):
+    """Confirma pagamento de folha e gera lancamento."""
+    permission_required = "financeiro.change_folhapagamento"
+
+    def post(self, request, pk):
+        folha = get_object_or_404(FolhaPagamento.objects.select_related("colaborador"), pk=pk)
+        if folha.status == "pago":
+            return redirect("web:fin-folha")
+
+        acao = request.POST.get("acao", "pagar")
+        if acao == "aprovar":
+            folha.status = "aprovado"
+            folha.save(update_fields=["status"])
+            return redirect("web:fin-folha")
+
+        from django.utils import timezone
+        hoje = timezone.now().date()
+
+        cat = CategoriaFinanceira.objects.filter(
+            tipo="despesa", nome__icontains="salario" if folha.tipo == "salario" else "pro-labore"
+        ).first() or CategoriaFinanceira.objects.filter(tipo="despesa", pai__isnull=False).first()
+        conta = folha.conta or ContaBancaria.objects.filter(ativo=True).first()
+
+        lanc = Lancamento.objects.create(
+            tipo="despesa",
+            descricao=f"Folha: {folha.get_tipo_display()} — {folha.colaborador.nome_completo} ({folha.competencia:%m/%Y})",
+            valor=folha.valor_liquido,
+            categoria=cat,
+            conta=conta,
+            departamento=folha.colaborador.departamento,
+            canal="manual",
+            data_vencimento=hoje,
+            data_competencia=folha.competencia,
+            data_pagamento=hoje,
+            status="confirmado",
+            criado_por=request.user,
+        )
+        folha.status = "pago"
+        folha.data_pagamento = hoje
+        folha.lancamento = lanc
+        folha.save()
+        return redirect("web:fin-folha")
+
+
+# ---------------------------------------------------------------------------
+# Tributos
+# ---------------------------------------------------------------------------
+class TributoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "financeiro/tributos/list.html"
+    partial_template_name = "financeiro/tributos/_table.html"
+    context_object_name = "tributos"
+    paginate_by = 20
+    permission_required = "financeiro.view_tributo"
+
+    def get_queryset(self):
+        qs = Tributo.objects.all()
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(tipo__icontains=search)
+        status = self.request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["status_choices"] = Tributo.StatusTributo.choices
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["can_add"] = self.request.user.has_perm("financeiro.add_tributo")
+        return ctx
+
+
+class TributoCreateView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.add_tributo"
+
+    def get(self, request):
+        return render(request, "financeiro/tributos/create.html", {
+            "contas": ContaBancaria.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo é obrigatório."
+        competencia = request.POST.get("competencia", "").strip()
+        if not competencia:
+            erros["competencia"] = "A competência é obrigatória."
+        valor = request.POST.get("valor", "").strip()
+        if not valor:
+            erros["valor"] = "O valor é obrigatório."
+        vencimento = request.POST.get("vencimento", "").strip()
+        if not vencimento:
+            erros["vencimento"] = "O vencimento é obrigatório."
+
+        if erros:
+            return render(request, "financeiro/tributos/create.html", {
+                "contas": ContaBancaria.objects.filter(ativo=True),
+                "erros": erros,
+            })
+
+        Tributo.objects.create(
+            tipo=tipo,
+            competencia=competencia,
+            valor=valor,
+            vencimento=vencimento,
+            numero_guia=request.POST.get("numero_guia", "").strip(),
+            conta_id=request.POST.get("conta") or None,
+            observacao=request.POST.get("observacao", "").strip(),
+            comprovante=request.FILES.get("comprovante"),
+        )
+        return redirect("web:fin-tributos")
+
+
+class TributoConfirmarView(PermissionRequiredMixin, View):
+    """Confirma pagamento de tributo e gera lancamento."""
+    permission_required = "financeiro.change_tributo"
+
+    def post(self, request, pk):
+        tributo = get_object_or_404(Tributo, pk=pk)
+        if tributo.status == "pago":
+            return redirect("web:fin-tributos")
+
+        from django.utils import timezone
+        hoje = timezone.now().date()
+
+        cat = CategoriaFinanceira.objects.filter(
+            tipo="despesa", nome__icontains=tributo.tipo.split()[0]
+        ).first() or CategoriaFinanceira.objects.filter(
+            tipo="despesa", nome__icontains="imposto"
+        ).first() or CategoriaFinanceira.objects.filter(tipo="despesa", pai__isnull=False).first()
+
+        conta = tributo.conta or ContaBancaria.objects.filter(ativo=True).first()
+
+        lanc = Lancamento.objects.create(
+            tipo="despesa",
+            descricao=f"Tributo: {tributo.tipo} — {tributo.competencia:%m/%Y}",
+            valor=tributo.valor,
+            categoria=cat,
+            conta=conta,
+            canal="manual",
+            data_vencimento=tributo.vencimento,
+            data_competencia=tributo.competencia,
+            data_pagamento=hoje,
+            status="confirmado",
+            criado_por=request.user,
+        )
+        tributo.status = "pago"
+        tributo.data_pagamento = hoje
+        tributo.lancamento = lanc
+        tributo.comprovante = request.FILES.get("comprovante") or tributo.comprovante
+        tributo.save()
+        return redirect("web:fin-tributos")

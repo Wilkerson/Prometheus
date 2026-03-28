@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Nova Guia{% endblock %}
+{% block page_title %}Novo Tributo{% endblock %}
+{% block page_actions %}<a href="{% url 'web:fin-tributos' %}" class="btn-secondary">Voltar</a>{% endblock %}
+{% block content %}
+<div class="max-w-lg">
+  <div class="card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% if erros %}{% include "clientes/_form_errors.html" %}{% endif %}
+      <div class="space-y-4 mt-2">
+        <div>
+          <label class="label">Tipo de tributo <span class="text-red-500">*</span></label>
+          <input type="text" name="tipo" required class="input" placeholder="Ex: DAS, ISS, IRPJ, CSLL, PIS, COFINS" list="tributos-sugestoes">
+          <datalist id="tributos-sugestoes">
+            <option value="DAS (Simples Nacional)">
+            <option value="ISS">
+            <option value="IRPJ">
+            <option value="CSLL">
+            <option value="PIS">
+            <option value="COFINS">
+            <option value="INSS Patronal">
+            <option value="IR Retido">
+          </datalist>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Competência <span class="text-red-500">*</span></label>
+            <input type="date" name="competencia" required class="input">
+            <p class="text-[10px] text-t3 mt-1">Período de referência (1º dia do mês)</p>
+          </div>
+          <div>
+            <label class="label">Vencimento <span class="text-red-500">*</span></label>
+            <input type="date" name="vencimento" required class="input">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Valor (R$) <span class="text-red-500">*</span></label>
+            <input type="number" step="0.01" name="valor" required class="input">
+          </div>
+          <div>
+            <label class="label">Nº da guia / DARF</label>
+            <input type="text" name="numero_guia" class="input">
+          </div>
+        </div>
+        <div>
+          <label class="label">Conta de pagamento</label>
+          <select name="conta" class="input">
+            <option value="">Selecione...</option>
+            {% for c in contas %}
+            <option value="{{ c.pk }}">{{ c.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="label">Comprovante</label>
+          <input type="file" name="comprovante"
+                 class="block w-full text-sm text-t2 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-bg4 file:text-t2 hover:file:bg-bdr2">
+        </div>
+        <div>
+          <label class="label">Observação</label>
+          <textarea name="observacao" rows="2" class="input"></textarea>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button type="submit" class="btn-primary">Cadastrar</button>
+        <a href="{% url 'web:fin-tributos' %}" class="btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

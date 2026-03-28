@@ -1,0 +1,49 @@
+{% if tributos %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium">Tributo</th>
+        <th class="pb-3 font-medium">Competência</th>
+        <th class="pb-3 font-medium">Valor</th>
+        <th class="pb-3 font-medium">Vencimento</th>
+        <th class="pb-3 font-medium">Status</th>
+        <th class="pb-3 font-medium">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for t in tributos %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium text-t1">{{ t.tipo }}</td>
+        <td class="py-3 text-t2">{{ t.competencia|date:"m/Y" }}</td>
+        <td class="py-3 font-medium text-red-400">R$ {{ t.valor|floatformat:2 }}</td>
+        <td class="py-3 text-t2 {% if t.esta_vencido %}text-red-400{% endif %}">
+          {{ t.vencimento|date:"d/m/Y" }}
+          {% if t.dias_para_vencer is not None and t.dias_para_vencer <= 7 and t.dias_para_vencer >= 0 %}
+          <span class="text-[10px] text-amber-500 ml-1">({{ t.dias_para_vencer }}d)</span>
+          {% endif %}
+        </td>
+        <td class="py-3">
+          {% if t.status == 'a_vencer' and t.esta_vencido %}<span class="badge bg-red-500/15 text-red-500">Vencido</span>
+          {% elif t.status == 'a_vencer' %}<span class="badge bg-amber-500/15 text-amber-500">A vencer</span>
+          {% elif t.status == 'pago' %}<span class="badge bg-emerald-500/15 text-emerald-500">Pago</span>
+          {% else %}<span class="badge bg-red-500/15 text-red-500">Vencido</span>{% endif %}
+        </td>
+        <td class="py-3">
+          {% if t.status != 'pago' %}
+          <form method="post" action="{% url 'web:fin-tributo-confirmar' t.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <button type="submit" class="text-[12px] text-emerald-500 hover:text-emerald-400">Confirmar pgto</button>
+          </form>
+          {% else %}
+          <span class="text-[11px] text-t3">{{ t.data_pagamento|date:"d/m/Y" }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhum tributo cadastrado.</p>
+{% endif %}

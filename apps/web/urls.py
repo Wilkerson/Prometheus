@@ -144,4 +144,12 @@ urlpatterns = [
     # Financeiro — Notas Fiscais
     path("financeiro/nfs/", views.NotaFiscalListView.as_view(), name="fin-nfs"),
     path("financeiro/nfs/novo/", views.NotaFiscalCreateView.as_view(), name="fin-nf-create"),
+    # Financeiro — Folha de Pagamento
+    path("financeiro/folha/", views.FolhaListView.as_view(), name="fin-folha"),
+    path("financeiro/folha/novo/", views.FolhaCreateView.as_view(), name="fin-folha-create"),
+    path("financeiro/folha/<int:pk>/confirmar/", views.FolhaConfirmarView.as_view(), name="fin-folha-confirmar"),
+    # Financeiro — Tributos
+    path("financeiro/tributos/", views.TributoListView.as_view(), name="fin-tributos"),
+    path("financeiro/tributos/novo/", views.TributoCreateView.as_view(), name="fin-tributo-create"),
+    path("financeiro/tributos/<int:pk>/confirmar/", views.TributoConfirmarView.as_view(), name="fin-tributo-confirmar"),
 ]

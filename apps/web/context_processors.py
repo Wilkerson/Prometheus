@@ -33,6 +33,8 @@ def navigation(request):
                 {"url": "/financeiro/cobrancas/", "label": "Contas a Receber", "permission": "financeiro.view_cobranca"},
                 {"url": "/financeiro/despesas/", "label": "Contas a Pagar", "permission": "financeiro.view_despesa"},
                 {"url": "/financeiro/nfs/", "label": "Notas Fiscais", "permission": "financeiro.view_notafiscal"},
+                {"url": "/financeiro/folha/", "label": "Folha", "permission": "financeiro.view_folhapagamento"},
+                {"url": "/financeiro/tributos/", "label": "Tributos", "permission": "financeiro.view_tributo"},
                 {"url": "/financeiro/contas/", "label": "Contas Bancárias", "permission": "financeiro.view_contabancaria"},
             ],
         },

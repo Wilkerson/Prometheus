@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CategoriaFinanceira, Cobranca, ContaBancaria, Despesa, Lancamento, NotaFiscal
+from .models import CategoriaFinanceira, Cobranca, ContaBancaria, Despesa, FolhaPagamento, Lancamento, NotaFiscal, Tributo
 
 
 @admin.register(CategoriaFinanceira)
@@ -46,3 +46,18 @@ class NotaFiscalAdmin(admin.ModelAdmin):
     list_filter = ("tipo",)
     search_fields = ("numero", "fornecedor")
     date_hierarchy = "data_emissao"
+
+
+@admin.register(FolhaPagamento)
+class FolhaPagamentoAdmin(admin.ModelAdmin):
+    list_display = ("colaborador", "tipo", "competencia", "valor_bruto", "valor_liquido", "status")
+    list_filter = ("tipo", "status")
+    search_fields = ("colaborador__nome_completo",)
+
+
+@admin.register(Tributo)
+class TributoAdmin(admin.ModelAdmin):
+    list_display = ("tipo", "competencia", "valor", "vencimento", "status")
+    list_filter = ("status",)
+    search_fields = ("tipo",)
+    date_hierarchy = "vencimento"

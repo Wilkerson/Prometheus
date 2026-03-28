@@ -418,3 +418,135 @@ class NotaFiscal(models.Model):
 
     def __str__(self):
         return f"NF {self.numero} — R${self.valor} ({self.get_tipo_display()})"
+
+
+# =========================================================================
+# Folha de Pagamento
+# =========================================================================
+class FolhaPagamento(models.Model):
+    class TipoPagamento(models.TextChoices):
+        SALARIO = "salario", "Salário"
+        PRO_LABORE = "pro_labore", "Pró-labore"
+        BONUS = "bonus", "Bônus / Gratificação"
+
+    class StatusFolha(models.TextChoices):
+        CALCULADO = "calculado", "Calculado"
+        APROVADO = "aprovado", "Aprovado"
+        PAGO = "pago", "Pago"
+
+    colaborador = models.ForeignKey(
+        "rh.Colaborador",
+        on_delete=models.CASCADE,
+        related_name="folhas",
+        verbose_name="Colaborador",
+    )
+    tipo = models.CharField("Tipo", max_length=10, choices=TipoPagamento.choices)
+    competencia = models.DateField(
+        "Competência (mês/ano)",
+        help_text="Usar o 1o dia do mês de referência",
+    )
+    valor_bruto = models.DecimalField("Valor bruto", max_digits=12, decimal_places=2)
+    desconto_inss = models.DecimalField(
+        "Desconto INSS", max_digits=10, decimal_places=2, default=0,
+    )
+    desconto_ir = models.DecimalField(
+        "Desconto IR", max_digits=10, decimal_places=2, default=0,
+    )
+    outros_descontos = models.DecimalField(
+        "Outros descontos", max_digits=10, decimal_places=2, default=0,
+    )
+    valor_liquido = models.DecimalField("Valor líquido", max_digits=12, decimal_places=2)
+    status = models.CharField(
+        "Status", max_length=10, choices=StatusFolha.choices,
+        default=StatusFolha.CALCULADO,
+    )
+    data_pagamento = models.DateField("Data de pagamento", null=True, blank=True)
+    conta = models.ForeignKey(
+        ContaBancaria, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="folhas", verbose_name="Conta de pagamento",
+    )
+    lancamento = models.OneToOneField(
+        Lancamento, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="folha_origem", verbose_name="Lançamento gerado",
+    )
+    observacao = models.TextField("Observação", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Folha de pagamento"
+        verbose_name_plural = "Folhas de pagamento"
+        ordering = ["-competencia", "colaborador__nome_completo"]
+        unique_together = [("colaborador", "tipo", "competencia")]
+
+    def __str__(self):
+        return f"{self.colaborador} — {self.get_tipo_display()} {self.competencia:%m/%Y}"
+
+    def save(self, *args, **kwargs):
+        self.valor_liquido = (
+            self.valor_bruto - self.desconto_inss - self.desconto_ir - self.outros_descontos
+        )
+        super().save(*args, **kwargs)
+
+
+# =========================================================================
+# Tributo (extensivel pra qualquer regime fiscal)
+# =========================================================================
+class Tributo(models.Model):
+    class StatusTributo(models.TextChoices):
+        A_VENCER = "a_vencer", "A vencer"
+        PAGO = "pago", "Pago"
+        VENCIDO = "vencido", "Vencido"
+
+    tipo = models.CharField(
+        "Tipo de tributo", max_length=100,
+        help_text="Ex: DAS, ISS, IRPJ, CSLL, PIS, COFINS, INSS patronal",
+    )
+    competencia = models.DateField(
+        "Competência",
+        help_text="Período de referência (1o dia do mês)",
+    )
+    valor = models.DecimalField("Valor", max_digits=12, decimal_places=2)
+    vencimento = models.DateField("Vencimento")
+    numero_guia = models.CharField("Número da guia / DARF", max_length=100, blank=True)
+    status = models.CharField(
+        "Status", max_length=10, choices=StatusTributo.choices,
+        default=StatusTributo.A_VENCER,
+    )
+    data_pagamento = models.DateField("Data de pagamento", null=True, blank=True)
+    comprovante = models.FileField(
+        "Comprovante", upload_to="financeiro/tributos/%Y/%m/", blank=True,
+    )
+    conta = models.ForeignKey(
+        ContaBancaria, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="tributos", verbose_name="Conta de pagamento",
+    )
+    lancamento = models.OneToOneField(
+        Lancamento, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="tributo_origem", verbose_name="Lançamento gerado",
+    )
+    observacao = models.TextField("Observação", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Tributo"
+        verbose_name_plural = "Tributos"
+        ordering = ["-vencimento"]
+
+    def __str__(self):
+        return f"{self.tipo} — {self.competencia:%m/%Y} (R${self.valor})"
+
+    @property
+    def esta_vencido(self):
+        if self.status == "pago":
+            return False
+        from django.utils import timezone
+        return self.vencimento < timezone.now().date()
+
+    @property
+    def dias_para_vencer(self):
+        if self.status == "pago":
+            return None
+        from django.utils import timezone
+        return (self.vencimento - timezone.now().date()).days
