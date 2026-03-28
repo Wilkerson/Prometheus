@@ -12,14 +12,32 @@ def navigation(request):
     ]
 
     # Grupos colapsaveis — departamentos como menus da sidebar
+    # Ordem: RH → Comercial → Financeiro → Administração
     groups_def = [
+        {
+            "key": "rh",
+            "label": "RH / Pessoas",
+            "items": [
+                {"url": "/rh/colaboradores/", "label": "Colaboradores", "permission": "rh.view_colaborador"},
+                {"url": "/rh/documentos/", "label": "Documentos", "permission": "rh.view_documentocolaborador"},
+                {"url": "/rh/onboarding/templates/", "label": "Onboarding", "permission": "rh.view_onboardingtemplate"},
+                {"url": "/rh/ausencias/", "label": "Férias / Ausências", "permission": "rh.view_solicitacaoausencia"},
+                {"url": "/rh/treinamentos/", "label": "Treinamentos", "permission": "rh.view_treinamento"},
+                {"url": "/rh/metas/", "label": "Metas", "permission": "rh.view_cicloavaliacao"},
+                {"url": "/rh/pdi/", "label": "PDI", "permission": "rh.view_pdi"},
+                {"url": "/rh/enps/", "label": "eNPS", "permission": "rh.view_pesquisaenps"},
+                {"url": "/rh/relatorios/", "label": "Relatórios", "permission": "rh.view_colaborador"},
+                {"url": "/rh/cargos/", "label": "Cargos", "permission": "rh.view_cargo"},
+                {"url": "/rh/setores/", "label": "Setores", "permission": "rh.view_setor"},
+            ],
+        },
         {
             "key": "comercial",
             "label": "Comercial",
             "items": [
                 {"url": "/clientes/", "label": "Clientes", "permission": "crm.view_cliente"},
                 {"url": "/clientes/pipeline/", "label": "Pipeline", "permission": "crm.change_cliente"},
-                {"url": "/clientes/calendario/", "label": "Calendario", "permission": "crm.view_cliente"},
+                {"url": "/clientes/calendario/", "label": "Calendário", "permission": "crm.view_cliente"},
                 {"url": "/clientes/novo/", "label": "+ Novo Cliente", "permission": "crm.add_cliente"},
                 {"url": "/produtos/", "label": "Produtos", "permission": "crm.view_produto"},
                 {"url": "/planos/", "label": "Planos", "permission": "crm.view_plano"},
@@ -40,27 +58,10 @@ def navigation(request):
             ],
         },
         {
-            "key": "rh",
-            "label": "RH / Pessoas",
-            "items": [
-                {"url": "/rh/colaboradores/", "label": "Colaboradores", "permission": "rh.view_colaborador"},
-                {"url": "/rh/documentos/", "label": "Documentos", "permission": "rh.view_documentocolaborador"},
-                {"url": "/rh/onboarding/templates/", "label": "Onboarding", "permission": "rh.view_onboardingtemplate"},
-                {"url": "/rh/ausencias/", "label": "Férias / Ausências", "permission": "rh.view_solicitacaoausencia"},
-                {"url": "/rh/treinamentos/", "label": "Treinamentos", "permission": "rh.view_treinamento"},
-                {"url": "/rh/metas/", "label": "Metas", "permission": "rh.view_cicloavaliacao"},
-                {"url": "/rh/pdi/", "label": "PDI", "permission": "rh.view_pdi"},
-                {"url": "/rh/enps/", "label": "eNPS", "permission": "rh.view_pesquisaenps"},
-                {"url": "/rh/relatorios/", "label": "Relatórios", "permission": "rh.view_colaborador"},
-                {"url": "/rh/cargos/", "label": "Cargos", "permission": "rh.view_cargo"},
-                {"url": "/rh/setores/", "label": "Setores", "permission": "rh.view_setor"},
-            ],
-        },
-        {
             "key": "admin",
             "label": "Administração",
             "items": [
-                {"url": "/usuarios/", "label": "Usuarios", "permission": "accounts.view_usuario"},
+                {"url": "/usuarios/", "label": "Usuários", "permission": "accounts.view_usuario"},
                 {"url": "/parceiros/", "label": "Parceiros", "permission": "crm.view_entidadeparceira"},
                 {"url": "/tokens/", "label": "Tokens API", "permission": "integracao.view_tokenintegracao"},
             ],
