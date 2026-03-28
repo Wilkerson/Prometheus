@@ -1,3 +1,4 @@
+{% load fmt %}
 {% if despesas %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
@@ -17,7 +18,7 @@
       <tr class="hover:bg-bg3">
         <td class="py-3 font-medium text-t1">{{ d.descricao }}</td>
         <td class="py-3 text-t2">{{ d.fornecedor }}</td>
-        <td class="py-3 font-medium text-red-400">R$ {{ d.valor|floatformat:2 }}</td>
+        <td class="py-3 font-medium text-red-400">{{ d.valor|brl }}</td>
         <td class="py-3 text-t2">{{ d.vencimento|date:"d/m/Y" }}</td>
         <td class="py-3 text-t2">{{ d.get_recorrencia_display }}</td>
         <td class="py-3">

@@ -1,3 +1,4 @@
+{% load fmt %}
 {% if nfs %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
@@ -19,7 +20,7 @@
           {% if nf.tipo == 'emitida' %}<span class="badge bg-emerald-500/15 text-emerald-500">Emitida</span>
           {% else %}<span class="badge bg-blue-500/15 text-blue-500">Recebida</span>{% endif %}
         </td>
-        <td class="py-3 text-t1 font-medium">R$ {{ nf.valor|floatformat:2 }}</td>
+        <td class="py-3 text-t1 font-medium">{{ nf.valor|brl }}</td>
         <td class="py-3 text-t2">
           {% if nf.tipo == 'emitida' and nf.cliente %}{{ nf.cliente.nome }}{% else %}{{ nf.fornecedor }}{% endif %}
         </td>

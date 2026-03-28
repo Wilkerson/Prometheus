@@ -1,3 +1,4 @@
+{% load fmt %}
 {% if ativos %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
@@ -23,11 +24,11 @@
           <div class="text-t2">{{ a.get_tipo_display }}</div>
           <div class="text-[10px] text-t3">{{ a.get_categoria_display }}</div>
         </td>
-        <td class="py-3 text-t2">R$ {{ a.valor_compra|floatformat:2 }}</td>
-        <td class="py-3 font-medium text-t1">R$ {{ a.valor_residual|floatformat:2 }}</td>
+        <td class="py-3 text-t2">{{ a.valor_compra|brl }}</td>
+        <td class="py-3 font-medium text-t1">{{ a.valor_residual|brl }}</td>
         <td class="py-3 text-t2">
-          <div>R$ {{ a.depreciacao_acumulada|floatformat:2 }}</div>
-          <div class="text-[10px] text-t3">{{ a.taxa_depreciacao }}% a.a. (R$ {{ a.depreciacao_mensal|floatformat:2 }}/mês)</div>
+          <div>{{ a.depreciacao_acumulada|brl }}</div>
+          <div class="text-[10px] text-t3">{{ a.taxa_depreciacao }}% a.a. ({{ a.depreciacao_mensal|brl }}/mês)</div>
         </td>
         <td class="py-3">
           {% if a.status == 'ativo' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>

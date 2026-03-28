@@ -30,7 +30,7 @@
     {% if pesquisa.status == 'rascunho' %}<div class="text-lg font-bold text-t3">Rascunho</div>
     {% elif pesquisa.status == 'ativa' %}<div class="text-lg font-bold text-emerald-500">Ativa</div>
     {% else %}<div class="text-lg font-bold text-blue-500">Encerrada</div>{% endif %}
-    <div class="text-[11px] text-t3 mt-1">{{ pesquisa.data_inicio|date:"d/m" }} — {{ pesquisa.data_encerramento|date:"d/m" }}</div>
+    <div class="text-[11px] text-t3 mt-1">{{ pesquisa.data_inicio|date:"d/m/Y" }} — {{ pesquisa.data_encerramento|date:"d/m/Y" }}</div>
     {% if can_edit %}
     <div class="mt-2">
       {% if pesquisa.status == 'rascunho' %}

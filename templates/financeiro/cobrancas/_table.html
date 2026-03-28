@@ -1,3 +1,4 @@
+{% load fmt %}
 {% if cobrancas %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
@@ -16,7 +17,7 @@
       <tr class="hover:bg-bg3">
         <td class="py-3 font-medium text-t1">{{ c.descricao }}</td>
         <td class="py-3 text-t2"><a href="{% url 'web:cliente-detail' c.cliente.pk %}" class="text-t2 hover:text-ruch-accent no-underline">{{ c.cliente.nome }}</a></td>
-        <td class="py-3 font-medium text-emerald-500">R$ {{ c.valor|floatformat:2 }}</td>
+        <td class="py-3 font-medium text-emerald-500">{{ c.valor|brl }}</td>
         <td class="py-3 text-t2">{{ c.vencimento|date:"d/m/Y" }}</td>
         <td class="py-3">
           {% if c.status == 'pendente' %}<span class="badge bg-blue-500/15 text-blue-500">Pendente</span>

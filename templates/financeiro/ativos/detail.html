@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load fmt %}
 {% block title %}{{ ativo.nome }}{% endblock %}
 {% block page_title %}{{ ativo.nome }}{% endblock %}
 {% block page_actions %}
@@ -15,7 +16,7 @@
       <div class="flex justify-between"><dt class="text-t3">Categoria</dt><dd class="text-t2">{{ ativo.get_categoria_display }}</dd></div>
       <div class="flex justify-between"><dt class="text-t3">Tipo</dt><dd class="text-t1 font-medium">{{ ativo.tipo }}</dd></div>
       {% if ativo.numero_serie %}<div class="flex justify-between"><dt class="text-t3">Nº série</dt><dd class="text-t2">{{ ativo.numero_serie }}</dd></div>{% endif %}
-      <div class="flex justify-between"><dt class="text-t3">Valor compra</dt><dd class="text-t1 font-medium">R$ {{ ativo.valor_compra|floatformat:2 }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Valor compra</dt><dd class="text-t1 font-medium">{{ ativo.valor_compra|brl }}</dd></div>
       <div class="flex justify-between"><dt class="text-t3">Data aquisição</dt><dd class="text-t2">{{ ativo.data_aquisicao|date:"d/m/Y" }}</dd></div>
       <div class="flex justify-between">
         <dt class="text-t3">Status</dt>
@@ -48,9 +49,9 @@
     <dl class="space-y-2 text-sm">
       <div class="flex justify-between"><dt class="text-t3">Taxa anual</dt><dd class="text-t2">{{ ativo.taxa_depreciacao }}%</dd></div>
       <div class="flex justify-between"><dt class="text-t3">Vida útil</dt><dd class="text-t2">{{ ativo.vida_util_anos }} anos</dd></div>
-      <div class="flex justify-between"><dt class="text-t3">Depreciação mensal</dt><dd class="text-t2">R$ {{ ativo.depreciacao_mensal|floatformat:2 }}</dd></div>
-      <div class="flex justify-between"><dt class="text-t3">Depreciação acumulada</dt><dd class="text-red-400 font-medium">R$ {{ ativo.depreciacao_acumulada|floatformat:2 }}</dd></div>
-      <div class="flex justify-between"><dt class="text-t3">Valor residual</dt><dd class="text-t1 font-bold text-lg">R$ {{ ativo.valor_residual|floatformat:2 }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Depreciação mensal</dt><dd class="text-t2">{{ ativo.depreciacao_mensal|brl }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Depreciação acumulada</dt><dd class="text-red-400 font-medium">{{ ativo.depreciacao_acumulada|brl }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Valor residual</dt><dd class="text-t1 font-bold text-lg">{{ ativo.valor_residual|brl }}</dd></div>
     </dl>
     {% endif %}
 

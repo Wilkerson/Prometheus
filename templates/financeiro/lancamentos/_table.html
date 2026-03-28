@@ -1,3 +1,4 @@
+{% load fmt %}
 {% if lancamentos %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
@@ -26,7 +27,7 @@
           {% endif %}
         </td>
         <td class="py-3 font-medium {% if l.tipo == 'receita' %}text-emerald-500{% else %}text-red-400{% endif %}">
-          {% if l.tipo == 'receita' %}+{% else %}-{% endif %}R$ {{ l.valor|floatformat:2 }}
+          {% if l.tipo == 'receita' %}+{% else %}-{% endif %}{{ l.valor|brl }}
         </td>
         <td class="py-3 text-t2">{{ l.categoria }}</td>
         <td class="py-3 text-t2">{{ l.conta.nome }}</td>

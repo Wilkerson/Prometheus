@@ -1,3 +1,4 @@
+{% load fmt %}
 {% if tributos %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
@@ -16,7 +17,7 @@
       <tr class="hover:bg-bg3">
         <td class="py-3 font-medium text-t1">{{ t.tipo }}</td>
         <td class="py-3 text-t2">{{ t.competencia|date:"m/Y" }}</td>
-        <td class="py-3 font-medium text-red-400">R$ {{ t.valor|floatformat:2 }}</td>
+        <td class="py-3 font-medium text-red-400">{{ t.valor|brl }}</td>
         <td class="py-3 text-t2 {% if t.esta_vencido %}text-red-400{% endif %}">
           {{ t.vencimento|date:"d/m/Y" }}
           {% if t.dias_para_vencer is not None and t.dias_para_vencer <= 7 and t.dias_para_vencer >= 0 %}

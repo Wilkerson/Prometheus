@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load fmt %}
 {% block title %}Relatórios RH{% endblock %}
 {% block page_title %}Relatórios e Indicadores{% endblock %}
 {% block content %}
@@ -28,15 +29,15 @@
 <h3 class="text-sm font-semibold text-t2 mb-3">Custos e Turnover</h3>
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
   <div class="card text-center">
-    <div class="text-2xl font-bold text-t1">R$ {{ custo_total|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-t1">{{ custo_total|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Custo mensal total</div>
   </div>
   <div class="card text-center">
-    <div class="text-2xl font-bold text-blue-500">R$ {{ custo_clt|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-blue-500">{{ custo_clt|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Custo CLT</div>
   </div>
   <div class="card text-center">
-    <div class="text-2xl font-bold text-purple-500">R$ {{ custo_pj|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-purple-500">{{ custo_pj|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Custo PJ</div>
   </div>
   <div class="card text-center">

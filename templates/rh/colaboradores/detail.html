@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load fmt %}
 {% block title %}{{ colab.nome_completo }}{% endblock %}
 {% block page_title %}Colaborador: {{ colab.nome_completo }}{% endblock %}
 {% block page_actions %}
@@ -149,7 +150,7 @@
       </div>
       <div class="flex justify-between">
         <dt class="text-t3">Remuneração</dt>
-        <dd class="text-t1 font-medium">R$ {{ colab.remuneracao|floatformat:2 }}</dd>
+        <dd class="text-t1 font-medium">{{ colab.remuneracao|brl }}</dd>
       </div>
       <div class="flex justify-between">
         <dt class="text-t3">Carga horaria</dt>
@@ -309,7 +310,7 @@
         <p class="text-[12px] text-t2 mt-0.5">{{ h.departamento_anterior }} &rarr; {{ h.departamento_novo }}</p>
         {% endif %}
         {% if h.remuneracao_anterior and h.remuneracao_nova %}
-        <p class="text-[12px] text-t2 mt-0.5">R$ {{ h.remuneracao_anterior|floatformat:2 }} &rarr; R$ {{ h.remuneracao_nova|floatformat:2 }}</p>
+        <p class="text-[12px] text-t2 mt-0.5">{{ h.remuneracao_anterior|brl }} &rarr; {{ h.remuneracao_nova|brl }}</p>
         {% endif %}
         {% if h.observacao %}
         <p class="text-[12px] text-t3 mt-0.5">{{ h.observacao }}</p>

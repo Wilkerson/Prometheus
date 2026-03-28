@@ -1,3 +1,4 @@
+{% load fmt %}
 {% if folhas %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
@@ -18,8 +19,8 @@
         <td class="py-3 font-medium text-t1">{{ f.colaborador.nome_completo }}</td>
         <td class="py-3 text-t2">{{ f.get_tipo_display }}</td>
         <td class="py-3 text-t2">{{ f.competencia|date:"m/Y" }}</td>
-        <td class="py-3 text-t2">R$ {{ f.valor_bruto|floatformat:2 }}</td>
-        <td class="py-3 font-medium text-t1">R$ {{ f.valor_liquido|floatformat:2 }}</td>
+        <td class="py-3 text-t2">{{ f.valor_bruto|brl }}</td>
+        <td class="py-3 font-medium text-t1">{{ f.valor_liquido|brl }}</td>
         <td class="py-3">
           {% if f.status == 'calculado' %}<span class="badge bg-bg4 text-t3">Calculado</span>
           {% elif f.status == 'aprovado' %}<span class="badge bg-blue-500/15 text-blue-500">Aprovado</span>

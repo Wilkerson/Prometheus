@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load fmt %}
 {% block title %}Dashboard Financeiro{% endblock %}
 {% block page_title %}Dashboard Financeiro — {{ mes_nome }}{% endblock %}
 {% block content %}
@@ -7,19 +8,19 @@
 <h3 class="text-sm font-semibold text-t2 mb-3">Resultado do mês</h3>
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
   <div class="card text-center">
-    <div class="text-2xl font-bold text-emerald-500">R$ {{ receita_mes|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-emerald-500">{{ receita_mes|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Receitas</div>
   </div>
   <div class="card text-center">
-    <div class="text-2xl font-bold text-red-400">R$ {{ despesa_mes|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-red-400">{{ despesa_mes|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Despesas</div>
   </div>
   <div class="card text-center">
-    <div class="text-2xl font-bold {% if resultado_mes >= 0 %}text-emerald-500{% else %}text-red-400{% endif %}">R$ {{ resultado_mes|floatformat:0 }}</div>
+    <div class="text-2xl font-bold {% if resultado_mes >= 0 %}text-emerald-500{% else %}text-red-400{% endif %}">{{ resultado_mes|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Resultado</div>
   </div>
   <div class="card text-center">
-    <div class="text-2xl font-bold text-t1">R$ {{ saldo_total|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-t1">{{ saldo_total|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Saldo em contas</div>
   </div>
 </div>
@@ -30,22 +31,22 @@
   <div class="card text-center {% if cobrancas_vencidas > 0 %}border border-red-500/20{% endif %}">
     <div class="text-2xl font-bold {% if cobrancas_vencidas > 0 %}text-red-500{% else %}text-emerald-500{% endif %}">{{ cobrancas_vencidas }}</div>
     <div class="text-[11px] text-t3 mt-1">Cobranças vencidas</div>
-    {% if valor_inadimplente > 0 %}<div class="text-[10px] text-red-400">R$ {{ valor_inadimplente|floatformat:0 }}</div>{% endif %}
+    {% if valor_inadimplente > 0 %}<div class="text-[10px] text-red-400">{{ valor_inadimplente|brl }}</div>{% endif %}
   </div>
   <div class="card text-center {% if tributos_vencer > 0 %}border border-amber-500/20{% endif %}">
-    <div class="text-2xl font-bold {% if tributos_vencer > 0 %}text-amber-500{% else %}text-emerald-500{% endif %}">R$ {{ tributos_vencer|floatformat:0 }}</div>
+    <div class="text-2xl font-bold {% if tributos_vencer > 0 %}text-amber-500{% else %}text-emerald-500{% endif %}">{{ tributos_vencer|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Tributos a vencer (30d)</div>
   </div>
   <div class="card text-center">
-    <div class="text-2xl font-bold text-blue-500">R$ {{ despesas_pendentes|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-blue-500">{{ despesas_pendentes|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Despesas agendadas</div>
   </div>
   <div class="card text-center">
-    <div class="text-2xl font-bold text-purple-500">R$ {{ folha_pendente|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-purple-500">{{ folha_pendente|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Folha pendente</div>
   </div>
   <div class="card text-center">
-    <div class="text-2xl font-bold text-ruch-accent">R$ {{ patrimonio_total|floatformat:0 }}</div>
+    <div class="text-2xl font-bold text-ruch-accent">{{ patrimonio_total|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Patrimônio ativo</div>
   </div>
 </div>
