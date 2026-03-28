@@ -427,7 +427,13 @@ class FolhaPagamento(models.Model):
     class TipoPagamento(models.TextChoices):
         SALARIO = "salario", "Salário"
         PRO_LABORE = "pro_labore", "Pró-labore"
+        PAGAMENTO_PJ = "pagamento_pj", "Pagamento PJ"
+        COMISSAO = "comissao", "Comissão"
         BONUS = "bonus", "Bônus / Gratificação"
+        DECIMO_TERCEIRO = "13o", "13º Salário"
+        FERIAS = "ferias", "Férias"
+        ADIANTAMENTO = "adiantamento", "Adiantamento"
+        RESCISAO = "rescisao", "Rescisão"
 
     class StatusFolha(models.TextChoices):
         CALCULADO = "calculado", "Calculado"
@@ -440,7 +446,7 @@ class FolhaPagamento(models.Model):
         related_name="folhas",
         verbose_name="Colaborador",
     )
-    tipo = models.CharField("Tipo", max_length=10, choices=TipoPagamento.choices)
+    tipo = models.CharField("Tipo", max_length=15, choices=TipoPagamento.choices)
     competencia = models.DateField(
         "Competência (mês/ano)",
         help_text="Usar o 1o dia do mês de referência",
