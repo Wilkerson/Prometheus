@@ -32,6 +32,19 @@
     "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
   }},
 
+  {"model": "rh.setor", "pk": 9, "fields": {
+    "nome": "Diretoria", "departamento": 1, "descricao": "Diretoria executiva", "ativo": true,
+    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
+  }},
+
+  {"model": "rh.cargo", "pk": 9, "fields": {
+    "nome": "CEO / Diretor Geral", "departamento": 1, "nivel": "diretor",
+    "faixa_salarial_min": "20000.00", "faixa_salarial_max": "40000.00",
+    "descricao": "Diretor geral da empresa — gestao estrategica e operacional",
+    "requisitos": "Socio fundador",
+    "ativo": true, "criado_em": "2025-01-01T10:00:00Z", "atualizado_em": "2025-01-01T10:00:00Z"
+  }},
+
   {"model": "rh.cargo", "pk": 1, "fields": {
     "nome": "Diretor Comercial", "departamento": 1, "nivel": "diretor",
     "faixa_salarial_min": "15000.00", "faixa_salarial_max": "25000.00",
@@ -81,6 +94,8 @@
     "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
   }},
 
+  {"model": "crm.endereco", "pk": 30, "fields": {"cep": "70070-120", "logradouro": "SBS Quadra 2", "numero": "12", "complemento": "Bloco E, Sala 1801", "bairro": "Asa Sul", "cidade": "Brasilia", "uf": "DF"}},
+
   {"model": "crm.endereco", "pk": 20, "fields": {"cep": "01311-200", "logradouro": "Rua Augusta", "numero": "1508", "complemento": "Apto 42", "bairro": "Consolacao", "cidade": "Sao Paulo", "uf": "SP"}},
   {"model": "crm.endereco", "pk": 21, "fields": {"cep": "22041-001", "logradouro": "Rua Santa Clara", "numero": "75", "complemento": "", "bairro": "Copacabana", "cidade": "Rio de Janeiro", "uf": "RJ"}},
   {"model": "crm.endereco", "pk": 22, "fields": {"cep": "30130-001", "logradouro": "Rua dos Caetes", "numero": "234", "complemento": "Sala 3", "bairro": "Centro", "cidade": "Belo Horizonte", "uf": "MG"}},
@@ -89,6 +104,22 @@
   {"model": "crm.endereco", "pk": 25, "fields": {"cep": "40020-000", "logradouro": "Av. Sete de Setembro", "numero": "555", "complemento": "", "bairro": "Centro", "cidade": "Salvador", "uf": "BA"}},
   {"model": "crm.endereco", "pk": 26, "fields": {"cep": "01310-300", "logradouro": "Alameda Santos", "numero": "211", "complemento": "Apto 15", "bairro": "Cerqueira Cesar", "cidade": "Sao Paulo", "uf": "SP"}},
   {"model": "crm.endereco", "pk": 27, "fields": {"cep": "22031-070", "logradouro": "Rua Tonelero", "numero": "148", "complemento": "Bloco A", "bairro": "Copacabana", "cidade": "Rio de Janeiro", "uf": "RJ"}},
+
+  {"model": "rh.colaborador", "pk": 9, "fields": {
+    "nome_completo": "Wilkerson Oliveira", "cpf": "999.999.999-99", "data_nascimento": "1990-01-15",
+    "endereco": 30, "telefone": "61999999999", "email_pessoal": "wilkerson@ruch.solutions",
+    "contato_emergencia_nome": "", "contato_emergencia_telefone": "",
+    "tipo_contrato": "pj", "data_admissao": "2025-01-01", "data_desligamento": null,
+    "cargo": 9, "departamento": 1, "setor": 9, "remuneracao": "25000.00", "carga_horaria_semanal": 40,
+    "status": "ativo",
+    "pis_nit": "", "ctps_numero": "", "ctps_serie": "",
+    "banco_deposito": "", "regime_trabalho": "",
+    "cnpj_pj": "", "razao_social": "RUCH Solutions",
+    "banco_pagamento_pj": "", "chave_pix": "wilkerson@ruch.solutions",
+    "foto": "",
+    "usuario": 1,
+    "criado_em": "2025-01-01T10:00:00Z", "atualizado_em": "2025-01-01T10:00:00Z"
+  }},
 
   {"model": "rh.colaborador", "pk": 1, "fields": {
     "nome_completo": "Mariana Costa Silva", "cpf": "123.456.789-01", "data_nascimento": "1990-03-15",
