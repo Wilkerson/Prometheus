@@ -636,10 +636,14 @@ class Ativo(models.Model):
         "Status", max_length=10, choices=StatusAtivo.choices,
         default=StatusAtivo.ATIVO,
     )
-    responsavel = models.CharField("Responsável / Localização", max_length=200, blank=True)
+    responsavel = models.CharField("Responsável", max_length=200, blank=True)
     departamento = models.ForeignKey(
         "rh.Departamento", on_delete=models.SET_NULL, null=True, blank=True,
         related_name="ativos", verbose_name="Departamento",
+    )
+    setor = models.ForeignKey(
+        "rh.Setor", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="ativos", verbose_name="Setor",
     )
     data_baixa = models.DateField("Data de baixa", null=True, blank=True)
     motivo_baixa = models.CharField(

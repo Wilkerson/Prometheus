@@ -16,7 +16,7 @@
       {% for a in ativos %}
       <tr class="hover:bg-bg3">
         <td class="py-3">
-          <div class="font-medium text-t1">{{ a.nome }}</div>
+          <div class="font-medium"><a href="{% url 'web:fin-ativo-detail' a.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ a.nome }}</a></div>
           {% if a.numero_serie %}<div class="text-[10px] text-t3">{{ a.numero_serie }}</div>{% endif %}
         </td>
         <td class="py-3">

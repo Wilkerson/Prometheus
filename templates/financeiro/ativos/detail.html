@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ ativo.nome }}{% endblock %}
+{% block page_title %}{{ ativo.nome }}{% endblock %}
+{% block page_actions %}
+<div class="flex gap-2">
+  {% if can_edit %}<a href="{% url 'web:fin-ativo-edit' ativo.pk %}" class="btn-primary">Editar</a>{% endif %}
+  <a href="{% url 'web:fin-ativos' %}" class="btn-secondary">Voltar</a>
+</div>
+{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <div class="card">
+    <h3 class="text-sm font-semibold text-t2 mb-3">Informações</h3>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between"><dt class="text-t3">Categoria</dt><dd class="text-t2">{{ ativo.get_categoria_display }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Tipo</dt><dd class="text-t1 font-medium">{{ ativo.tipo }}</dd></div>
+      {% if ativo.numero_serie %}<div class="flex justify-between"><dt class="text-t3">Nº série</dt><dd class="text-t2">{{ ativo.numero_serie }}</dd></div>{% endif %}
+      <div class="flex justify-between"><dt class="text-t3">Valor compra</dt><dd class="text-t1 font-medium">R$ {{ ativo.valor_compra|floatformat:2 }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Data aquisição</dt><dd class="text-t2">{{ ativo.data_aquisicao|date:"d/m/Y" }}</dd></div>
+      <div class="flex justify-between">
+        <dt class="text-t3">Status</dt>
+        <dd>
+          {% if ativo.status == 'ativo' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
+          {% elif ativo.status == 'depreciado' %}<span class="badge bg-amber-500/15 text-amber-500">Depreciado</span>
+          {% elif ativo.status == 'consumido' %}<span class="badge bg-blue-500/15 text-blue-500">Consumido</span>
+          {% else %}<span class="badge bg-bg4 text-t3">Baixado</span>{% endif %}
+        </dd>
+      </div>
+    </dl>
+
+    {% if ativo.responsavel or ativo.departamento or ativo.setor %}
+    <div class="mt-4 pt-3 border-t border-bdr">
+      <h4 class="text-sm font-medium text-t3 mb-2">Localização</h4>
+      <dl class="space-y-2 text-sm">
+        {% if ativo.responsavel %}<div class="flex justify-between"><dt class="text-t3">Responsável</dt><dd class="text-t2">{{ ativo.responsavel }}</dd></div>{% endif %}
+        {% if ativo.departamento %}<div class="flex justify-between"><dt class="text-t3">Departamento</dt><dd class="text-t2">{{ ativo.departamento.nome }}</dd></div>{% endif %}
+        {% if ativo.setor %}<div class="flex justify-between"><dt class="text-t3">Setor</dt><dd class="text-t2">{{ ativo.setor.nome }}</dd></div>{% endif %}
+      </dl>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h3 class="text-sm font-semibold text-t2 mb-3">Depreciação</h3>
+    {% if ativo.is_consumo %}
+    <p class="text-sm text-t3">Bem de consumo — sem depreciação (lançado como despesa).</p>
+    {% else %}
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between"><dt class="text-t3">Taxa anual</dt><dd class="text-t2">{{ ativo.taxa_depreciacao }}%</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Vida útil</dt><dd class="text-t2">{{ ativo.vida_util_anos }} anos</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Depreciação mensal</dt><dd class="text-t2">R$ {{ ativo.depreciacao_mensal|floatformat:2 }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Depreciação acumulada</dt><dd class="text-red-400 font-medium">R$ {{ ativo.depreciacao_acumulada|floatformat:2 }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Valor residual</dt><dd class="text-t1 font-bold text-lg">R$ {{ ativo.valor_residual|floatformat:2 }}</dd></div>
+    </dl>
+    {% endif %}
+
+    {% if ativo.status == 'baixado' %}
+    <div class="mt-4 pt-3 border-t border-bdr">
+      <h4 class="text-sm font-medium text-t3 mb-2">Baixa</h4>
+      <dl class="space-y-2 text-sm">
+        <div class="flex justify-between"><dt class="text-t3">Data</dt><dd class="text-t2">{{ ativo.data_baixa|date:"d/m/Y" }}</dd></div>
+        {% if ativo.motivo_baixa %}<div class="flex justify-between"><dt class="text-t3">Motivo</dt><dd class="text-t2">{{ ativo.motivo_baixa }}</dd></div>{% endif %}
+      </dl>
+    </div>
+    {% endif %}
+
+    {% if ativo.descricao %}
+    <div class="mt-4 pt-3 border-t border-bdr">
+      <p class="text-sm text-t2">{{ ativo.descricao }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

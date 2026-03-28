@@ -4104,6 +4104,7 @@ class AtivoCreateView(PermissionRequiredMixin, View):
             "categoria_choices": Ativo.CategoriaAtivo.choices,
             "tipos_existentes": tipos_existentes,
             "departamentos": Departamento.objects.filter(ativo=True),
+            "setores": Setor.objects.filter(ativo=True).select_related("departamento"),
             "erros": erros or {},
         }
 
@@ -4139,9 +4140,58 @@ class AtivoCreateView(PermissionRequiredMixin, View):
             taxa_depreciacao=request.POST.get("taxa_depreciacao", 20) or 20,
             responsavel=request.POST.get("responsavel", "").strip(),
             departamento_id=request.POST.get("departamento") or None,
+            setor_id=request.POST.get("setor") or None,
             observacao=request.POST.get("observacao", "").strip(),
         )
         return redirect("web:fin-ativos")
+
+
+class AtivoDetailView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.view_ativo"
+
+    def get(self, request, pk):
+        ativo = get_object_or_404(
+            Ativo.objects.select_related("departamento", "setor"), pk=pk
+        )
+        return render(request, "financeiro/ativos/detail.html", {
+            "ativo": ativo,
+            "can_edit": request.user.has_perm("financeiro.change_ativo"),
+        })
+
+
+class AtivoEditView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.change_ativo"
+
+    def get(self, request, pk):
+        ativo = get_object_or_404(Ativo, pk=pk)
+        tipos_existentes = Ativo.objects.values_list("tipo", flat=True).distinct().order_by("tipo")
+        return render(request, "financeiro/ativos/edit.html", {
+            "ativo": ativo,
+            "categoria_choices": Ativo.CategoriaAtivo.choices,
+            "status_choices": Ativo.StatusAtivo.choices,
+            "tipos_existentes": tipos_existentes,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "setores": Setor.objects.filter(ativo=True).select_related("departamento"),
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        ativo = get_object_or_404(Ativo, pk=pk)
+        ativo.nome = request.POST.get("nome", ativo.nome).strip()
+        ativo.categoria = request.POST.get("categoria", ativo.categoria)
+        ativo.tipo = request.POST.get("tipo", ativo.tipo).strip()
+        ativo.numero_serie = request.POST.get("numero_serie", "").strip()
+        ativo.descricao = request.POST.get("descricao", "").strip()
+        ativo.valor_compra = request.POST.get("valor_compra", ativo.valor_compra)
+        ativo.taxa_depreciacao = request.POST.get("taxa_depreciacao", ativo.taxa_depreciacao)
+        ativo.vida_util_anos = request.POST.get("vida_util_anos", ativo.vida_util_anos)
+        ativo.responsavel = request.POST.get("responsavel", "").strip()
+        ativo.departamento_id = request.POST.get("departamento") or None
+        ativo.setor_id = request.POST.get("setor") or None
+        ativo.status = request.POST.get("status", ativo.status)
+        ativo.observacao = request.POST.get("observacao", "").strip()
+        ativo.save()
+        return redirect("web:fin-ativo-detail", pk=pk)
 
 
 class AtivoBaixaView(PermissionRequiredMixin, View):

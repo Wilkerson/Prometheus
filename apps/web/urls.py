@@ -160,5 +160,7 @@ urlpatterns = [
     # Financeiro — Ativos (Patrimonio)
     path("financeiro/ativos/", views.AtivoListView.as_view(), name="fin-ativos"),
     path("financeiro/ativos/novo/", views.AtivoCreateView.as_view(), name="fin-ativo-create"),
+    path("financeiro/ativos/<int:pk>/", views.AtivoDetailView.as_view(), name="fin-ativo-detail"),
+    path("financeiro/ativos/<int:pk>/editar/", views.AtivoEditView.as_view(), name="fin-ativo-edit"),
     path("financeiro/ativos/<int:pk>/baixa/", views.AtivoBaixaView.as_view(), name="fin-ativo-baixa"),
 ]
