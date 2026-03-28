@@ -58,11 +58,20 @@
         {% if usuario.colaborador %}
         <div class="p-3 rounded-lg bg-bg3 border border-bdr">
           <p class="text-[11px] text-t3 mb-1">Colaborador vinculado</p>
-          <div class="flex items-center gap-4 text-sm">
+          <div class="flex flex-wrap items-center gap-3 text-sm">
             <span class="text-t1 font-medium">{{ usuario.colaborador.nome_completo }}</span>
             <span class="text-t2">{{ usuario.colaborador.cargo.nome }}</span>
             <span class="badge bg-bg4 text-t2">{{ usuario.colaborador.cargo.get_nivel_display }}</span>
             <span class="text-t3">{{ usuario.colaborador.departamento.nome }}</span>
+          </div>
+        </div>
+        {% elif usuario.is_parceiro %}
+        <div class="p-3 rounded-lg bg-bg3 border border-bdr">
+          <p class="text-[11px] text-t3 mb-1">Empresa Parceira vinculada</p>
+          <div class="flex flex-wrap items-center gap-3 text-sm">
+            <span class="text-t1 font-medium">{{ usuario.parceiro.nome_entidade }}</span>
+            <span class="badge bg-ruch-accent/15 text-ruch-accent">Parceiro</span>
+            <span class="text-t3">Comissão: {{ usuario.parceiro.percentual_comissao }}%</span>
           </div>
         </div>
         {% endif %}
