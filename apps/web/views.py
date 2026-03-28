@@ -4501,7 +4501,8 @@ class FechamentoExportView(PermissionRequiredMixin, View):
             elements = []
 
             # Logo
-            logo_path = os.path.join(settings.BASE_DIR, "static", "img", "logo.png")
+            from django.conf import settings as django_settings
+            logo_path = os.path.join(django_settings.BASE_DIR, "static", "img", "logo.png")
             if os.path.exists(logo_path):
                 logo = Image(logo_path, width=80, height=22)
                 elements.append(logo)
