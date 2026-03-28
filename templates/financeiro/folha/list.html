@@ -2,15 +2,19 @@
 {% block title %}Folha de Pagamento{% endblock %}
 {% block page_title %}Folha de Pagamento{% endblock %}
 {% block page_actions %}
-<div class="flex gap-2">
+<div class="flex flex-wrap gap-2">
   {% if can_add %}
   <form method="post" action="{% url 'web:fin-folha-gerar' %}" class="inline">
     {% csrf_token %}
-    <button type="submit" class="btn-secondary text-[12px]">Gerar folha do mês</button>
+    <button type="submit" class="btn-secondary text-[12px]">Gerar folha</button>
   </form>
-  <a href="{% url 'web:fin-folha-create' %}" class="btn-primary">+ Novo Pagamento</a>
+  <form method="post" action="{% url 'web:fin-folha-aprovar-todos' %}" class="inline">
+    {% csrf_token %}
+    <button type="submit" class="btn-secondary text-[12px]">Aprovar todos</button>
+  </form>
+  <a href="{% url 'web:fin-folha-create' %}" class="btn-primary">+ Novo</a>
   {% endif %}
-  <a href="{% url 'web:fin-folha-config' %}" class="btn-secondary text-[12px]">Configuração</a>
+  <a href="{% url 'web:fin-folha-config' %}" class="btn-secondary text-[12px]">Config</a>
 </div>
 {% endblock %}
 {% block content %}
@@ -55,4 +59,45 @@
   </div>
 </div>
 <div class="card" id="table">{% include "financeiro/folha/_table.html" %}</div>
+
+<!-- Exportar folha -->
+{% if competencias %}
+<div class="card mt-4">
+  <h3 class="text-sm font-semibold text-t2 mb-3">Exportar folha para o contador</h3>
+  <p class="text-[11px] text-t3 mb-3">Todos os pagamentos do mês devem estar aprovados ou pagos para exportar.</p>
+  <div class="flex flex-wrap gap-3 items-end">
+    <div>
+      <label class="label">Competência</label>
+      <select id="export-mes" class="input">
+        <option value="">Selecione...</option>
+        {% for c in competencias %}
+        <option value="{{ c|date:'Y-m-d' }}">{{ c|date:"m/Y" }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex gap-2">
+      <a id="exp-csv" href="#" class="btn-secondary text-[12px] opacity-30 pointer-events-none">CSV</a>
+      <a id="exp-json" href="#" class="btn-secondary text-[12px] opacity-30 pointer-events-none">JSON</a>
+      <a id="exp-xml" href="#" class="btn-secondary text-[12px] opacity-30 pointer-events-none">XML</a>
+      <a id="exp-pdf" href="#" class="btn-secondary text-[12px] opacity-30 pointer-events-none">PDF</a>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('export-mes').addEventListener('change', function() {
+  var mes = this.value;
+  var base = "{% url 'web:fin-folha-exportar' %}";
+  ['csv','json','xml','pdf'].forEach(function(fmt) {
+    var btn = document.getElementById('exp-' + fmt);
+    if (mes) {
+      btn.href = base + '?mes=' + mes + '&formato=' + fmt;
+      btn.classList.remove('opacity-30', 'pointer-events-none');
+    } else {
+      btn.href = '#';
+      btn.classList.add('opacity-30', 'pointer-events-none');
+    }
+  });
+});
+</script>
+{% endif %}
 {% endblock %}

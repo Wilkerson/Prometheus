@@ -535,6 +535,32 @@ class FolhaPagamento(models.Model):
 
 
 # =========================================================================
+# Log de Exportacao da Folha
+# =========================================================================
+class LogExportacaoFolha(models.Model):
+    competencia = models.DateField("Competência")
+    formato = models.CharField("Formato", max_length=4)
+    total_registros = models.PositiveIntegerField("Total de registros")
+    valor_total = models.DecimalField("Valor total", max_digits=14, decimal_places=2)
+    exportado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="exportacoes_folha",
+        verbose_name="Exportado por",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Log de exportação da folha"
+        verbose_name_plural = "Logs de exportação da folha"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"Folha {self.competencia:%m/%Y} — {self.formato.upper()} por {self.exportado_por} em {self.criado_em:%d/%m/%Y %H:%M}"
+
+
+# =========================================================================
 # Tributo (extensivel pra qualquer regime fiscal)
 # =========================================================================
 class Tributo(models.Model):

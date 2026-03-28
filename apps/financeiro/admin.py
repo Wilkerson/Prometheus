@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Ativo, CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria, Despesa, FolhaPagamento, Lancamento, NotaFiscal, Tributo
+from .models import Ativo, CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria, Despesa, FolhaPagamento, Lancamento, LogExportacaoFolha, NotaFiscal, Tributo
 
 
 @admin.register(CategoriaFinanceira)
@@ -73,3 +73,10 @@ class AtivoAdmin(admin.ModelAdmin):
     list_display = ("nome", "tipo", "valor_compra", "valor_residual", "status", "data_aquisicao")
     list_filter = ("tipo", "status")
     search_fields = ("nome", "numero_serie")
+
+
+@admin.register(LogExportacaoFolha)
+class LogExportacaoFolhaAdmin(admin.ModelAdmin):
+    list_display = ("competencia", "formato", "total_registros", "valor_total", "exportado_por", "criado_em")
+    list_filter = ("formato",)
+    readonly_fields = ("competencia", "formato", "total_registros", "valor_total", "exportado_por", "criado_em")

@@ -16,7 +16,7 @@ from apps.accounts.models import Usuario
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.financeiro.models import (
     Ativo, CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria,
-    Despesa, FolhaPagamento, Lancamento, NotaFiscal, Tributo,
+    Despesa, FolhaPagamento, Lancamento, LogExportacaoFolha, NotaFiscal, Tributo,
 )
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
@@ -4054,6 +4054,192 @@ class GerarFolhaView(PermissionRequiredMixin, View):
                 messages.warning(request, resultado)
             else:
                 messages.success(request, resultado)
+        return redirect("web:fin-folha")
+
+
+class FolhaAprovarTodosView(PermissionRequiredMixin, View):
+    """Aprova todos os pagamentos calculados do mes."""
+    permission_required = "financeiro.change_folhapagamento"
+
+    def post(self, request):
+        from django.utils import timezone
+        competencia = request.POST.get("competencia")
+        if not competencia:
+            competencia = timezone.now().date().replace(day=1)
+
+        atualizados = FolhaPagamento.objects.filter(
+            competencia=competencia, status="calculado",
+        ).update(status="aprovado")
+
+        from django.contrib import messages
+        if atualizados > 0:
+            messages.success(request, f"{atualizados} pagamento(s) aprovado(s) para {competencia.strftime('%m/%Y') if hasattr(competencia, 'strftime') else competencia}.")
+        else:
+            messages.info(request, "Nenhum pagamento pendente de aprovação.")
+        return redirect("web:fin-folha")
+
+
+class FolhaExportarView(PermissionRequiredMixin, View):
+    """Exporta folha do mes (so se todos aprovados/pagos)."""
+    permission_required = "financeiro.view_folhapagamento"
+
+    def get(self, request):
+        from django.utils import timezone
+        from datetime import date
+        import csv
+        import json
+        from io import BytesIO
+
+        competencia_str = request.GET.get("mes")
+        formato = request.GET.get("formato", "csv")
+
+        if not competencia_str:
+            from django.contrib import messages
+            messages.warning(request, "Selecione uma competência.")
+            return redirect("web:fin-folha")
+
+        ano, mes_num = int(competencia_str[:4]), int(competencia_str[5:7])
+        competencia = date(ano, mes_num, 1)
+
+        # Verificar se todos estao aprovados ou pagos
+        folhas = FolhaPagamento.objects.filter(competencia=competencia).select_related("colaborador")
+        nao_aprovados = folhas.filter(status="calculado").count()
+
+        if nao_aprovados > 0:
+            from django.contrib import messages
+            messages.warning(request, f"Existem {nao_aprovados} pagamento(s) não aprovado(s). Aprove todos antes de exportar.")
+            return redirect("web:fin-folha")
+
+        if not folhas.exists():
+            from django.contrib import messages
+            messages.warning(request, "Nenhum pagamento encontrado para esta competência.")
+            return redirect("web:fin-folha")
+
+        # Montar dados
+        from decimal import Decimal
+        dados = []
+        valor_total = Decimal("0")
+        for f in folhas.order_by("colaborador__nome_completo"):
+            dados.append({
+                "colaborador": f.colaborador.nome_completo,
+                "tipo": f.get_tipo_display(),
+                "competencia": str(f.competencia),
+                "valor_bruto": str(f.valor_bruto),
+                "desconto_inss": str(f.desconto_inss),
+                "desconto_ir": str(f.desconto_ir),
+                "outros_descontos": str(f.outros_descontos),
+                "valor_liquido": str(f.valor_liquido),
+                "status": f.get_status_display(),
+            })
+            valor_total += f.valor_liquido
+
+        # Registrar log
+        LogExportacaoFolha.objects.create(
+            competencia=competencia,
+            formato=formato,
+            total_registros=len(dados),
+            valor_total=valor_total,
+            exportado_por=request.user,
+        )
+
+        nome_arquivo = f"folha_{ano}_{mes_num:02d}"
+
+        if formato == "csv":
+            response = HttpResponse(content_type="text/csv; charset=utf-8")
+            response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}.csv"'
+            response.write("\ufeff")
+            if dados:
+                writer = csv.DictWriter(response, fieldnames=dados[0].keys(), delimiter=";")
+                writer.writeheader()
+                writer.writerows(dados)
+            return response
+
+        elif formato == "json":
+            response = HttpResponse(
+                json.dumps({"competencia": str(competencia), "folha": dados}, indent=2, ensure_ascii=False),
+                content_type="application/json; charset=utf-8",
+            )
+            response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}.json"'
+            return response
+
+        elif formato == "xml":
+            xml = f'<?xml version="1.0" encoding="UTF-8"?>\n<folha competencia="{competencia}">\n'
+            for d in dados:
+                xml += "  <pagamento>\n"
+                for k, v in d.items():
+                    xml += f"    <{k}>{v}</{k}>\n"
+                xml += "  </pagamento>\n"
+            xml += "</folha>"
+            response = HttpResponse(xml, content_type="application/xml; charset=utf-8")
+            response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}.xml"'
+            return response
+
+        elif formato == "pdf":
+            from reportlab.lib.pagesizes import A4, landscape
+            from reportlab.lib import colors
+            from reportlab.lib.units import cm
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.enums import TA_CENTER
+            from django.conf import settings as django_settings
+            import os
+
+            buf = BytesIO()
+            doc = SimpleDocTemplate(buf, pagesize=landscape(A4),
+                topMargin=2*cm, bottomMargin=2*cm, leftMargin=2*cm, rightMargin=2*cm)
+            styles = getSampleStyleSheet()
+            elements = []
+
+            logo_path = os.path.join(django_settings.BASE_DIR, "static", "img", "logo.png")
+            if os.path.exists(logo_path):
+                elements.append(Image(logo_path, width=80, height=22))
+                elements.append(Spacer(1, 8))
+
+            title_style = ParagraphStyle("T", parent=styles["Title"], fontSize=14, textColor=colors.HexColor("#2d4a3e"))
+            elements.append(Paragraph(f"Folha de Pagamento — {mes_num:02d}/{ano}", title_style))
+            elements.append(Spacer(1, 16))
+
+            page_width = landscape(A4)[0] - 4 * cm
+            headers = ["Colaborador", "Tipo", "Bruto", "INSS", "IR", "Outros", "Líquido", "Status"]
+            col_widths = [page_width*0.25, page_width*0.12, page_width*0.12, page_width*0.10,
+                          page_width*0.10, page_width*0.10, page_width*0.12, page_width*0.09]
+            table_data = [headers]
+
+            def fmt_v(v):
+                from decimal import Decimal as D
+                num = D(v)
+                inteiro = f"{int(num):,}".replace(",", ".")
+                centavos = f"{abs(num) % 1:.2f}"[2:]
+                return f"R$ {inteiro},{centavos}"
+
+            for d in dados:
+                table_data.append([
+                    d["colaborador"][:30], d["tipo"],
+                    fmt_v(d["valor_bruto"]), fmt_v(d["desconto_inss"]),
+                    fmt_v(d["desconto_ir"]), fmt_v(d["outros_descontos"]),
+                    fmt_v(d["valor_liquido"]), d["status"],
+                ])
+
+            t = Table(table_data, repeatRows=1, colWidths=col_widths)
+            t.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2d4a3e")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTSIZE", (0, 0), (-1, -1), 8),
+                ("FONTSIZE", (0, 0), (-1, 0), 9),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f5f5f5")]),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]))
+            elements.append(t)
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph(f"Total líquido: {fmt_v(str(valor_total))}", styles["Normal"]))
+
+            doc.build(elements)
+            buf.seek(0)
+            response = HttpResponse(buf.read(), content_type="application/pdf")
+            response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}.pdf"'
+            return response
+
         return redirect("web:fin-folha")
 
 
