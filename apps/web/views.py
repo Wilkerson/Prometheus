@@ -3733,9 +3733,7 @@ class FolhaListView(PermissionRequiredMixin, HtmxMixin, ListView):
         ctx["can_add"] = self.request.user.has_perm("financeiro.add_folhapagamento")
         # Meses disponiveis
         ctx["competencias"] = (
-            FolhaPagamento.objects.values_list("competencia", flat=True)
-            .distinct()
-            .order_by("-competencia")
+            FolhaPagamento.objects.dates("competencia", "month", order="DESC")
         )
         return ctx
 
