@@ -4529,14 +4529,27 @@ class FechamentoExportView(PermissionRequiredMixin, View):
                     page_width * 0.20, page_width * 0.12, page_width * 0.10, page_width * 0.11,
                 ]
                 table_data = [headers]
+                def fmt_data(d):
+                    if d and len(d) == 10:
+                        return f"{d[8:10]}/{d[5:7]}/{d[:4]}"
+                    return d
+
+                def fmt_valor(v):
+                    from decimal import Decimal
+                    num = Decimal(v)
+                    inteiro = f"{int(num):,}".replace(",", ".")
+                    centavos = f"{abs(num) % 1:.2f}"[2:]
+                    return f"R$ {inteiro},{centavos}"
+
                 for d in dados:
-                    # Formatar data dd/mm/aa e capitalizar tipo
-                    data_fmt = d["data_competencia"]
-                    if data_fmt and len(data_fmt) == 10:
-                        data_fmt = f"{data_fmt[8:10]}/{data_fmt[5:7]}/{data_fmt[2:4]}"
                     table_data.append([
-                        data_fmt, d["tipo"].capitalize(), d["descricao"][:50],
-                        d["categoria"][:30], f"R$ {d['valor']}", d["status"], d["conta"][:20],
+                        fmt_data(d["data_competencia"]),
+                        d["tipo"].capitalize(),
+                        d["descricao"][:50],
+                        d["categoria"][:30],
+                        fmt_valor(d["valor"]),
+                        d["status"].capitalize(),
+                        d["conta"][:20],
                     ])
                 t = Table(table_data, repeatRows=1, colWidths=col_widths)
                 t.setStyle(TableStyle([
