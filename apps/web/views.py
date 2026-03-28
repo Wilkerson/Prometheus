@@ -3706,12 +3706,28 @@ class FolhaListView(PermissionRequiredMixin, HtmxMixin, ListView):
         return ctx
 
 
+class FolhaColaboradoresView(PermissionRequiredMixin, View):
+    """Partial HTMX: retorna options de colaboradores filtrados por departamento."""
+    permission_required = "financeiro.add_folhapagamento"
+
+    def get(self, request):
+        depto_id = request.GET.get("departamento")
+        qs = Colaborador.objects.filter(status="ativo")
+        if depto_id:
+            qs = qs.filter(departamento_id=depto_id)
+        options = '<option value="">Selecione...</option>'
+        for c in qs:
+            options += f'<option value="{c.pk}">{c.nome_completo} ({c.get_tipo_contrato_display()} — R$ {c.remuneracao:,.2f})</option>'
+        return HttpResponse(options)
+
+
 class FolhaCreateView(PermissionRequiredMixin, View):
     permission_required = "financeiro.add_folhapagamento"
 
     def get(self, request):
         return render(request, "financeiro/folha/create.html", {
             "tipo_choices": FolhaPagamento.TipoPagamento.choices,
+            "departamentos": Departamento.objects.filter(ativo=True),
             "colaboradores": Colaborador.objects.filter(status="ativo"),
             "contas": ContaBancaria.objects.filter(ativo=True),
             "erros": {},
@@ -3735,6 +3751,7 @@ class FolhaCreateView(PermissionRequiredMixin, View):
         if erros:
             return render(request, "financeiro/folha/create.html", {
                 "tipo_choices": FolhaPagamento.TipoPagamento.choices,
+                "departamentos": Departamento.objects.filter(ativo=True),
                 "colaboradores": Colaborador.objects.filter(status="ativo"),
                 "contas": ContaBancaria.objects.filter(ativo=True),
                 "erros": erros,

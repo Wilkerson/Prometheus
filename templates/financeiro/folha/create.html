@@ -9,14 +9,29 @@
       {% csrf_token %}
       {% if erros %}{% include "clientes/_form_errors.html" %}{% endif %}
       <div class="space-y-4 mt-2">
-        <div>
-          <label class="label">Colaborador <span class="text-red-500">*</span></label>
-          <select name="colaborador" required class="input">
-            <option value="">Selecione...</option>
-            {% for c in colaboradores %}
-            <option value="{{ c.pk }}">{{ c.nome_completo }} ({{ c.get_tipo_contrato_display }} — R$ {{ c.remuneracao|floatformat:2 }})</option>
-            {% endfor %}
-          </select>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="label">Departamento</label>
+            <select name="departamento_filtro" class="input"
+                    hx-get="{% url 'web:fin-folha-colaboradores' %}"
+                    hx-target="#select-colaborador"
+                    hx-trigger="change"
+                    hx-vals='js:{"departamento": this.value}'>
+              <option value="">Todos</option>
+              {% for d in departamentos %}
+              <option value="{{ d.pk }}">{{ d.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="label">Colaborador <span class="text-red-500">*</span></label>
+            <select name="colaborador" id="select-colaborador" required class="input">
+              <option value="">Selecione...</option>
+              {% for c in colaboradores %}
+              <option value="{{ c.pk }}">{{ c.nome_completo }} ({{ c.get_tipo_contrato_display }} — R$ {{ c.remuneracao|floatformat:2 }})</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
