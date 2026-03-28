@@ -26,7 +26,7 @@
         </td>
         <td class="py-3 text-t2">{{ doc.get_tipo_display }}</td>
         <td class="py-3 text-t2">{{ doc.data_vencimento|date:"d/m/Y"|default:"—" }}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if doc.vencido %}
           <span class="badge bg-red-500/15 text-red-500">Vencido</span>
           {% elif doc.proximo_vencimento %}
@@ -35,7 +35,7 @@
           <span class="badge bg-emerald-500/15 text-emerald-500">OK</span>
           {% endif %}
         </td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           <form method="post" action="{% url 'web:rh-documento-delete' doc.pk %}" class="inline"
                 hx-post="{% url 'web:rh-documento-delete' doc.pk %}" hx-confirm="Excluir este documento?">
             {% csrf_token %}

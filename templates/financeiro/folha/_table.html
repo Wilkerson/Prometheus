@@ -20,14 +20,14 @@
         <td class="py-3 text-t2">{{ f.competencia|date:"m/Y" }}</td>
         <td class="py-3 text-t2">{{ f.valor_bruto|brl }}</td>
         <td class="py-3 font-medium text-t1">{{ f.valor_liquido|brl }}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if f.status == 'calculado' %}<span class="badge bg-bg4 text-t3">Calculado</span>
           {% elif f.status == 'aprovado' %}<span class="badge bg-blue-500/15 text-blue-500">Aprovado</span>
           {% else %}<span class="badge bg-emerald-500/15 text-emerald-500">Pago</span>{% endif %}
         </td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if f.status == 'calculado' %}
-          <div class="flex gap-2">
+          <div class="flex items-center gap-2">
             <a href="{% url 'web:fin-folha-edit' f.pk %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Editar</a>
             <form method="post" action="{% url 'web:fin-folha-confirmar' f.pk %}" class="inline">
               {% csrf_token %}
@@ -36,7 +36,7 @@
             </form>
           </div>
           {% elif f.status == 'aprovado' %}
-          <div class="flex gap-2">
+          <div class="flex items-center gap-2">
             <a href="{% url 'web:fin-folha-edit' f.pk %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Editar</a>
             <form method="post" action="{% url 'web:fin-folha-confirmar' f.pk %}" class="inline">
               {% csrf_token %}

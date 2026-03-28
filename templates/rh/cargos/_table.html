@@ -18,14 +18,14 @@
         <td class="py-3 text-t2">{{ cargo.departamento.nome }}</td>
         <td class="py-3 text-t2">{{ cargo.get_nivel_display }}</td>
         <td class="py-3 text-t2">{{ cargo.faixa_salarial_display }}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if cargo.ativo %}
           <span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
           {% else %}
           <span class="badge bg-bg4 text-t3">Inativo</span>
           {% endif %}
         </td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           <a href="{% url 'web:rh-cargo-edit' cargo.pk %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Editar</a>
         </td>
       </tr>

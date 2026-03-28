@@ -18,14 +18,14 @@
         <td class="py-3 text-t2">{{ usuario.username }}</td>
         <td class="py-3 text-t2">{{ usuario.email }}</td>
         <td class="py-3 text-t2">{{ usuario.grupo_nome }}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if usuario.is_active %}
           <span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
           {% else %}
           <span class="badge bg-bg4 text-t3">Inativo</span>
           {% endif %}
         </td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           <a href="{% url 'web:usuario-edit' usuario.pk %}" class="text-ruch-accent hover:text-t1 text-[12px] font-medium">Editar</a>
         </td>
       </tr>

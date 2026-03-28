@@ -23,13 +23,13 @@
           <span class="text-[10px] text-amber-500 ml-1">({{ t.dias_para_vencer }}d)</span>
           {% endif %}
         </td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if t.status == 'a_vencer' and t.esta_vencido %}<span class="badge bg-red-500/15 text-red-500">Vencido</span>
           {% elif t.status == 'a_vencer' %}<span class="badge bg-amber-500/15 text-amber-500">A vencer</span>
           {% elif t.status == 'pago' %}<span class="badge bg-emerald-500/15 text-emerald-500">Pago</span>
           {% else %}<span class="badge bg-red-500/15 text-red-500">Vencido</span>{% endif %}
         </td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if t.status != 'pago' %}
           <form method="post" action="{% url 'web:fin-tributo-confirmar' t.pk %}" enctype="multipart/form-data">
             {% csrf_token %}

@@ -18,14 +18,14 @@
         <td class="py-3 text-t2">{{ c.cpf }}</td>
         <td class="py-3 text-t2">{{ c.cargo.nome }}</td>
         <td class="py-3 text-t2">{{ c.departamento.nome }}{% if c.setor %} / {{ c.setor.nome }}{% endif %}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if c.tipo_contrato == 'clt' %}
           <span class="badge bg-blue-500/15 text-blue-500">CLT</span>
           {% else %}
           <span class="badge bg-purple-500/15 text-purple-500">PJ</span>
           {% endif %}
         </td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if c.status == 'ativo' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
           {% elif c.status == 'afastado' %}<span class="badge bg-amber-500/15 text-amber-500">Afastado</span>
           {% else %}<span class="badge bg-bg4 text-t3">Desligado</span>{% endif %}

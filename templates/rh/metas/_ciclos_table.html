@@ -15,7 +15,7 @@
         <td class="py-3 font-medium"><a href="{% url 'web:rh-ciclo-detail' c.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ c.nome }}</a></td>
         <td class="py-3 text-t2">{{ c.periodo_inicio|date:"d/m/Y" }} — {{ c.periodo_fim|date:"d/m/Y" }}</td>
         <td class="py-3 text-t2">{{ c.total_metas }}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if c.status == 'aberto' %}<span class="badge bg-blue-500/15 text-blue-500">Aberto</span>
           {% elif c.status == 'em_andamento' %}<span class="badge bg-amber-500/15 text-amber-500">Em andamento</span>
           {% else %}<span class="badge bg-emerald-500/15 text-emerald-500">Encerrado</span>{% endif %}

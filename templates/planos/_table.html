@@ -17,7 +17,7 @@
         <td class="py-3 text-t2">{{ plano.parceiro.nome_entidade }}</td>
         <td class="py-3 text-t2">{{ plano.itens.count }} produto{{ plano.itens.count|pluralize }}</td>
         <td class="py-3 font-medium text-t1">R$ {{ plano.valor_total }}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if plano.ativo %}
           <span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
           {% else %}

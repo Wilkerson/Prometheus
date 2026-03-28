@@ -20,16 +20,16 @@
         <td class="py-3 text-t2">{{ a.get_tipo_display }}</td>
         <td class="py-3 text-t2">{{ a.data_inicio|date:"d/m/Y" }} — {{ a.data_fim|date:"d/m/Y" }}</td>
         <td class="py-3 text-t2">{{ a.total_dias }}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if a.status == 'solicitada' %}<span class="badge bg-blue-500/15 text-blue-500">Solicitada</span>
           {% elif a.status == 'aprovada' %}<span class="badge bg-emerald-500/15 text-emerald-500">Aprovada</span>
           {% elif a.status == 'rejeitada' %}<span class="badge bg-red-500/15 text-red-500">Rejeitada</span>
           {% else %}<span class="badge bg-bg4 text-t3">Cancelada</span>{% endif %}
         </td>
         {% if can_approve %}
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if a.status == 'solicitada' %}
-          <div class="flex gap-2">
+          <div class="flex items-center gap-2">
             <form method="post" action="{% url 'web:rh-ausencia-acao' a.pk %}">
               {% csrf_token %}
               <input type="hidden" name="acao" value="aprovar">

@@ -18,7 +18,7 @@
         <td class="py-3 font-medium">
           <a href="{% url 'web:fin-lancamento-detail' l.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ l.descricao }}</a>
         </td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if l.tipo == 'receita' %}
           <span class="text-emerald-500 font-medium">Receita</span>
           {% else %}
@@ -31,7 +31,7 @@
         <td class="py-3 text-t2">{{ l.categoria }}</td>
         <td class="py-3 text-t2">{{ l.conta.nome }}</td>
         <td class="py-3 text-t2">{{ l.data_vencimento|date:"d/m/Y" }}</td>
-        <td class="py-3">
+        <td class="py-3 whitespace-nowrap">
           {% if l.status == 'previsto' %}<span class="badge bg-bg4 text-t3">Previsto</span>
           {% elif l.status == 'pendente' %}<span class="badge bg-blue-500/15 text-blue-500">Pendente</span>
           {% elif l.status == 'confirmado' %}<span class="badge bg-emerald-500/15 text-emerald-500">Confirmado</span>
