@@ -45,7 +45,7 @@
               <option value="{{ v }}">{{ l }}</option>
               {% endfor %}
             </select>
-            <input type="text" :name="'item_descricao'" class="input flex-1" placeholder="Descricao da tarefa..." x-model="item.descricao">
+            <input type="text" :name="'item_descricao'" class="input flex-1" placeholder="Descrição da tarefa..." x-model="item.descricao">
             <button type="button" @click="itens.splice(index, 1)" class="text-red-400 hover:text-red-300 text-lg px-2" x-show="itens.length > 1">&times;</button>
           </div>
         </template>

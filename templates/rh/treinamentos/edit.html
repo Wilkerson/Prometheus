@@ -41,14 +41,14 @@
           </div>
         </div>
         <div>
-          <label class="label">Descricao</label>
+          <label class="label">Descrição</label>
           <textarea name="descricao" rows="3" class="input">{{ treinamento.descricao }}</textarea>
         </div>
         <div class="flex gap-6">
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" name="obrigatorio" {% if treinamento.obrigatorio %}checked{% endif %}
                    class="w-4 h-4 rounded border-bdr text-ruch-green">
-            <span class="text-sm text-t2">Obrigatorio</span>
+            <span class="text-sm text-t2">Obrigatório</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" name="ativo" {% if treinamento.ativo %}checked{% endif %}

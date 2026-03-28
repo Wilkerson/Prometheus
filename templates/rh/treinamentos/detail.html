@@ -11,7 +11,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
   <!-- Info -->
   <div class="card">
-    <h3 class="text-sm font-semibold text-t2 mb-3">Informacoes</h3>
+    <h3 class="text-sm font-semibold text-t2 mb-3">Informações</h3>
     <dl class="space-y-2 text-sm">
       <div class="flex justify-between"><dt class="text-t3">Tipo</dt><dd class="text-t2">{{ treinamento.get_tipo_display }}</dd></div>
       <div class="flex justify-between"><dt class="text-t3">Modalidade</dt><dd class="text-t2">{{ treinamento.get_modalidade_display }}</dd></div>
@@ -20,7 +20,7 @@
       <div class="flex justify-between"><dt class="text-t3">Instituicao</dt><dd class="text-t2">{{ treinamento.instituicao }}</dd></div>
       {% endif %}
       <div class="flex justify-between">
-        <dt class="text-t3">Obrigatorio</dt>
+        <dt class="text-t3">Obrigatório</dt>
         <dd>{% if treinamento.obrigatorio %}<span class="text-amber-500">Sim</span>{% else %}<span class="text-t3">Nao</span>{% endif %}</dd>
       </div>
       <div class="flex justify-between">

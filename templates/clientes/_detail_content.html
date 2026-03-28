@@ -3,7 +3,7 @@
     <!-- Info -->
     <div class="card">
       <div class="flex items-start justify-between mb-4">
-        <h2 class="text-lg font-semibold text-t1">Informacoes</h2>
+        <h2 class="text-lg font-semibold text-t1">Informações</h2>
         <span class="badge-{{ cliente.status }}">{{ cliente.get_status_display }}</span>
       </div>
       <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -97,7 +97,7 @@
             <option value="{{ value }}">{{ label }}</option>
             {% endfor %}
           </select>
-          <textarea name="observacao" rows="2" class="input" placeholder="Observacao (opcional)"></textarea>
+          <textarea name="observacao" rows="2" class="input" placeholder="Observação (opcional)"></textarea>
           <button type="submit" class="btn-primary w-full">Atualizar Status</button>
         </div>
       </form>

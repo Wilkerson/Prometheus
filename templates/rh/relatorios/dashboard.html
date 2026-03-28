@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Relatorios RH{% endblock %}
-{% block page_title %}Relatorios e Indicadores{% endblock %}
+{% block title %}Relatórios RH{% endblock %}
+{% block page_title %}Relatórios e Indicadores{% endblock %}
 {% block content %}
 
 <!-- Headcount -->
@@ -63,7 +63,7 @@
   </div>
   <div class="card text-center {% if ausencias_pendentes > 0 %}border border-blue-500/20{% endif %}">
     <div class="text-3xl font-bold {% if ausencias_pendentes > 0 %}text-blue-500{% else %}text-t3{% endif %}">{{ ausencias_pendentes }}</div>
-    <div class="text-[11px] text-t3 mt-1">Ausencias pendentes</div>
+    <div class="text-[11px] text-t3 mt-1">Ausências pendentes</div>
   </div>
   <div class="card text-center">
     <div class="text-3xl font-bold text-ruch-accent">{{ onb_andamento }}</div>

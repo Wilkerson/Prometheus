@@ -148,7 +148,7 @@
         <dd><a href="{% url 'web:rh-cargo-detail' colab.cargo.pk %}" class="text-ruch-accent hover:text-t1 no-underline">{{ colab.cargo.nome }}</a></dd>
       </div>
       <div class="flex justify-between">
-        <dt class="text-t3">Remuneracao</dt>
+        <dt class="text-t3">Remuneração</dt>
         <dd class="text-t1 font-medium">R$ {{ colab.remuneracao|floatformat:2 }}</dd>
       </div>
       <div class="flex justify-between">
@@ -285,7 +285,7 @@
 
 <!-- Historico -->
 <div class="card mt-4">
-  <h3 class="text-sm font-semibold text-t2 mb-3">Historico</h3>
+  <h3 class="text-sm font-semibold text-t2 mb-3">Histórico</h3>
   {% if historico %}
   <div class="space-y-3">
     {% for h in historico %}

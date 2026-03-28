@@ -9,7 +9,7 @@
   <div class="flex flex-wrap gap-3 items-end">
     <div class="flex-1 min-w-[200px]">
       <label class="label">Buscar</label>
-      <input type="text" name="q" placeholder="Descricao..." class="input"
+      <input type="text" name="q" placeholder="Descrição..." class="input"
              hx-get="{% url 'web:fin-lancamentos' %}" hx-target="#table" hx-trigger="input changed delay:300ms"
              hx-include="[name='tipo'],[name='status'],[name='conta']" hx-push-url="true">
     </div>

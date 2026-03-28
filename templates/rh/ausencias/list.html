@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Ausencias{% endblock %}
-{% block page_title %}Ferias e Ausencias{% endblock %}
+{% block page_title %}Férias e Ausências{% endblock %}
 {% block page_actions %}
 <div class="flex gap-2">
-  {% if can_add %}<a href="{% url 'web:rh-ausencia-create' %}" class="btn-primary">+ Nova Solicitacao</a>{% endif %}
+  {% if can_add %}<a href="{% url 'web:rh-ausencia-create' %}" class="btn-primary">+ Nova Solicitação</a>{% endif %}
   <a href="{% url 'web:rh-ausencia-calendario' %}" class="btn-secondary">Calendario</a>
 </div>
 {% endblock %}

@@ -29,8 +29,8 @@ def navigation(request):
             "key": "financeiro",
             "label": "Financeiro",
             "items": [
-                {"url": "/financeiro/lancamentos/", "label": "Lancamentos", "permission": "financeiro.view_lancamento"},
-                {"url": "/financeiro/contas/", "label": "Contas Bancarias", "permission": "financeiro.view_contabancaria"},
+                {"url": "/financeiro/lancamentos/", "label": "Lançamentos", "permission": "financeiro.view_lancamento"},
+                {"url": "/financeiro/contas/", "label": "Contas Bancárias", "permission": "financeiro.view_contabancaria"},
             ],
         },
         {
@@ -40,19 +40,19 @@ def navigation(request):
                 {"url": "/rh/colaboradores/", "label": "Colaboradores", "permission": "rh.view_colaborador"},
                 {"url": "/rh/documentos/", "label": "Documentos", "permission": "rh.view_documentocolaborador"},
                 {"url": "/rh/onboarding/templates/", "label": "Onboarding", "permission": "rh.view_onboardingtemplate"},
-                {"url": "/rh/ausencias/", "label": "Ferias / Ausencias", "permission": "rh.view_solicitacaoausencia"},
+                {"url": "/rh/ausencias/", "label": "Férias / Ausências", "permission": "rh.view_solicitacaoausencia"},
                 {"url": "/rh/treinamentos/", "label": "Treinamentos", "permission": "rh.view_treinamento"},
                 {"url": "/rh/metas/", "label": "Metas", "permission": "rh.view_cicloavaliacao"},
                 {"url": "/rh/pdi/", "label": "PDI", "permission": "rh.view_pdi"},
                 {"url": "/rh/enps/", "label": "eNPS", "permission": "rh.view_pesquisaenps"},
-                {"url": "/rh/relatorios/", "label": "Relatorios", "permission": "rh.view_colaborador"},
+                {"url": "/rh/relatorios/", "label": "Relatórios", "permission": "rh.view_colaborador"},
                 {"url": "/rh/cargos/", "label": "Cargos", "permission": "rh.view_cargo"},
                 {"url": "/rh/setores/", "label": "Setores", "permission": "rh.view_setor"},
             ],
         },
         {
             "key": "admin",
-            "label": "Administracao",
+            "label": "Administração",
             "items": [
                 {"url": "/usuarios/", "label": "Usuarios", "permission": "accounts.view_usuario"},
                 {"url": "/parceiros/", "label": "Parceiros", "permission": "crm.view_entidadeparceira"},
@@ -70,8 +70,8 @@ def navigation(request):
     placeholders = [
         {"label": "Marketing", "sublabel": "em breve"},
         {"label": "Tecnologia", "sublabel": "em breve"},
-        {"label": "Juridico", "sublabel": "em breve"},
-        {"label": "Operacoes", "sublabel": "em breve"},
+        {"label": "Jurídico", "sublabel": "em breve"},
+        {"label": "Operações", "sublabel": "em breve"},
         {"label": "Produto", "sublabel": "em breve"},
     ]
 
