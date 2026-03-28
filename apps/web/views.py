@@ -14,7 +14,7 @@ from django.contrib.auth.models import Group
 
 from apps.accounts.models import Usuario
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
-from apps.financeiro.models import CategoriaFinanceira, ContaBancaria, Lancamento
+from apps.financeiro.models import CategoriaFinanceira, Cobranca, ContaBancaria, Despesa, Lancamento, NotaFiscal
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
 from apps.rh.models import (
@@ -1097,6 +1097,9 @@ MODULOS_PERMISSOES = [
     {"label": "Lancamentos", "app": "financeiro", "model": "lancamento"},
     {"label": "Contas Bancarias", "app": "financeiro", "model": "contabancaria"},
     {"label": "Categorias Fin.", "app": "financeiro", "model": "categoriafinanceira"},
+    {"label": "Cobranças", "app": "financeiro", "model": "cobranca"},
+    {"label": "Despesas", "app": "financeiro", "model": "despesa"},
+    {"label": "Notas Fiscais", "app": "financeiro", "model": "notafiscal"},
 ]
 
 ACOES = [
@@ -3359,3 +3362,307 @@ class ContaCreateView(PermissionRequiredMixin, View):
             saldo_inicial=request.POST.get("saldo_inicial", 0) or 0,
         )
         return redirect("web:fin-contas")
+
+
+# ---------------------------------------------------------------------------
+# Cobrancas (Contas a Receber)
+# ---------------------------------------------------------------------------
+class CobrancaListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "financeiro/cobrancas/list.html"
+    partial_template_name = "financeiro/cobrancas/_table.html"
+    context_object_name = "cobrancas"
+    paginate_by = 20
+    permission_required = "financeiro.view_cobranca"
+
+    def get_queryset(self):
+        qs = Cobranca.objects.select_related("cliente", "plano")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(Q(descricao__icontains=search) | Q(cliente__nome__icontains=search))
+        status = self.request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["status_choices"] = Cobranca.StatusCobranca.choices
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["can_add"] = self.request.user.has_perm("financeiro.add_cobranca")
+        return ctx
+
+
+class CobrancaCreateView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.add_cobranca"
+
+    def get(self, request):
+        return render(request, "financeiro/cobrancas/create.html", {
+            "tipo_choices": Cobranca.TipoCobranca.choices,
+            "canal_choices": Lancamento.Canal.choices,
+            "clientes": Cliente.objects.filter(ativo=True),
+            "planos": Plano.objects.filter(ativo=True).select_related("parceiro"),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        cliente_id = request.POST.get("cliente")
+        if not cliente_id:
+            erros["cliente"] = "O cliente é obrigatório."
+        descricao = request.POST.get("descricao", "").strip()
+        if not descricao:
+            erros["descricao"] = "A descrição é obrigatória."
+        valor = request.POST.get("valor", "").strip()
+        if not valor:
+            erros["valor"] = "O valor é obrigatório."
+        vencimento = request.POST.get("vencimento", "").strip()
+        if not vencimento:
+            erros["vencimento"] = "O vencimento é obrigatório."
+
+        if erros:
+            return render(request, "financeiro/cobrancas/create.html", {
+                "tipo_choices": Cobranca.TipoCobranca.choices,
+                "canal_choices": Lancamento.Canal.choices,
+                "clientes": Cliente.objects.filter(ativo=True),
+                "planos": Plano.objects.filter(ativo=True).select_related("parceiro"),
+                "erros": erros,
+            })
+
+        Cobranca.objects.create(
+            cliente_id=cliente_id,
+            plano_id=request.POST.get("plano") or None,
+            tipo=request.POST.get("tipo", "avulsa"),
+            descricao=descricao,
+            valor=valor,
+            vencimento=vencimento,
+            canal=request.POST.get("canal", "manual"),
+            observacao=request.POST.get("observacao", "").strip(),
+        )
+        return redirect("web:fin-cobrancas")
+
+
+class CobrancaConfirmarView(PermissionRequiredMixin, View):
+    """Confirma pagamento de cobranca e gera lancamento de receita."""
+    permission_required = "financeiro.change_cobranca"
+
+    def post(self, request, pk):
+        cobranca = get_object_or_404(Cobranca.objects.select_related("cliente"), pk=pk)
+        if cobranca.status == "pago":
+            return redirect("web:fin-cobrancas")
+
+        from django.utils import timezone
+        hoje = timezone.now().date()
+
+        # Buscar categoria de receita de servicos
+        cat = CategoriaFinanceira.objects.filter(tipo="receita", pai__isnull=False).first()
+        conta = ContaBancaria.objects.filter(ativo=True).first()
+
+        lanc = Lancamento.objects.create(
+            tipo="receita",
+            descricao=f"Cobrança: {cobranca.descricao}",
+            valor=cobranca.valor,
+            categoria=cat,
+            conta=conta,
+            canal=cobranca.canal,
+            data_vencimento=cobranca.vencimento,
+            data_competencia=cobranca.vencimento,
+            data_pagamento=hoje,
+            status="confirmado",
+            cliente=cobranca.cliente,
+            criado_por=request.user,
+        )
+        cobranca.status = "pago"
+        cobranca.data_pagamento = hoje
+        cobranca.lancamento = lanc
+        cobranca.save()
+        return redirect("web:fin-cobrancas")
+
+
+# ---------------------------------------------------------------------------
+# Despesas (Contas a Pagar)
+# ---------------------------------------------------------------------------
+class DespesaListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "financeiro/despesas/list.html"
+    partial_template_name = "financeiro/despesas/_table.html"
+    context_object_name = "despesas"
+    paginate_by = 20
+    permission_required = "financeiro.view_despesa"
+
+    def get_queryset(self):
+        qs = Despesa.objects.select_related("categoria", "conta")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(Q(descricao__icontains=search) | Q(fornecedor__icontains=search))
+        status = self.request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["status_choices"] = Despesa.StatusDespesa.choices
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["can_add"] = self.request.user.has_perm("financeiro.add_despesa")
+        return ctx
+
+
+class DespesaCreateView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.add_despesa"
+
+    def get(self, request):
+        return render(request, "financeiro/despesas/create.html", {
+            "categorias": CategoriaFinanceira.objects.filter(tipo="despesa", ativo=True),
+            "recorrencia_choices": Despesa.Recorrencia.choices,
+            "contas": ContaBancaria.objects.filter(ativo=True),
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        fornecedor = request.POST.get("fornecedor", "").strip()
+        if not fornecedor:
+            erros["fornecedor"] = "O fornecedor é obrigatório."
+        descricao = request.POST.get("descricao", "").strip()
+        if not descricao:
+            erros["descricao"] = "A descrição é obrigatória."
+        valor = request.POST.get("valor", "").strip()
+        if not valor:
+            erros["valor"] = "O valor é obrigatório."
+        categoria_id = request.POST.get("categoria")
+        if not categoria_id:
+            erros["categoria"] = "A categoria é obrigatória."
+        vencimento = request.POST.get("vencimento", "").strip()
+        if not vencimento:
+            erros["vencimento"] = "O vencimento é obrigatório."
+
+        if erros:
+            return render(request, "financeiro/despesas/create.html", {
+                "categorias": CategoriaFinanceira.objects.filter(tipo="despesa", ativo=True),
+                "recorrencia_choices": Despesa.Recorrencia.choices,
+                "contas": ContaBancaria.objects.filter(ativo=True),
+                "departamentos": Departamento.objects.filter(ativo=True),
+                "erros": erros,
+            })
+
+        Despesa.objects.create(
+            fornecedor=fornecedor,
+            descricao=descricao,
+            categoria_id=categoria_id,
+            valor=valor,
+            vencimento=vencimento,
+            recorrencia=request.POST.get("recorrencia", "unico"),
+            conta_id=request.POST.get("conta") or None,
+            departamento_id=request.POST.get("departamento") or None,
+            observacao=request.POST.get("observacao", "").strip(),
+            comprovante=request.FILES.get("comprovante"),
+        )
+        return redirect("web:fin-despesas")
+
+
+class DespesaConfirmarView(PermissionRequiredMixin, View):
+    """Confirma pagamento de despesa e gera lancamento de despesa."""
+    permission_required = "financeiro.change_despesa"
+
+    def post(self, request, pk):
+        despesa = get_object_or_404(Despesa, pk=pk)
+        if despesa.status == "pago":
+            return redirect("web:fin-despesas")
+
+        from django.utils import timezone
+        hoje = timezone.now().date()
+
+        conta = despesa.conta or ContaBancaria.objects.filter(ativo=True).first()
+
+        lanc = Lancamento.objects.create(
+            tipo="despesa",
+            descricao=f"Despesa: {despesa.descricao}",
+            valor=despesa.valor,
+            categoria=despesa.categoria,
+            conta=conta,
+            departamento=despesa.departamento,
+            canal="manual",
+            data_vencimento=despesa.vencimento,
+            data_competencia=despesa.vencimento,
+            data_pagamento=hoje,
+            status="confirmado",
+            criado_por=request.user,
+        )
+        despesa.status = "pago"
+        despesa.data_pagamento = hoje
+        despesa.lancamento = lanc
+        despesa.save()
+        return redirect("web:fin-despesas")
+
+
+# ---------------------------------------------------------------------------
+# Notas Fiscais
+# ---------------------------------------------------------------------------
+class NotaFiscalListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "financeiro/nfs/list.html"
+    partial_template_name = "financeiro/nfs/_table.html"
+    context_object_name = "nfs"
+    paginate_by = 20
+    permission_required = "financeiro.view_notafiscal"
+
+    def get_queryset(self):
+        qs = NotaFiscal.objects.select_related("cliente")
+        tipo = self.request.GET.get("tipo")
+        if tipo:
+            qs = qs.filter(tipo=tipo)
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(Q(numero__icontains=search) | Q(fornecedor__icontains=search))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tipo_choices"] = NotaFiscal.TipoNF.choices
+        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["can_add"] = self.request.user.has_perm("financeiro.add_notafiscal")
+        return ctx
+
+
+class NotaFiscalCreateView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.add_notafiscal"
+
+    def get(self, request):
+        return render(request, "financeiro/nfs/create.html", {
+            "tipo_choices": NotaFiscal.TipoNF.choices,
+            "clientes": Cliente.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo é obrigatório."
+        numero = request.POST.get("numero", "").strip()
+        if not numero:
+            erros["numero"] = "O número é obrigatório."
+        valor = request.POST.get("valor", "").strip()
+        if not valor:
+            erros["valor"] = "O valor é obrigatório."
+        data_emissao = request.POST.get("data_emissao", "").strip()
+        if not data_emissao:
+            erros["data_emissao"] = "A data de emissão é obrigatória."
+
+        if erros:
+            return render(request, "financeiro/nfs/create.html", {
+                "tipo_choices": NotaFiscal.TipoNF.choices,
+                "clientes": Cliente.objects.filter(ativo=True),
+                "erros": erros,
+            })
+
+        NotaFiscal.objects.create(
+            tipo=tipo,
+            numero=numero,
+            valor=valor,
+            data_emissao=data_emissao,
+            cliente_id=request.POST.get("cliente") or None,
+            fornecedor=request.POST.get("fornecedor", "").strip(),
+            arquivo=request.FILES.get("arquivo"),
+            observacao=request.POST.get("observacao", "").strip(),
+        )
+        return redirect("web:fin-nfs")

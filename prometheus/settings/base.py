@@ -204,6 +204,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60 * 60 * 24,  # a cada 24 horas
         "options": {"queue": "default"},
     },
+    "financeiro-recorrentes-mensal": {
+        "task": "financeiro.gerar_recorrentes",
+        "schedule": 60 * 60 * 24,  # verifica diariamente, gera so quando necessario
+        "options": {"queue": "default"},
+    },
 }
 
 # -----------------------------------------------------------------------------

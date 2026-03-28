@@ -236,3 +236,185 @@ class Lancamento(models.Model):
         if self.valor_liquido is None:
             self.valor_liquido = self.valor
         super().save(*args, **kwargs)
+
+
+# =========================================================================
+# Cobranca (Contas a Receber)
+# =========================================================================
+class Cobranca(models.Model):
+    class TipoCobranca(models.TextChoices):
+        IMPLANTACAO = "implantacao", "Implantação"
+        MENSALIDADE = "mensalidade", "Mensalidade"
+        AVULSA = "avulsa", "Avulsa (projeto/consultoria)"
+        PARCELADA = "parcelada", "Parcelada"
+
+    class StatusCobranca(models.TextChoices):
+        PENDENTE = "pendente", "Pendente"
+        PAGO = "pago", "Pago"
+        VENCIDO = "vencido", "Vencido"
+        CANCELADO = "cancelado", "Cancelado"
+
+    cliente = models.ForeignKey(
+        "crm.Cliente",
+        on_delete=models.CASCADE,
+        related_name="cobrancas",
+        verbose_name="Cliente",
+    )
+    plano = models.ForeignKey(
+        "crm.Plano",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="cobrancas",
+        verbose_name="Plano vinculado",
+    )
+    tipo = models.CharField("Tipo", max_length=12, choices=TipoCobranca.choices)
+    descricao = models.CharField("Descrição", max_length=300)
+    valor = models.DecimalField("Valor", max_digits=12, decimal_places=2)
+    vencimento = models.DateField("Vencimento")
+    status = models.CharField(
+        "Status", max_length=10, choices=StatusCobranca.choices,
+        default=StatusCobranca.PENDENTE,
+    )
+    canal = models.CharField(
+        "Canal de cobrança", max_length=10,
+        choices=Lancamento.Canal.choices, default=Lancamento.Canal.MANUAL,
+    )
+    data_pagamento = models.DateField("Data de pagamento", null=True, blank=True)
+    lancamento = models.OneToOneField(
+        Lancamento, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="cobranca_origem", verbose_name="Lançamento gerado",
+    )
+    nota_fiscal = models.ForeignKey(
+        "NotaFiscal", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="cobrancas", verbose_name="NF vinculada",
+    )
+    observacao = models.TextField("Observação", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Cobrança"
+        verbose_name_plural = "Cobranças"
+        ordering = ["-vencimento"]
+
+    def __str__(self):
+        return f"{self.cliente.nome} — R${self.valor} ({self.get_tipo_display()})"
+
+    @property
+    def esta_vencido(self):
+        if self.status in ("pago", "cancelado"):
+            return False
+        from django.utils import timezone
+        return self.vencimento < timezone.now().date()
+
+
+# =========================================================================
+# Despesa (Contas a Pagar)
+# =========================================================================
+class Despesa(models.Model):
+    class Recorrencia(models.TextChoices):
+        UNICO = "unico", "Único"
+        MENSAL = "mensal", "Mensal"
+        TRIMESTRAL = "trimestral", "Trimestral"
+        ANUAL = "anual", "Anual"
+
+    class StatusDespesa(models.TextChoices):
+        AGENDADO = "agendado", "Agendado"
+        PAGO = "pago", "Pago"
+        VENCIDO = "vencido", "Vencido"
+        CANCELADO = "cancelado", "Cancelado"
+
+    fornecedor = models.CharField("Fornecedor / Beneficiário", max_length=200)
+    descricao = models.CharField("Descrição", max_length=300)
+    categoria = models.ForeignKey(
+        CategoriaFinanceira, on_delete=models.PROTECT,
+        related_name="despesas", verbose_name="Categoria",
+    )
+    valor = models.DecimalField("Valor", max_digits=12, decimal_places=2)
+    vencimento = models.DateField("Vencimento")
+    recorrencia = models.CharField(
+        "Recorrência", max_length=11, choices=Recorrencia.choices,
+        default=Recorrencia.UNICO,
+    )
+    status = models.CharField(
+        "Status", max_length=10, choices=StatusDespesa.choices,
+        default=StatusDespesa.AGENDADO,
+    )
+    conta = models.ForeignKey(
+        ContaBancaria, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="despesas", verbose_name="Conta de pagamento",
+    )
+    departamento = models.ForeignKey(
+        "rh.Departamento", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="despesas", verbose_name="Centro de custo",
+    )
+    data_pagamento = models.DateField("Data de pagamento", null=True, blank=True)
+    comprovante = models.FileField(
+        "Comprovante", upload_to="financeiro/comprovantes_desp/%Y/%m/", blank=True,
+    )
+    lancamento = models.OneToOneField(
+        Lancamento, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="despesa_origem", verbose_name="Lançamento gerado",
+    )
+    nota_fiscal = models.ForeignKey(
+        "NotaFiscal", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="despesas", verbose_name="NF vinculada",
+    )
+    observacao = models.TextField("Observação", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Despesa"
+        verbose_name_plural = "Despesas"
+        ordering = ["-vencimento"]
+
+    def __str__(self):
+        return f"{self.fornecedor} — R${self.valor} ({self.get_recorrencia_display()})"
+
+    @property
+    def esta_vencido(self):
+        if self.status in ("pago", "cancelado"):
+            return False
+        from django.utils import timezone
+        return self.vencimento < timezone.now().date()
+
+
+# =========================================================================
+# Nota Fiscal
+# =========================================================================
+class NotaFiscal(models.Model):
+    class TipoNF(models.TextChoices):
+        EMITIDA = "emitida", "Emitida (para cliente)"
+        RECEBIDA = "recebida", "Recebida (de fornecedor)"
+
+    tipo = models.CharField("Tipo", max_length=8, choices=TipoNF.choices)
+    numero = models.CharField("Número da NF", max_length=50)
+    valor = models.DecimalField("Valor", max_digits=12, decimal_places=2)
+    data_emissao = models.DateField("Data de emissão")
+
+    # Emitida: cliente / Recebida: fornecedor
+    cliente = models.ForeignKey(
+        "crm.Cliente", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="notas_fiscais", verbose_name="Cliente",
+    )
+    fornecedor = models.CharField("Fornecedor", max_length=200, blank=True)
+
+    arquivo = models.FileField(
+        "Arquivo (PDF)", upload_to="financeiro/nfs/%Y/%m/", blank=True,
+    )
+    lancamento = models.ForeignKey(
+        Lancamento, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="notas_fiscais", verbose_name="Lançamento vinculado",
+    )
+    observacao = models.TextField("Observação", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Nota fiscal"
+        verbose_name_plural = "Notas fiscais"
+        ordering = ["-data_emissao"]
+
+    def __str__(self):
+        return f"NF {self.numero} — R${self.valor} ({self.get_tipo_display()})"

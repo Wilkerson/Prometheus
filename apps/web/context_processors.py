@@ -30,6 +30,9 @@ def navigation(request):
             "label": "Financeiro",
             "items": [
                 {"url": "/financeiro/lancamentos/", "label": "Lançamentos", "permission": "financeiro.view_lancamento"},
+                {"url": "/financeiro/cobrancas/", "label": "Contas a Receber", "permission": "financeiro.view_cobranca"},
+                {"url": "/financeiro/despesas/", "label": "Contas a Pagar", "permission": "financeiro.view_despesa"},
+                {"url": "/financeiro/nfs/", "label": "Notas Fiscais", "permission": "financeiro.view_notafiscal"},
                 {"url": "/financeiro/contas/", "label": "Contas Bancárias", "permission": "financeiro.view_contabancaria"},
             ],
         },

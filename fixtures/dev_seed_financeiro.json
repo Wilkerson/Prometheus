@@ -78,5 +78,77 @@
     "cliente": null, "parceiro": null, "id_externo": "", "observacao": "",
     "comprovante": "", "criado_por": null,
     "criado_em": "2026-03-20T10:00:00Z", "atualizado_em": "2026-03-20T10:00:00Z"
+  }},
+
+  {"model": "financeiro.cobranca", "pk": 1, "fields": {
+    "cliente": 1, "plano": 2, "tipo": "mensalidade",
+    "descricao": "Mensalidade Plano Premium SP — mar/2026",
+    "valor": "5300.00", "vencimento": "2026-03-10",
+    "status": "pago", "canal": "pix", "data_pagamento": "2026-03-10",
+    "lancamento": 1, "nota_fiscal": null, "observacao": "",
+    "criado_em": "2026-03-01T10:00:00Z", "atualizado_em": "2026-03-10T10:00:00Z"
+  }},
+  {"model": "financeiro.cobranca", "pk": 2, "fields": {
+    "cliente": 4, "plano": null, "tipo": "implantacao",
+    "descricao": "Taxa de implantação — Rio Marketing Digital",
+    "valor": "2000.00", "vencimento": "2026-02-20",
+    "status": "pago", "canal": "ted", "data_pagamento": "2026-02-22",
+    "lancamento": 2, "nota_fiscal": null, "observacao": "",
+    "criado_em": "2026-02-15T10:00:00Z", "atualizado_em": "2026-02-22T10:00:00Z"
+  }},
+  {"model": "financeiro.cobranca", "pk": 3, "fields": {
+    "cliente": 8, "plano": null, "tipo": "avulsa",
+    "descricao": "Consultoria em automação — BH Consultoria",
+    "valor": "3500.00", "vencimento": "2026-04-05",
+    "status": "pendente", "canal": "gateway", "data_pagamento": null,
+    "lancamento": null, "nota_fiscal": null, "observacao": "Aguardando pagamento",
+    "criado_em": "2026-03-25T10:00:00Z", "atualizado_em": "2026-03-25T10:00:00Z"
+  }},
+
+  {"model": "financeiro.despesa", "pk": 1, "fields": {
+    "fornecedor": "Hostgator", "descricao": "Servidor VPS — abr/2026",
+    "categoria": 15, "valor": "189.90", "vencimento": "2026-04-05",
+    "recorrencia": "mensal", "status": "agendado",
+    "conta": 1, "departamento": 5, "data_pagamento": null,
+    "comprovante": "", "lancamento": null, "nota_fiscal": null,
+    "observacao": "Recorrente mensal",
+    "criado_em": "2026-03-25T10:00:00Z", "atualizado_em": "2026-03-25T10:00:00Z"
+  }},
+  {"model": "financeiro.despesa", "pk": 2, "fields": {
+    "fornecedor": "Contabilidade ABC", "descricao": "Contabilidade — abr/2026",
+    "categoria": 18, "valor": "450.00", "vencimento": "2026-04-15",
+    "recorrencia": "mensal", "status": "agendado",
+    "conta": 1, "departamento": 2, "data_pagamento": null,
+    "comprovante": "", "lancamento": null, "nota_fiscal": null,
+    "observacao": "",
+    "criado_em": "2026-03-25T10:00:00Z", "atualizado_em": "2026-03-25T10:00:00Z"
+  }},
+  {"model": "financeiro.despesa", "pk": 3, "fields": {
+    "fornecedor": "Google", "descricao": "Google Ads — campanha abr/2026",
+    "categoria": 16, "valor": "1500.00", "vencimento": "2026-04-30",
+    "recorrencia": "mensal", "status": "agendado",
+    "conta": 1, "departamento": 4, "data_pagamento": null,
+    "comprovante": "", "lancamento": null, "nota_fiscal": null,
+    "observacao": "",
+    "criado_em": "2026-03-28T10:00:00Z", "atualizado_em": "2026-03-28T10:00:00Z"
+  }},
+
+  {"model": "financeiro.notafiscal", "pk": 1, "fields": {
+    "tipo": "emitida", "numero": "NFS-001", "valor": "5300.00",
+    "data_emissao": "2026-03-10", "cliente": 1, "fornecedor": "",
+    "arquivo": "", "lancamento": 1, "observacao": "Mensalidade Plano Premium SP",
+    "criado_em": "2026-03-10T10:00:00Z"
+  }},
+  {"model": "financeiro.notafiscal", "pk": 2, "fields": {
+    "tipo": "emitida", "numero": "NFS-002", "valor": "2000.00",
+    "data_emissao": "2026-02-20", "cliente": 4, "fornecedor": "",
+    "arquivo": "", "lancamento": 2, "observacao": "Taxa de implantação",
+    "criado_em": "2026-02-20T10:00:00Z"
+  }},
+  {"model": "financeiro.notafiscal", "pk": 3, "fields": {
+    "tipo": "recebida", "numero": "NF-8842", "valor": "189.90",
+    "data_emissao": "2026-03-05", "cliente": null, "fornecedor": "Hostgator",
+    "arquivo": "", "lancamento": 4, "observacao": "Servidor VPS março",
+    "criado_em": "2026-03-05T10:00:00Z"
   }}
 ]

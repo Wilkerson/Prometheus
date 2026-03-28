@@ -1,0 +1,38 @@
+{% if nfs %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium">Número</th>
+        <th class="pb-3 font-medium">Tipo</th>
+        <th class="pb-3 font-medium">Valor</th>
+        <th class="pb-3 font-medium">Cliente / Fornecedor</th>
+        <th class="pb-3 font-medium">Emissão</th>
+        <th class="pb-3 font-medium">Arquivo</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for nf in nfs %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3 font-medium text-t1">{{ nf.numero }}</td>
+        <td class="py-3">
+          {% if nf.tipo == 'emitida' %}<span class="badge bg-emerald-500/15 text-emerald-500">Emitida</span>
+          {% else %}<span class="badge bg-blue-500/15 text-blue-500">Recebida</span>{% endif %}
+        </td>
+        <td class="py-3 text-t1 font-medium">R$ {{ nf.valor|floatformat:2 }}</td>
+        <td class="py-3 text-t2">
+          {% if nf.tipo == 'emitida' and nf.cliente %}{{ nf.cliente.nome }}{% else %}{{ nf.fornecedor }}{% endif %}
+        </td>
+        <td class="py-3 text-t2">{{ nf.data_emissao|date:"d/m/Y" }}</td>
+        <td class="py-3">
+          {% if nf.arquivo %}<a href="{{ nf.arquivo.url }}" target="_blank" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">PDF</a>
+          {% else %}<span class="text-[11px] text-t3">—</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhuma nota fiscal cadastrada.</p>
+{% endif %}

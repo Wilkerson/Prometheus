@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Notas Fiscais{% endblock %}
+{% block page_title %}Notas Fiscais{% endblock %}
+{% block page_actions %}
+{% if can_add %}<a href="{% url 'web:fin-nf-create' %}" class="btn-primary">+ Nova NF</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card mb-4">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="label">Buscar</label>
+      <input type="text" name="q" placeholder="Número ou fornecedor..." class="input"
+             hx-get="{% url 'web:fin-nfs' %}" hx-target="#table" hx-trigger="input changed delay:300ms"
+             hx-include="[name='tipo']" hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Tipo</label>
+      <select name="tipo" class="input"
+              hx-get="{% url 'web:fin-nfs' %}" hx-target="#table" hx-include="[name='q']" hx-push-url="true">
+        <option value="">Todas</option>
+        {% for v, l in tipo_choices %}
+        <option value="{{ v }}" {% if current_tipo == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card" id="table">{% include "financeiro/nfs/_table.html" %}</div>
+{% endblock %}

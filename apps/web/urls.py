@@ -133,4 +133,15 @@ urlpatterns = [
     # Financeiro — Contas Bancarias
     path("financeiro/contas/", views.ContaListView.as_view(), name="fin-contas"),
     path("financeiro/contas/novo/", views.ContaCreateView.as_view(), name="fin-conta-create"),
+    # Financeiro — Cobrancas
+    path("financeiro/cobrancas/", views.CobrancaListView.as_view(), name="fin-cobrancas"),
+    path("financeiro/cobrancas/novo/", views.CobrancaCreateView.as_view(), name="fin-cobranca-create"),
+    path("financeiro/cobrancas/<int:pk>/confirmar/", views.CobrancaConfirmarView.as_view(), name="fin-cobranca-confirmar"),
+    # Financeiro — Despesas
+    path("financeiro/despesas/", views.DespesaListView.as_view(), name="fin-despesas"),
+    path("financeiro/despesas/novo/", views.DespesaCreateView.as_view(), name="fin-despesa-create"),
+    path("financeiro/despesas/<int:pk>/confirmar/", views.DespesaConfirmarView.as_view(), name="fin-despesa-confirmar"),
+    # Financeiro — Notas Fiscais
+    path("financeiro/nfs/", views.NotaFiscalListView.as_view(), name="fin-nfs"),
+    path("financeiro/nfs/novo/", views.NotaFiscalCreateView.as_view(), name="fin-nf-create"),
 ]

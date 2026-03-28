@@ -42,6 +42,9 @@ class Command(BaseCommand):
             "view_lancamento", "add_lancamento", "change_lancamento", "delete_lancamento",
             "view_contabancaria", "add_contabancaria", "change_contabancaria", "delete_contabancaria",
             "view_categoriafinanceira", "add_categoriafinanceira", "change_categoriafinanceira", "delete_categoriafinanceira",
+            "view_cobranca", "add_cobranca", "change_cobranca", "delete_cobranca",
+            "view_despesa", "add_despesa", "change_despesa", "delete_despesa",
+            "view_notafiscal", "add_notafiscal", "change_notafiscal", "delete_notafiscal",
         ])
         g.permissions.set(perms)
         self._log(g, created)
