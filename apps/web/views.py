@@ -1079,32 +1079,40 @@ class TokenDeleteView(PermissionRequiredMixin, View):
 # Grupos e Permissoes
 # ---------------------------------------------------------------------------
 
-# Modulos expostos na matriz de permissoes (label amigavel + app_label.model)
-MODULOS_PERMISSOES = [
-    {"label": "Clientes", "app": "crm", "model": "cliente"},
-    {"label": "Produtos", "app": "crm", "model": "produto"},
-    {"label": "Planos", "app": "crm", "model": "plano"},
-    {"label": "Usuarios", "app": "accounts", "model": "usuario"},
-    {"label": "Parceiros", "app": "crm", "model": "entidadeparceira"},
-    {"label": "Tokens API", "app": "integracao", "model": "tokenintegracao"},
-    {"label": "Colaboradores", "app": "rh", "model": "colaborador"},
-    {"label": "Cargos", "app": "rh", "model": "cargo"},
-    {"label": "Setores", "app": "rh", "model": "setor"},
-    {"label": "Documentos RH", "app": "rh", "model": "documentocolaborador"},
-    {"label": "Onboarding", "app": "rh", "model": "onboardingtemplate"},
-    {"label": "Ausencias", "app": "rh", "model": "solicitacaoausencia"},
-    {"label": "Treinamentos", "app": "rh", "model": "treinamento"},
-    {"label": "Ciclos/Metas", "app": "rh", "model": "cicloavaliacao"},
-    {"label": "PDI", "app": "rh", "model": "pdi"},
-    {"label": "eNPS", "app": "rh", "model": "pesquisaenps"},
-    {"label": "Lancamentos", "app": "financeiro", "model": "lancamento"},
-    {"label": "Contas Bancarias", "app": "financeiro", "model": "contabancaria"},
-    {"label": "Categorias Fin.", "app": "financeiro", "model": "categoriafinanceira"},
-    {"label": "Cobranças", "app": "financeiro", "model": "cobranca"},
-    {"label": "Despesas", "app": "financeiro", "model": "despesa"},
-    {"label": "Notas Fiscais", "app": "financeiro", "model": "notafiscal"},
-    {"label": "Folha Pgto", "app": "financeiro", "model": "folhapagamento"},
-    {"label": "Tributos", "app": "financeiro", "model": "tributo"},
+# Modulos expostos na matriz de permissoes, agrupados por departamento
+MODULOS_PERMISSOES_GRUPOS = [
+    {"depto": "Comercial", "modulos": [
+        {"label": "Clientes", "app": "crm", "model": "cliente"},
+        {"label": "Produtos", "app": "crm", "model": "produto"},
+        {"label": "Planos", "app": "crm", "model": "plano"},
+        {"label": "Parceiros", "app": "crm", "model": "entidadeparceira"},
+    ]},
+    {"depto": "Financeiro", "modulos": [
+        {"label": "Lançamentos", "app": "financeiro", "model": "lancamento"},
+        {"label": "Cobranças", "app": "financeiro", "model": "cobranca"},
+        {"label": "Despesas", "app": "financeiro", "model": "despesa"},
+        {"label": "Notas Fiscais", "app": "financeiro", "model": "notafiscal"},
+        {"label": "Folha Pgto", "app": "financeiro", "model": "folhapagamento"},
+        {"label": "Tributos", "app": "financeiro", "model": "tributo"},
+        {"label": "Contas Bancárias", "app": "financeiro", "model": "contabancaria"},
+        {"label": "Categorias", "app": "financeiro", "model": "categoriafinanceira"},
+    ]},
+    {"depto": "RH / Pessoas", "modulos": [
+        {"label": "Colaboradores", "app": "rh", "model": "colaborador"},
+        {"label": "Cargos", "app": "rh", "model": "cargo"},
+        {"label": "Setores", "app": "rh", "model": "setor"},
+        {"label": "Documentos", "app": "rh", "model": "documentocolaborador"},
+        {"label": "Onboarding", "app": "rh", "model": "onboardingtemplate"},
+        {"label": "Ausências", "app": "rh", "model": "solicitacaoausencia"},
+        {"label": "Treinamentos", "app": "rh", "model": "treinamento"},
+        {"label": "Metas", "app": "rh", "model": "cicloavaliacao"},
+        {"label": "PDI", "app": "rh", "model": "pdi"},
+        {"label": "eNPS", "app": "rh", "model": "pesquisaenps"},
+    ]},
+    {"depto": "Administração", "modulos": [
+        {"label": "Usuários", "app": "accounts", "model": "usuario"},
+        {"label": "Tokens API", "app": "integracao", "model": "tokenintegracao"},
+    ]},
 ]
 
 ACOES = [
@@ -1116,9 +1124,8 @@ ACOES = [
 
 
 def _build_permission_matrix(group=None, user=None):
-    """Monta a matriz de modulos x acoes com estado checked.
+    """Monta a matriz de modulos x acoes agrupada por departamento.
     Aceita group (permissoes do grupo) ou user (permissoes diretas do usuario).
-    Para user: marca permissoes diretas E herdadas do grupo, diferenciando a origem.
     """
     from django.contrib.auth.models import Permission
 
@@ -1128,32 +1135,33 @@ def _build_permission_matrix(group=None, user=None):
     if group:
         checked_codenames = set(group.permissions.values_list("codename", flat=True))
     elif user:
-        # Permissoes diretas do usuario
         checked_codenames = set(user.user_permissions.values_list("codename", flat=True))
-        # Permissoes herdadas dos grupos
         group_codenames = set(
             Permission.objects.filter(group__user=user).values_list("codename", flat=True)
         )
 
     matrix = []
-    for mod in MODULOS_PERMISSOES:
-        row = {"label": mod["label"], "acoes": []}
-        for acao in ACOES:
-            codename = f"{acao['key']}_{mod['model']}"
-            perm = Permission.objects.filter(
-                codename=codename,
-                content_type__app_label=mod["app"],
-            ).first()
-            is_direct = codename in checked_codenames
-            is_from_group = codename in group_codenames
-            row["acoes"].append({
-                "label": acao["label"],
-                "perm_id": perm.id if perm else None,
-                "codename": codename,
-                "checked": is_direct or is_from_group,
-                "from_group": is_from_group and not is_direct,
-            })
-        matrix.append(row)
+    for grupo in MODULOS_PERMISSOES_GRUPOS:
+        depto = {"depto": grupo["depto"], "modulos": []}
+        for mod in grupo["modulos"]:
+            row = {"label": mod["label"], "acoes": []}
+            for acao in ACOES:
+                codename = f"{acao['key']}_{mod['model']}"
+                perm = Permission.objects.filter(
+                    codename=codename,
+                    content_type__app_label=mod["app"],
+                ).first()
+                is_direct = codename in checked_codenames
+                is_from_group = codename in group_codenames
+                row["acoes"].append({
+                    "label": acao["label"],
+                    "perm_id": perm.id if perm else None,
+                    "codename": codename,
+                    "checked": is_direct or is_from_group,
+                    "from_group": is_from_group and not is_direct,
+                })
+            depto["modulos"].append(row)
+        matrix.append(depto)
     return matrix
 
 
