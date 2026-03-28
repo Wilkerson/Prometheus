@@ -1,0 +1,82 @@
+[
+  {"model": "financeiro.lancamento", "pk": 1, "fields": {
+    "tipo": "receita", "descricao": "Mensalidade Plano Premium SP — Tech Solutions",
+    "valor": "5300.00", "valor_liquido": "5300.00",
+    "categoria": 2, "conta": 1, "departamento": 1,
+    "canal": "pix", "data_vencimento": "2026-03-10", "data_competencia": "2026-03-01",
+    "data_pagamento": "2026-03-10", "status": "confirmado",
+    "cliente": 1, "parceiro": 1, "id_externo": "", "observacao": "",
+    "comprovante": "", "criado_por": null,
+    "criado_em": "2026-03-10T10:00:00Z", "atualizado_em": "2026-03-10T10:00:00Z"
+  }},
+  {"model": "financeiro.lancamento", "pk": 2, "fields": {
+    "tipo": "receita", "descricao": "Taxa de implantacao — Rio Marketing Digital",
+    "valor": "2000.00", "valor_liquido": "2000.00",
+    "categoria": 3, "conta": 1, "departamento": 1,
+    "canal": "ted", "data_vencimento": "2026-02-20", "data_competencia": "2026-02-20",
+    "data_pagamento": "2026-02-22", "status": "confirmado",
+    "cliente": 4, "parceiro": 2, "id_externo": "", "observacao": "",
+    "comprovante": "", "criado_por": null,
+    "criado_em": "2026-02-20T10:00:00Z", "atualizado_em": "2026-02-22T10:00:00Z"
+  }},
+  {"model": "financeiro.lancamento", "pk": 3, "fields": {
+    "tipo": "receita", "descricao": "Consultoria em automacao — BH Consultoria",
+    "valor": "3500.00", "valor_liquido": "3500.00",
+    "categoria": 5, "conta": 2, "departamento": 1,
+    "canal": "gateway", "data_vencimento": "2026-04-05", "data_competencia": "2026-04-01",
+    "data_pagamento": null, "status": "pendente",
+    "cliente": 8, "parceiro": 3, "id_externo": "", "observacao": "Aguardando pagamento via Asaas",
+    "comprovante": "", "criado_por": null,
+    "criado_em": "2026-03-25T10:00:00Z", "atualizado_em": "2026-03-25T10:00:00Z"
+  }},
+  {"model": "financeiro.lancamento", "pk": 4, "fields": {
+    "tipo": "despesa", "descricao": "Servidor VPS Hostgator — marco/2026",
+    "valor": "189.90", "valor_liquido": "189.90",
+    "categoria": 15, "conta": 1, "departamento": 5,
+    "canal": "manual", "data_vencimento": "2026-03-05", "data_competencia": "2026-03-01",
+    "data_pagamento": "2026-03-05", "status": "confirmado",
+    "cliente": null, "parceiro": null, "id_externo": "", "observacao": "Plano VPS mensal",
+    "comprovante": "", "criado_por": null,
+    "criado_em": "2026-03-05T10:00:00Z", "atualizado_em": "2026-03-05T10:00:00Z"
+  }},
+  {"model": "financeiro.lancamento", "pk": 5, "fields": {
+    "tipo": "despesa", "descricao": "Contabilidade — marco/2026",
+    "valor": "450.00", "valor_liquido": "450.00",
+    "categoria": 18, "conta": 1, "departamento": 2,
+    "canal": "pix", "data_vencimento": "2026-03-15", "data_competencia": "2026-03-01",
+    "data_pagamento": "2026-03-15", "status": "confirmado",
+    "cliente": null, "parceiro": null, "id_externo": "", "observacao": "",
+    "comprovante": "", "criado_por": null,
+    "criado_em": "2026-03-15T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
+  }},
+  {"model": "financeiro.lancamento", "pk": 6, "fields": {
+    "tipo": "despesa", "descricao": "DAS Simples Nacional — fev/2026",
+    "valor": "820.00", "valor_liquido": "820.00",
+    "categoria": 21, "conta": 1, "departamento": null,
+    "canal": "manual", "data_vencimento": "2026-03-20", "data_competencia": "2026-02-01",
+    "data_pagamento": "2026-03-19", "status": "confirmado",
+    "cliente": null, "parceiro": null, "id_externo": "", "observacao": "Guia DAS ref. fevereiro",
+    "comprovante": "", "criado_por": null,
+    "criado_em": "2026-03-18T10:00:00Z", "atualizado_em": "2026-03-19T10:00:00Z"
+  }},
+  {"model": "financeiro.lancamento", "pk": 7, "fields": {
+    "tipo": "despesa", "descricao": "N8N Cloud — assinatura mensal",
+    "valor": "97.00", "valor_liquido": "97.00",
+    "categoria": 14, "conta": 1, "departamento": 5,
+    "canal": "cartao", "data_vencimento": "2026-04-01", "data_competencia": "2026-04-01",
+    "data_pagamento": null, "status": "previsto",
+    "cliente": null, "parceiro": null, "id_externo": "", "observacao": "Recorrente mensal",
+    "comprovante": "", "criado_por": null,
+    "criado_em": "2026-03-25T10:00:00Z", "atualizado_em": "2026-03-25T10:00:00Z"
+  }},
+  {"model": "financeiro.lancamento", "pk": 8, "fields": {
+    "tipo": "despesa", "descricao": "Google Ads — campanha marco",
+    "valor": "1500.00", "valor_liquido": "1500.00",
+    "categoria": 16, "conta": 1, "departamento": 4,
+    "canal": "cartao", "data_vencimento": "2026-03-31", "data_competencia": "2026-03-01",
+    "data_pagamento": null, "status": "pendente",
+    "cliente": null, "parceiro": null, "id_externo": "", "observacao": "",
+    "comprovante": "", "criado_por": null,
+    "criado_em": "2026-03-20T10:00:00Z", "atualizado_em": "2026-03-20T10:00:00Z"
+  }}
+]

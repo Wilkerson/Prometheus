@@ -43,6 +43,7 @@ LOCAL_APPS = [
     "apps.crm",
     "apps.integracao",
     "apps.rh",
+    "apps.financeiro",
     "apps.web",
 ]
 

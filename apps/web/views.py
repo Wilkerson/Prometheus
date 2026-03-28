@@ -14,6 +14,7 @@ from django.contrib.auth.models import Group
 
 from apps.accounts.models import Usuario
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
+from apps.financeiro.models import CategoriaFinanceira, ContaBancaria, Lancamento
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
 from apps.rh.models import (
@@ -1093,6 +1094,9 @@ MODULOS_PERMISSOES = [
     {"label": "Ciclos/Metas", "app": "rh", "model": "cicloavaliacao"},
     {"label": "PDI", "app": "rh", "model": "pdi"},
     {"label": "eNPS", "app": "rh", "model": "pesquisaenps"},
+    {"label": "Lancamentos", "app": "financeiro", "model": "lancamento"},
+    {"label": "Contas Bancarias", "app": "financeiro", "model": "contabancaria"},
+    {"label": "Categorias Fin.", "app": "financeiro", "model": "categoriafinanceira"},
 ]
 
 ACOES = [
@@ -3168,3 +3172,189 @@ class RelatoriosRHView(PermissionRequiredMixin, View):
             # PDI
             "pdis_ativos": pdis_ativos,
         })
+
+
+# ===========================================================================
+# FINANCEIRO
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# Lancamentos
+# ---------------------------------------------------------------------------
+class LancamentoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "financeiro/lancamentos/list.html"
+    partial_template_name = "financeiro/lancamentos/_table.html"
+    context_object_name = "lancamentos"
+    paginate_by = 20
+    permission_required = "financeiro.view_lancamento"
+
+    def get_queryset(self):
+        qs = Lancamento.objects.select_related("categoria", "conta", "departamento")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(descricao__icontains=search)
+        tipo = self.request.GET.get("tipo")
+        if tipo:
+            qs = qs.filter(tipo=tipo)
+        status = self.request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        conta = self.request.GET.get("conta")
+        if conta:
+            qs = qs.filter(conta_id=conta)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tipo_choices"] = Lancamento.Tipo.choices
+        ctx["status_choices"] = Lancamento.Status.choices
+        ctx["contas"] = ContaBancaria.objects.filter(ativo=True)
+        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["current_conta"] = self.request.GET.get("conta", "")
+        ctx["can_add"] = self.request.user.has_perm("financeiro.add_lancamento")
+        return ctx
+
+
+class LancamentoCreateView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.add_lancamento"
+
+    def _ctx(self, erros=None):
+        receita_cats = CategoriaFinanceira.objects.filter(tipo="receita", ativo=True)
+        despesa_cats = CategoriaFinanceira.objects.filter(tipo="despesa", ativo=True)
+        return {
+            "receita_cats": receita_cats,
+            "despesa_cats": despesa_cats,
+            "contas": ContaBancaria.objects.filter(ativo=True),
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "canal_choices": Lancamento.Canal.choices,
+            "erros": erros or {},
+        }
+
+    def get(self, request):
+        return render(request, "financeiro/lancamentos/create.html", self._ctx())
+
+    def post(self, request):
+        erros = {}
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo e obrigatorio."
+        descricao = request.POST.get("descricao", "").strip()
+        if not descricao:
+            erros["descricao"] = "A descricao e obrigatoria."
+        valor = request.POST.get("valor", "").strip()
+        if not valor:
+            erros["valor"] = "O valor e obrigatorio."
+        categoria_id = request.POST.get("categoria")
+        if not categoria_id:
+            erros["categoria"] = "A categoria e obrigatoria."
+        conta_id = request.POST.get("conta")
+        if not conta_id:
+            erros["conta"] = "A conta e obrigatoria."
+        data_vencimento = request.POST.get("data_vencimento", "").strip()
+        if not data_vencimento:
+            erros["data_vencimento"] = "A data de vencimento e obrigatoria."
+
+        if erros:
+            return render(request, "financeiro/lancamentos/create.html", self._ctx(erros))
+
+        Lancamento.objects.create(
+            tipo=tipo,
+            descricao=descricao,
+            valor=valor,
+            valor_liquido=request.POST.get("valor_liquido") or None,
+            categoria_id=categoria_id,
+            conta_id=conta_id,
+            departamento_id=request.POST.get("departamento") or None,
+            canal=request.POST.get("canal", "manual"),
+            data_vencimento=data_vencimento,
+            data_competencia=request.POST.get("data_competencia") or None,
+            data_pagamento=request.POST.get("data_pagamento") or None,
+            status=request.POST.get("status", "pendente"),
+            cliente_id=request.POST.get("cliente") or None,
+            parceiro_id=request.POST.get("parceiro") or None,
+            observacao=request.POST.get("observacao", "").strip(),
+            comprovante=request.FILES.get("comprovante"),
+            criado_por=request.user,
+        )
+        return redirect("web:fin-lancamentos")
+
+
+class LancamentoDetailView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.view_lancamento"
+
+    def get(self, request, pk):
+        lanc = get_object_or_404(
+            Lancamento.objects.select_related(
+                "categoria", "conta", "departamento", "cliente", "parceiro", "criado_por"
+            ), pk=pk
+        )
+        return render(request, "financeiro/lancamentos/detail.html", {
+            "lanc": lanc,
+            "can_edit": request.user.has_perm("financeiro.change_lancamento"),
+        })
+
+
+class LancamentoStatusView(PermissionRequiredMixin, View):
+    """Altera status de um lancamento (confirmar, cancelar)."""
+    permission_required = "financeiro.change_lancamento"
+
+    def post(self, request, pk):
+        lanc = get_object_or_404(Lancamento, pk=pk)
+        novo_status = request.POST.get("status")
+        if novo_status in dict(Lancamento.Status.choices):
+            lanc.status = novo_status
+            if novo_status == "confirmado" and not lanc.data_pagamento:
+                from django.utils import timezone
+                lanc.data_pagamento = timezone.now().date()
+            lanc.save()
+        return redirect("web:fin-lancamento-detail", pk=pk)
+
+
+# ---------------------------------------------------------------------------
+# Contas Bancarias
+# ---------------------------------------------------------------------------
+class ContaListView(PermissionRequiredMixin, ListView):
+    template_name = "financeiro/contas/list.html"
+    context_object_name = "contas"
+    permission_required = "financeiro.view_contabancaria"
+
+    def get_queryset(self):
+        return ContaBancaria.objects.all()
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_add"] = self.request.user.has_perm("financeiro.add_contabancaria")
+        return ctx
+
+
+class ContaCreateView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.add_contabancaria"
+
+    def get(self, request):
+        return render(request, "financeiro/contas/create.html", {
+            "tipo_choices": ContaBancaria.TipoConta.choices,
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome e obrigatorio."
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo e obrigatorio."
+        if erros:
+            return render(request, "financeiro/contas/create.html", {
+                "tipo_choices": ContaBancaria.TipoConta.choices,
+                "erros": erros,
+            })
+        ContaBancaria.objects.create(
+            nome=nome, tipo=tipo,
+            banco=request.POST.get("banco", "").strip(),
+            agencia=request.POST.get("agencia", "").strip(),
+            numero=request.POST.get("numero", "").strip(),
+            saldo_inicial=request.POST.get("saldo_inicial", 0) or 0,
+        )
+        return redirect("web:fin-contas")

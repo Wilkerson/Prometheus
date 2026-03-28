@@ -463,7 +463,14 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 70. [x] Modulo RH Fase 3: Ferias/Ausencias (solicitacao, aprovacao, calendario) + Treinamentos (CRUD, inscricao, participacao)
 71. [x] Modulo RH Fase 4: Metas/PDI (ciclos, atingimento ponderado, acoes) + eNPS (pesquisas, calculo score, respostas)
 72. [x] Modulo RH Fase 5: Dashboard de relatorios e indicadores (headcount, turnover, custo, alertas, eNPS)
-73. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
+73. [x] Remover app comissoes (sera reimplementado no modulo Financeiro)
+74. [x] Modulo Financeiro Fase 1: app financeiro, CategoriaFinanceira (23 seedadas), ContaBancaria (3 seedadas), Lancamento (CRUD web + filtros HTMX)
+75. [ ] Modulo Financeiro Fase 2: Cobranca (contas a receber) + Despesa (contas a pagar + recorrencia)
+76. [ ] Modulo Financeiro Fase 3: FolhaPagamento + ProLabore + Tributo
+77. [ ] Modulo Financeiro Fase 4: Ativo (patrimonio + depreciacao)
+78. [ ] Modulo Financeiro Fase 5: DRE + Fluxo de caixa + Orcamento
+79. [ ] Modulo Financeiro Fase 6: Gateway Asaas
+80. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
@@ -478,7 +485,7 @@ Novos modulos sao implementados como submenus dentro do departamento corresponde
 | # | Departamento | Status | Submenus atuais | Submenus futuros |
 |---|---|---|---|---|
 | 1 | **Comercial** | Implementado | Clientes, Pipeline, Calendario, +Novo, Produtos, Planos | — |
-| 2 | **Financeiro** | Implementado (parcial) | Comissoes | Folha, Contas a Pagar/Receber |
+| 2 | **Financeiro** | Em implementacao (Fase 1) | Lancamentos, Contas Bancarias | Cobrancas, Despesas, Folha, Tributos, DRE, Orcamento |
 | 3 | **RH / Pessoas** | Completo (Fases 1-5) | Colaboradores, Documentos, Onboarding, Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios, Cargos, Setores | — |
 | 4 | **Marketing** | Placeholder | — | Campanhas, Leads de marketing, Analytics |
 | 5 | **Tecnologia** | Placeholder | — | Projetos, Roadmap, Infraestrutura |

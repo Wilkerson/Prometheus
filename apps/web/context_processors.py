@@ -28,7 +28,10 @@ def navigation(request):
         {
             "key": "financeiro",
             "label": "Financeiro",
-            "items": [],
+            "items": [
+                {"url": "/financeiro/lancamentos/", "label": "Lancamentos", "permission": "financeiro.view_lancamento"},
+                {"url": "/financeiro/contas/", "label": "Contas Bancarias", "permission": "financeiro.view_contabancaria"},
+            ],
         },
         {
             "key": "rh",

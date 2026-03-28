@@ -16,7 +16,7 @@ class Command(BaseCommand):
         # ---------------------------------------------------------------
         g, created = Group.objects.get_or_create(name="Administrador")
         perms = Permission.objects.filter(
-            content_type__app_label__in=["crm", "accounts", "integracao", "rh"]
+            content_type__app_label__in=["crm", "accounts", "integracao", "rh", "financeiro"]
         )
         g.permissions.set(perms)
         self._log(g, created)
@@ -30,6 +30,18 @@ class Command(BaseCommand):
             "view_produto", "add_produto", "change_produto", "delete_produto",
             "view_plano", "add_plano", "change_plano", "delete_plano",
             "view_planoproduto", "add_planoproduto", "change_planoproduto", "delete_planoproduto",
+        ])
+        g.permissions.set(perms)
+        self._log(g, created)
+
+        # ---------------------------------------------------------------
+        # Financeiro — lancamentos, contas, categorias
+        # ---------------------------------------------------------------
+        g, created = Group.objects.get_or_create(name="Financeiro")
+        perms = Permission.objects.filter(codename__in=[
+            "view_lancamento", "add_lancamento", "change_lancamento", "delete_lancamento",
+            "view_contabancaria", "add_contabancaria", "change_contabancaria", "delete_contabancaria",
+            "view_categoriafinanceira", "add_categoriafinanceira", "change_categoriafinanceira", "delete_categoriafinanceira",
         ])
         g.permissions.set(perms)
         self._log(g, created)
