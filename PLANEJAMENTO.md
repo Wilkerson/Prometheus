@@ -486,7 +486,7 @@ Novos modulos sao implementados como submenus dentro do departamento corresponde
 |---|---|---|---|---|
 | 1 | **RH / Pessoas** | Completo (Fases 1-5) | Colaboradores, Documentos, Onboarding, Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios, Cargos, Setores | — |
 | 2 | **Comercial** | Implementado | Clientes, Pipeline, Calendario, +Novo, Produtos, Planos | — |
-| 3 | **Financeiro** | Em implementacao (Fases 1-4) | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Contas Bancarias | DRE, Orcamento, Fechamento mensal |
+| 3 | **Financeiro** | Completo (Fases 1-5) | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Relatorios, Contas Bancarias | Gateway Asaas (quando tiver conta) |
 | 4 | **Marketing** | Placeholder | — | Campanhas, Leads de marketing, Analytics |
 | 5 | **Tecnologia** | Placeholder | — | Projetos, Roadmap, Infraestrutura |
 | 6 | **Juridico** | Placeholder | — | Contratos, Compliance, LGPD |
@@ -496,31 +496,50 @@ Novos modulos sao implementados como submenus dentro do departamento corresponde
 **Menu Administracao** (customizado, nao e departamento):
 Usuarios, Parceiros, Tokens API, Grupos, Admin Django
 
+### Numeros do projeto
+- **43 models** (accounts: 1, crm: 9, financeiro: 11, integracao: 1, rh: 21)
+- **134 URLs** web
+- **130 templates** HTML
+- **6 grupos** de permissoes
+- **11 usuarios** de dev (8 colaboradores + 3 parceiros)
+- **3 fixtures** (CRM + RH + Financeiro)
+- **3 tasks Celery** periodicas
+
 ### Notas arquiteturais
-- Departamentos sao seedados via migration (system-managed, sem CRUD manual)
-- Cada departamento implementado ganha um grupo de permissoes correspondente no `setup_groups`
-- O modulo `organization` mencionado no doc de referencia do RH **nao foi criado** — Cargo/Departamento/Setor ficam no app `rh`
-- App `comissoes` foi removido — sera reimplementado no financeiro quando fluxo de pagamento for definido
-- Permissoes atribuidas automaticamente por departamento + nivel hierarquico do cargo
+- Departamentos seedados via migration (8 total, system-managed)
+- Ao criar acesso, usuario recebe grupo do **departamento** (Comercial, Financeiro, RH)
+- Permissoes diretas calculadas por **nivel hierarquico** do cargo (estagiario=view ... diretor=tudo)
 - Models senssiveis (folha, tributos) so acessiveis por Gerente+
-- Folha de pagamento gerada automaticamente via Celery Beat (salario, PJ, pro-labore)
-- Tributo com tipo texto livre (extensivel pra qualquer regime fiscal: Simples, Presumido, Real)
-- Patrimonio com 3 categorias (imovel, movel duravel, movel consumo) e tipo texto livre
-- Sidebar com accordion exclusivo (1 menu aberto por vez), ordem: RH > Comercial > Financeiro > Admin
-- Email backend: console em dev, SMTP em producao
+- Ao mudar cargo/departamento, permissoes e grupo sao recalculados automaticamente
+- Folha gerada automaticamente via Celery Beat + Aprovar Todos + Exportar com validacao + Log
+- Fechamento mensal com exportacao CSV/JSON/XML/PDF (logo RUCH, formatacao pt-BR)
+- Tributo e Patrimonio com tipos texto livre (extensiveis)
+- Sidebar: accordion exclusivo (1 aberto por vez), ordem RH > Comercial > Financeiro > Admin
+- Formatacao pt-BR: filter |brl (builtin), datas d/m/Y, horas H:i 24h
+- Email: console (dev), SMTP (producao)
 - Redis via Docker, Celery worker + beat configurados
 - API REST ainda nao criada (apenas CRUD web)
 
 ### Grupos de permissoes (6)
-| Grupo | Permissoes | Descricao |
+| Grupo | Permissoes | Atribuido a |
 |---|---|---|
-| Administrador | 168 | Acesso total |
-| Comercial | 16 | Clientes, produtos, planos |
-| Financeiro | 36 | Lancamentos, cobrancas, despesas, NFs, folha, tributos, ativos, contas |
-| RH / Pessoas | 68 | Colaboradores, cargos, setores, docs, ferias, treinamentos, metas, eNPS |
-| Colaborador | 12 | Self-service (ausencias, treinamentos proprios) |
-| Empresa Parceira | 3 | Clientes (ver/criar/editar) |
+| Administrador | 168 | Grupo manual (acesso total) |
+| Comercial | 16 | Colaboradores do depto Comercial |
+| Financeiro | 36 | Colaboradores do depto Financeiro |
+| RH / Pessoas | 68 | Colaboradores do depto RH |
+| Colaborador | 12 | Legado (self-service) |
+| Empresa Parceira | 3 | Usuarios de entidades parceiras |
+
+### Permissoes por nivel hierarquico
+| Nivel | Ver | Criar | Editar | Excluir | Folha/Tributos |
+|---|---|---|---|---|---|
+| Estagiario | Sim | — | — | — | — |
+| Assistente | Sim | Sim | — | — | — |
+| Analista | Sim | Sim | Sim | — | — |
+| Especialista | Sim | Sim | Sim | Sim | — |
+| Gerente | Sim | Sim | Sim | Sim | Sim |
+| Diretor | Sim | Sim | Sim | Sim | Sim |
 
 ---
 
-*Planejamento gerado com Claude · RUCH Digital Technology*
+*Planejamento gerado com Claude · RUCH Solutions*

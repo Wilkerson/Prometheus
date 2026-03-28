@@ -94,13 +94,15 @@ python manage.py setup_groups
 ```
 
 Cria 6 grupos:
-- **Administrador** — acesso total (132 permissoes)
-- **Comercial** — clientes, produtos, planos, comissoes
-- **Financeiro** — comissoes CRUD
-- **Financeiro** (36) — lancamentos, cobrancas, despesas, NFs, folha, tributos, patrimonio, contas
+- **Administrador** (168) — acesso total
+- **Comercial** (16) — clientes, produtos, planos (atribuido a colaboradores do depto)
+- **Financeiro** (36) — lancamentos, cobrancas, despesas, NFs, folha, tributos, patrimonio
 - **RH / Pessoas** (68) — colaboradores, documentos, ferias, treinamentos, metas, eNPS
-- **Colaborador** (12) — acesso limitado (solicitar ausencias, ver treinamentos, responder eNPS)
+- **Colaborador** (12) — self-service (legado)
 - **Empresa Parceira** (3) — clientes (ver/criar/editar)
+
+Permissoes individuais sao atribuidas automaticamente ao criar acesso
+para um colaborador, baseadas no departamento e nivel hierarquico do cargo.
 
 ---
 
@@ -278,7 +280,7 @@ A sidebar e organizada por departamentos com accordion exclusivo (1 aberto por v
 |---|---|---|
 | RH / Pessoas | Completo | Colaboradores, Documentos, Onboarding, Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios, Cargos, Setores |
 | Comercial | Implementado | Clientes, Pipeline, Calendario, Produtos, Planos |
-| Financeiro | Fases 1-4 | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Contas Bancarias |
+| Financeiro | Completo (Fases 1-5) | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Relatorios, Contas Bancarias |
 | Marketing | Placeholder | — |
 | Tecnologia | Placeholder | — |
 | Juridico | Placeholder | — |
