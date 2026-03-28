@@ -62,6 +62,14 @@ ACOES_POR_NIVEL = {
     "diretor": ["view", "add", "change", "delete"],
 }
 
+# Models senssiveis — so acessiveis a partir de Gerente
+# Protege dados como salarios, pro-labore, descontos
+MODELS_SENSIVEIS = {
+    "folhapagamento",
+    "tributo",
+    "configfolha",
+}
+
 # Permissoes base que todo colaborador com acesso recebe (self-service)
 PERMISSOES_BASE = [
     "rh.view_solicitacaoausencia",
@@ -81,10 +89,13 @@ PERMISSOES_BASE = [
 
 def calcular_permissoes(colaborador):
     """Calcula as permissoes para um colaborador baseado no departamento e nivel.
+    Models senssiveis (folha, tributos) so sao acessiveis a partir de Gerente.
     Retorna um QuerySet de Permission.
     """
     nivel = colaborador.cargo.nivel if colaborador.cargo else "assistente"
     depto_slug = colaborador.departamento.slug if colaborador.departamento else None
+    nivel_idx = NIVEIS.index(nivel) if nivel in NIVEIS else 0
+    nivel_gerente_idx = NIVEIS.index("gerente")
 
     acoes = ACOES_POR_NIVEL.get(nivel, ["view"])
 
@@ -98,6 +109,9 @@ def calcular_permissoes(colaborador):
     if depto_slug and depto_slug in DEPARTAMENTO_MODELS:
         models = DEPARTAMENTO_MODELS[depto_slug]
         for app_label, model_name in models:
+            # Models senssiveis: so gerente+
+            if model_name in MODELS_SENSIVEIS and nivel_idx < nivel_gerente_idx:
+                continue
             for acao in acoes:
                 perm_codenames.append(f"{acao}_{model_name}")
 
