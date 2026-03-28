@@ -4115,23 +4115,48 @@ class FolhaExportarView(PermissionRequiredMixin, View):
             messages.warning(request, "Nenhum pagamento encontrado para esta competência.")
             return redirect("web:fin-folha")
 
-        # Montar dados
+        # Montar dados agrupados por colaborador
         from decimal import Decimal
-        dados = []
+        from collections import OrderedDict
+
+        agrupado = OrderedDict()
         valor_total = Decimal("0")
-        for f in folhas.order_by("colaborador__nome_completo"):
-            dados.append({
-                "colaborador": f.colaborador.nome_completo,
-                "tipo": f.get_tipo_display(),
-                "competencia": str(f.competencia),
-                "valor_bruto": str(f.valor_bruto),
-                "desconto_inss": str(f.desconto_inss),
-                "desconto_ir": str(f.desconto_ir),
-                "outros_descontos": str(f.outros_descontos),
-                "valor_liquido": str(f.valor_liquido),
-                "status": f.get_status_display(),
-            })
+        for f in folhas.order_by("colaborador__nome_completo", "tipo"):
+            nome = f.colaborador.nome_completo
+            if nome not in agrupado:
+                agrupado[nome] = {"pagamentos": [], "subtotal_liquido": Decimal("0")}
+            agrupado[nome]["pagamentos"].append(f)
+            agrupado[nome]["subtotal_liquido"] += f.valor_liquido
             valor_total += f.valor_liquido
+
+        # Dados planos pra CSV/JSON/XML (com linha de subtotal)
+        dados = []
+        for nome, info in agrupado.items():
+            for f in info["pagamentos"]:
+                dados.append({
+                    "colaborador": nome,
+                    "tipo": f.get_tipo_display(),
+                    "competencia": str(f.competencia),
+                    "valor_bruto": str(f.valor_bruto),
+                    "desconto_inss": str(f.desconto_inss),
+                    "desconto_ir": str(f.desconto_ir),
+                    "outros_descontos": str(f.outros_descontos),
+                    "valor_liquido": str(f.valor_liquido),
+                    "status": f.get_status_display(),
+                })
+            # Subtotal se tem mais de 1 pagamento
+            if len(info["pagamentos"]) > 1:
+                dados.append({
+                    "colaborador": f"  SUBTOTAL — {nome}",
+                    "tipo": "",
+                    "competencia": "",
+                    "valor_bruto": "",
+                    "desconto_inss": "",
+                    "desconto_ir": "",
+                    "outros_descontos": "",
+                    "valor_liquido": str(info["subtotal_liquido"]),
+                    "status": "",
+                })
 
         # Registrar log
         LogExportacaoFolha.objects.create(
@@ -4212,16 +4237,26 @@ class FolhaExportarView(PermissionRequiredMixin, View):
                 centavos = f"{abs(num) % 1:.2f}"[2:]
                 return f"R$ {inteiro},{centavos}"
 
+            subtotal_rows = []
+            row_idx = 1
             for d in dados:
-                table_data.append([
-                    d["colaborador"][:30], d["tipo"],
-                    fmt_v(d["valor_bruto"]), fmt_v(d["desconto_inss"]),
-                    fmt_v(d["desconto_ir"]), fmt_v(d["outros_descontos"]),
-                    fmt_v(d["valor_liquido"]), d["status"],
-                ])
+                is_subtotal = d["colaborador"].startswith("  SUBTOTAL")
+                if is_subtotal:
+                    table_data.append([
+                        d["colaborador"], "", "", "", "", "",
+                        fmt_v(d["valor_liquido"]) if d["valor_liquido"] else "", "",
+                    ])
+                    subtotal_rows.append(row_idx)
+                else:
+                    table_data.append([
+                        d["colaborador"][:30], d["tipo"],
+                        fmt_v(d["valor_bruto"]), fmt_v(d["desconto_inss"]),
+                        fmt_v(d["desconto_ir"]), fmt_v(d["outros_descontos"]),
+                        fmt_v(d["valor_liquido"]), d["status"],
+                    ])
+                row_idx += 1
 
-            t = Table(table_data, repeatRows=1, colWidths=col_widths)
-            t.setStyle(TableStyle([
+            style_cmds = [
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2d4a3e")),
                 ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
                 ("FONTSIZE", (0, 0), (-1, -1), 8),
@@ -4229,7 +4264,14 @@ class FolhaExportarView(PermissionRequiredMixin, View):
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f5f5f5")]),
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ]))
+            ]
+            # Destacar linhas de subtotal
+            for sr in subtotal_rows:
+                style_cmds.append(("BACKGROUND", (0, sr), (-1, sr), colors.HexColor("#e8e8e8")))
+                style_cmds.append(("FONTNAME", (0, sr), (-1, sr), "Helvetica-Bold"))
+
+            t = Table(table_data, repeatRows=1, colWidths=col_widths)
+            t.setStyle(TableStyle(style_cmds))
             elements.append(t)
             elements.append(Spacer(1, 12))
             elements.append(Paragraph(f"Total líquido: {fmt_v(str(valor_total))}", styles["Normal"]))
