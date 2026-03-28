@@ -3791,14 +3791,15 @@ class FolhaCreateView(PermissionRequiredMixin, View):
                 "erros": erros,
             })
 
+        from decimal import Decimal
         FolhaPagamento.objects.create(
             colaborador_id=colab_id,
             tipo=tipo,
             competencia=competencia,
-            valor_bruto=valor_bruto,
-            desconto_inss=request.POST.get("desconto_inss", 0) or 0,
-            desconto_ir=request.POST.get("desconto_ir", 0) or 0,
-            outros_descontos=request.POST.get("outros_descontos", 0) or 0,
+            valor_bruto=Decimal(valor_bruto),
+            desconto_inss=Decimal(request.POST.get("desconto_inss") or "0"),
+            desconto_ir=Decimal(request.POST.get("desconto_ir") or "0"),
+            outros_descontos=Decimal(request.POST.get("outros_descontos") or "0"),
             valor_liquido=0,  # calculado no save()
             conta_id=request.POST.get("conta") or None,
             observacao=request.POST.get("observacao", "").strip(),
@@ -3824,11 +3825,12 @@ class FolhaEditView(PermissionRequiredMixin, View):
         if folha.status == "pago":
             return redirect("web:fin-folha")
 
+        from decimal import Decimal
         folha.tipo = request.POST.get("tipo", folha.tipo)
-        folha.valor_bruto = request.POST.get("valor_bruto", folha.valor_bruto)
-        folha.desconto_inss = request.POST.get("desconto_inss", 0) or 0
-        folha.desconto_ir = request.POST.get("desconto_ir", 0) or 0
-        folha.outros_descontos = request.POST.get("outros_descontos", 0) or 0
+        folha.valor_bruto = Decimal(request.POST.get("valor_bruto") or str(folha.valor_bruto))
+        folha.desconto_inss = Decimal(request.POST.get("desconto_inss") or "0")
+        folha.desconto_ir = Decimal(request.POST.get("desconto_ir") or "0")
+        folha.outros_descontos = Decimal(request.POST.get("outros_descontos") or "0")
         folha.conta_id = request.POST.get("conta") or folha.conta_id
         folha.observacao = request.POST.get("observacao", "").strip()
         folha.save()  # valor_liquido calculado no save()
