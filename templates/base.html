@@ -84,7 +84,7 @@
       {% for item in nav_standalone %}
       <a href="{{ item.url }}"
          class="flex items-center px-2.5 py-2 rounded-[9px] text-[13px] mb-1 no-underline
-                {% if item.active %}bg-ruch-green text-white font-semibold{% else %}text-t2 hover:bg-bg3 hover:text-t1{% endif %}">
+                {% if item.active and not any_group_active %}bg-ruch-green text-white font-semibold{% else %}text-t2 hover:bg-bg3 hover:text-t1{% endif %}">
         {{ item.label }}
       </a>
       {% endfor %}

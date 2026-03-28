@@ -122,9 +122,12 @@ def navigation(request):
     notif_count = notif_nao_lidas.count()
     notif_recentes = notif_nao_lidas[:5]
 
+    any_group_active = any(g["active"] for g in nav_groups)
+
     return {
         "nav_standalone": nav_standalone,
         "nav_groups": nav_groups,
+        "any_group_active": any_group_active,
         "nav_placeholders": placeholders,
         "notif_count": notif_count,
         "notif_recentes": notif_recentes,
