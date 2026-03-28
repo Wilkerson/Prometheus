@@ -1875,8 +1875,8 @@ class ColaboradorUpdateView(PermissionRequiredMixin, View):
             from apps.rh.notifications import notificar_colaborador_desligado
             notificar_colaborador_desligado(colab)
 
-        # Recalcular permissoes se mudou cargo ou departamento
-        if (old_cargo != new_cargo or old_depto != new_depto) and colab.usuario:
+        # Sincronizar usuario vinculado (nome + permissoes)
+        if colab.usuario:
             from apps.rh.permissions import atribuir_permissoes
             atribuir_permissoes(colab)
 
