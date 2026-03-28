@@ -1,4 +1,5 @@
 {% if folhas %}
+{% regroup folhas by colaborador as grupos %}
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
     <thead>
@@ -12,10 +13,16 @@
         <th class="pb-3 font-medium">Ações</th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-bdr">
-      {% for f in folhas %}
-      <tr class="hover:bg-bg3">
-        <td class="py-3 font-medium text-t1">{{ f.colaborador.nome_completo }}</td>
+    <tbody>
+      {% for grupo in grupos %}
+      {% for f in grupo.list %}
+      <tr class="hover:bg-bg3 border-b border-bdr">
+        {% if forloop.first %}
+        <td class="py-3 font-medium text-t1" rowspan="{{ grupo.list|length }}">
+          <div>{{ f.colaborador.nome_completo }}</div>
+          <div class="text-[10px] text-t3 font-normal">{{ f.colaborador.cargo }} · {{ f.colaborador.departamento }}</div>
+        </td>
+        {% endif %}
         <td class="py-3 text-t2">{{ f.get_tipo_display }}</td>
         <td class="py-3 text-t2">{{ f.competencia|date:"m/Y" }}</td>
         <td class="py-3 text-t2">{{ f.valor_bruto|brl }}</td>
@@ -49,6 +56,7 @@
           {% endif %}
         </td>
       </tr>
+      {% endfor %}
       {% endfor %}
     </tbody>
   </table>

@@ -3708,7 +3708,7 @@ class FolhaListView(PermissionRequiredMixin, HtmxMixin, ListView):
     permission_required = "financeiro.view_folhapagamento"
 
     def get_queryset(self):
-        qs = FolhaPagamento.objects.select_related("colaborador", "conta")
+        qs = FolhaPagamento.objects.select_related("colaborador__cargo", "colaborador__departamento", "conta").order_by("colaborador__nome_completo", "tipo")
         search = self.request.GET.get("q")
         if search:
             qs = qs.filter(colaborador__nome_completo__icontains=search)
