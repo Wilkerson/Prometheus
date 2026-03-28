@@ -15,7 +15,11 @@
       {% for doc in documentos %}
       <tr class="hover:bg-bg3">
         <td class="py-3 font-medium text-t1">
+          {% if doc.arquivo %}
           <a href="{{ doc.arquivo.url }}" target="_blank" class="text-t1 hover:text-ruch-accent no-underline">{{ doc.nome }}</a>
+          {% else %}
+          <span class="text-t1">{{ doc.nome }}</span>
+          {% endif %}
         </td>
         <td class="py-3 text-t2">
           <a href="{% url 'web:rh-colaborador-detail' doc.colaborador.pk %}" class="text-t2 hover:text-ruch-accent no-underline">{{ doc.colaborador.nome_completo }}</a>

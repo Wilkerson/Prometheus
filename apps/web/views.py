@@ -2053,8 +2053,9 @@ class DocumentoListView(PermissionRequiredMixin, HtmxMixin, ListView):
             qs = qs.filter(data_vencimento__lt=timezone.now().date())
         elif vencimento == "proximo":
             from django.utils import timezone
+            from datetime import timedelta
             hoje = timezone.now().date()
-            qs = qs.filter(data_vencimento__gte=hoje, data_vencimento__lte=hoje + timezone.timedelta(days=30))
+            qs = qs.filter(data_vencimento__gte=hoje, data_vencimento__lte=hoje + timedelta(days=30))
         return qs
 
     def get_context_data(self, **kwargs):

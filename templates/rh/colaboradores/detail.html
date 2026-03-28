@@ -262,7 +262,7 @@
     {% for doc in documentos %}
     <div class="flex items-center justify-between p-2 rounded-lg hover:bg-bg3">
       <div class="flex items-center gap-2">
-        <a href="{{ doc.arquivo.url }}" target="_blank" class="text-sm text-t1 hover:text-ruch-accent no-underline font-medium">{{ doc.nome }}</a>
+        {% if doc.arquivo %}<a href="{{ doc.arquivo.url }}" target="_blank" class="text-sm text-t1 hover:text-ruch-accent no-underline font-medium">{{ doc.nome }}</a>{% else %}<span class="text-sm text-t1 font-medium">{{ doc.nome }}</span>{% endif %}
         <span class="text-[10px] text-t3">{{ doc.get_tipo_display }}</span>
       </div>
       <div class="flex items-center gap-2">
