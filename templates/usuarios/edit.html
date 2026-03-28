@@ -76,6 +76,13 @@
         </div>
         {% endif %}
 
+        {% if usuario.is_superuser %}
+        <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+          <p class="text-sm text-emerald-500 font-medium">Superusuário</p>
+          <p class="text-[11px] text-t3 mt-1">Este usuário tem acesso total ao sistema. Não precisa de grupo ou permissões individuais.</p>
+        </div>
+        {% endif %}
+
         <div>
           <label for="groups" class="label">Grupo</label>
           <select name="groups" id="groups" class="input"
