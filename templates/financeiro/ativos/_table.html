@@ -4,7 +4,7 @@
     <thead>
       <tr class="border-b border-bdr text-left text-t3">
         <th class="pb-3 font-medium">Ativo</th>
-        <th class="pb-3 font-medium">Tipo</th>
+        <th class="pb-3 font-medium">Categoria / Tipo</th>
         <th class="pb-3 font-medium">Valor compra</th>
         <th class="pb-3 font-medium">Valor residual</th>
         <th class="pb-3 font-medium">Depreciação</th>
@@ -19,7 +19,10 @@
           <div class="font-medium text-t1">{{ a.nome }}</div>
           {% if a.numero_serie %}<div class="text-[10px] text-t3">{{ a.numero_serie }}</div>{% endif %}
         </td>
-        <td class="py-3 text-t2">{{ a.get_tipo_display }}</td>
+        <td class="py-3">
+          <div class="text-t2">{{ a.get_tipo_display }}</div>
+          <div class="text-[10px] text-t3">{{ a.get_categoria_display }}</div>
+        </td>
         <td class="py-3 text-t2">R$ {{ a.valor_compra|floatformat:2 }}</td>
         <td class="py-3 font-medium text-t1">R$ {{ a.valor_residual|floatformat:2 }}</td>
         <td class="py-3 text-t2">
@@ -29,6 +32,7 @@
         <td class="py-3">
           {% if a.status == 'ativo' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
           {% elif a.status == 'depreciado' %}<span class="badge bg-amber-500/15 text-amber-500">Depreciado</span>
+          {% elif a.status == 'consumido' %}<span class="badge bg-blue-500/15 text-blue-500">Consumido</span>
           {% else %}<span class="badge bg-bg4 text-t3">Baixado</span>{% endif %}
         </td>
         <td class="py-3">
