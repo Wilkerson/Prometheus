@@ -13,15 +13,23 @@
           <label class="label">Nome do ativo <span class="text-red-500">*</span></label>
           <input type="text" name="nome" required class="input" placeholder="Ex: MacBook Pro 14 polegadas">
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <div>
-            <label class="label">Tipo <span class="text-red-500">*</span></label>
-            <select name="tipo" required class="input">
-              <option value="">Selecione...</option>
-              {% for v, l in tipo_choices %}
+            <label class="label">Categoria <span class="text-red-500">*</span></label>
+            <select name="categoria" required class="input">
+              {% for v, l in categoria_choices %}
               <option value="{{ v }}">{{ l }}</option>
               {% endfor %}
             </select>
+          </div>
+          <div>
+            <label class="label">Tipo <span class="text-red-500">*</span></label>
+            <input type="text" name="tipo" required class="input" placeholder="Ex: Notebook, Monitor..." list="tipos-sugestoes">
+            <datalist id="tipos-sugestoes">
+              {% for t in tipos_existentes %}
+              <option value="{{ t }}">
+              {% endfor %}
+            </datalist>
           </div>
           <div>
             <label class="label">Nº de série</label>

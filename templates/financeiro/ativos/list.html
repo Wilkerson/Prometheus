@@ -14,19 +14,19 @@
              hx-include="[name='tipo'],[name='status']" hx-push-url="true">
     </div>
     <div>
-      <label class="label">Tipo</label>
-      <select name="tipo" class="input"
+      <label class="label">Categoria</label>
+      <select name="categoria" class="input"
               hx-get="{% url 'web:fin-ativos' %}" hx-target="#table" hx-include="[name='q'],[name='status']" hx-push-url="true">
-        <option value="">Todos</option>
-        {% for v, l in tipo_choices %}
-        <option value="{{ v }}" {% if current_tipo == v %}selected{% endif %}>{{ l }}</option>
+        <option value="">Todas</option>
+        {% for v, l in categoria_choices %}
+        <option value="{{ v }}" {% if current_categoria == v %}selected{% endif %}>{{ l }}</option>
         {% endfor %}
       </select>
     </div>
     <div>
       <label class="label">Status</label>
       <select name="status" class="input"
-              hx-get="{% url 'web:fin-ativos' %}" hx-target="#table" hx-include="[name='q'],[name='tipo']" hx-push-url="true">
+              hx-get="{% url 'web:fin-ativos' %}" hx-target="#table" hx-include="[name='q'],[name='categoria']" hx-push-url="true">
         <option value="">Todos</option>
         {% for v, l in status_choices %}
         <option value="{{ v }}" {% if current_status == v %}selected{% endif %}>{{ l }}</option>

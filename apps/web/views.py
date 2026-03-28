@@ -4072,9 +4072,9 @@ class AtivoListView(PermissionRequiredMixin, HtmxMixin, ListView):
         search = self.request.GET.get("q")
         if search:
             qs = qs.filter(Q(nome__icontains=search) | Q(numero_serie__icontains=search))
-        tipo = self.request.GET.get("tipo")
-        if tipo:
-            qs = qs.filter(tipo=tipo)
+        categoria = self.request.GET.get("categoria")
+        if categoria:
+            qs = qs.filter(categoria=categoria)
         status = self.request.GET.get("status")
         if status:
             qs = qs.filter(status=status)
@@ -4082,9 +4082,9 @@ class AtivoListView(PermissionRequiredMixin, HtmxMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["tipo_choices"] = Ativo.TipoAtivo.choices
+        ctx["categoria_choices"] = Ativo.CategoriaAtivo.choices
         ctx["status_choices"] = Ativo.StatusAtivo.choices
-        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["current_categoria"] = self.request.GET.get("tipo", "")
         ctx["current_status"] = self.request.GET.get("status", "")
         ctx["can_add"] = self.request.user.has_perm("financeiro.add_ativo")
         from django.db.models import Sum
@@ -4096,12 +4096,19 @@ class AtivoListView(PermissionRequiredMixin, HtmxMixin, ListView):
 class AtivoCreateView(PermissionRequiredMixin, View):
     permission_required = "financeiro.add_ativo"
 
-    def get(self, request):
-        return render(request, "financeiro/ativos/create.html", {
-            "tipo_choices": Ativo.TipoAtivo.choices,
+    def _ctx(self, erros=None):
+        tipos_existentes = (
+            Ativo.objects.values_list("tipo", flat=True).distinct().order_by("tipo")
+        )
+        return {
+            "categoria_choices": Ativo.CategoriaAtivo.choices,
+            "tipos_existentes": tipos_existentes,
             "departamentos": Departamento.objects.filter(ativo=True),
-            "erros": {},
-        })
+            "erros": erros or {},
+        }
+
+    def get(self, request):
+        return render(request, "financeiro/ativos/create.html", self._ctx())
 
     def post(self, request):
         erros = {}
@@ -4119,14 +4126,11 @@ class AtivoCreateView(PermissionRequiredMixin, View):
             erros["data_aquisicao"] = "A data é obrigatória."
 
         if erros:
-            return render(request, "financeiro/ativos/create.html", {
-                "tipo_choices": Ativo.TipoAtivo.choices,
-                "departamentos": Departamento.objects.filter(ativo=True),
-                "erros": erros,
-            })
+            return render(request, "financeiro/ativos/create.html", self._ctx(erros))
 
         Ativo.objects.create(
             nome=nome, tipo=tipo,
+            categoria=request.POST.get("categoria", "movel_duravel"),
             numero_serie=request.POST.get("numero_serie", "").strip(),
             descricao=request.POST.get("descricao", "").strip(),
             valor_compra=valor_compra,

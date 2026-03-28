@@ -606,43 +606,21 @@ class Ativo(models.Model):
         MOVEL_DURAVEL = "movel_duravel", "Bem móvel durável"
         MOVEL_CONSUMO = "movel_consumo", "Bem móvel de consumo"
 
-    class TipoAtivo(models.TextChoices):
-        # Imóveis
-        SALA_COMERCIAL = "sala_comercial", "Sala comercial"
-        TERRENO = "terreno", "Terreno"
-        GALPAO = "galpao", "Galpão"
-        # Móveis duráveis
-        EQUIPAMENTO = "equipamento", "Equipamento de informática"
-        SOFTWARE = "software", "Licença de software"
-        MOVEIS = "moveis", "Móveis e utensílios"
-        VEICULO = "veiculo", "Veículo"
-        # Consumo
-        MATERIAL_ESCRITORIO = "mat_escritorio", "Material de escritório"
-        MATERIAL_INFORMATICA = "mat_informatica", "Material de informática"
-        # Genérico
-        OUTRO = "outro", "Outro"
-
     class StatusAtivo(models.TextChoices):
         ATIVO = "ativo", "Ativo"
         DEPRECIADO = "depreciado", "Totalmente depreciado"
         BAIXADO = "baixado", "Baixado"
         CONSUMIDO = "consumido", "Consumido"
 
-    # Mapa tipo -> categoria (pra auto-classificar)
-    TIPO_CATEGORIA = {
-        "sala_comercial": "imovel", "terreno": "imovel", "galpao": "imovel",
-        "equipamento": "movel_duravel", "software": "movel_duravel",
-        "moveis": "movel_duravel", "veiculo": "movel_duravel",
-        "mat_escritorio": "movel_consumo", "mat_informatica": "movel_consumo",
-        "outro": "movel_duravel",
-    }
-
     nome = models.CharField("Nome do ativo", max_length=200)
     categoria = models.CharField(
         "Categoria", max_length=15, choices=CategoriaAtivo.choices,
         default=CategoriaAtivo.MOVEL_DURAVEL,
     )
-    tipo = models.CharField("Tipo", max_length=15, choices=TipoAtivo.choices)
+    tipo = models.CharField(
+        "Tipo", max_length=100,
+        help_text="Ex: Notebook, Monitor, Licença Adobe, Mesa, Veículo",
+    )
     numero_serie = models.CharField("Nº de série / Identificador", max_length=100, blank=True)
     descricao = models.TextField("Descrição", blank=True)
     valor_compra = models.DecimalField("Valor de compra (R$)", max_digits=12, decimal_places=2)
@@ -679,12 +657,6 @@ class Ativo(models.Model):
 
     def __str__(self):
         return f"{self.nome} (R${self.valor_compra})"
-
-    def save(self, *args, **kwargs):
-        # Auto-classificar categoria baseado no tipo
-        if self.tipo in self.TIPO_CATEGORIA:
-            self.categoria = self.TIPO_CATEGORIA[self.tipo]
-        super().save(*args, **kwargs)
 
     @property
     def is_consumo(self):
