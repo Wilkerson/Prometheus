@@ -3720,6 +3720,8 @@ class FolhaListView(PermissionRequiredMixin, HtmxMixin, ListView):
             qs = qs.filter(status=status)
         competencia = self.request.GET.get("competencia")
         if competencia:
+            if len(competencia) == 7:
+                competencia = f"{competencia}-01"
             qs = qs.filter(competencia=competencia)
         return qs
 
@@ -3790,6 +3792,9 @@ class FolhaCreateView(PermissionRequiredMixin, View):
             })
 
         from decimal import Decimal
+        # type="month" envia YYYY-MM, adicionar -01 pra DateField
+        if competencia and len(competencia) == 7:
+            competencia = f"{competencia}-01"
         FolhaPagamento.objects.create(
             colaborador_id=colab_id,
             tipo=tipo,
@@ -3951,6 +3956,9 @@ class TributoCreateView(PermissionRequiredMixin, View):
                 "erros": erros,
             })
 
+        # type="month" envia YYYY-MM
+        if competencia and len(competencia) == 7:
+            competencia = f"{competencia}-01"
         Tributo.objects.create(
             tipo=tipo,
             competencia=competencia,

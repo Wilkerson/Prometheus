@@ -528,6 +528,9 @@ class FolhaPagamento(models.Model):
         return f"{self.colaborador} — {self.get_tipo_display()} {self.competencia:%m/%Y}"
 
     def save(self, *args, **kwargs):
+        # Competencia sempre no dia 1 do mes
+        if self.competencia and self.competencia.day != 1:
+            self.competencia = self.competencia.replace(day=1)
         self.valor_liquido = (
             self.valor_bruto - self.desconto_inss - self.desconto_ir - self.outros_descontos
         )
