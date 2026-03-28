@@ -55,6 +55,18 @@
           </div>
         </div>
 
+        {% if usuario.colaborador %}
+        <div class="p-3 rounded-lg bg-bg3 border border-bdr">
+          <p class="text-[11px] text-t3 mb-1">Colaborador vinculado</p>
+          <div class="flex items-center gap-4 text-sm">
+            <span class="text-t1 font-medium">{{ usuario.colaborador.nome_completo }}</span>
+            <span class="text-t2">{{ usuario.colaborador.cargo.nome }}</span>
+            <span class="badge bg-bg4 text-t2">{{ usuario.colaborador.cargo.get_nivel_display }}</span>
+            <span class="text-t3">{{ usuario.colaborador.departamento.nome }}</span>
+          </div>
+        </div>
+        {% endif %}
+
         <div>
           <label for="groups" class="label">Grupo</label>
           <select name="groups" id="groups" class="input"
