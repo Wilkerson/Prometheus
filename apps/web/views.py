@@ -4485,16 +4485,39 @@ class FechamentoExportView(PermissionRequiredMixin, View):
         elif formato == "pdf":
             from reportlab.lib.pagesizes import A4, landscape
             from reportlab.lib import colors
-            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-            from reportlab.lib.styles import getSampleStyleSheet
+            from reportlab.lib.units import cm
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.enums import TA_CENTER
+            import os
 
             buf = BytesIO()
-            doc = SimpleDocTemplate(buf, pagesize=landscape(A4), topMargin=30, bottomMargin=30)
+            doc = SimpleDocTemplate(
+                buf, pagesize=landscape(A4),
+                topMargin=2 * cm, bottomMargin=2 * cm,
+                leftMargin=2 * cm, rightMargin=2 * cm,
+            )
             styles = getSampleStyleSheet()
             elements = []
 
-            elements.append(Paragraph(f"RUCH Solutions — Fechamento {mes_num:02d}/{ano}", styles["Title"]))
-            elements.append(Spacer(1, 12))
+            # Logo
+            logo_path = os.path.join(settings.BASE_DIR, "static", "img", "logo.png")
+            if os.path.exists(logo_path):
+                logo = Image(logo_path, width=80, height=22)
+                elements.append(logo)
+                elements.append(Spacer(1, 8))
+
+            title_style = ParagraphStyle(
+                "CustomTitle", parent=styles["Title"],
+                fontSize=14, textColor=colors.HexColor("#2d4a3e"),
+            )
+            elements.append(Paragraph(f"Fechamento Mensal — {mes_num:02d}/{ano}", title_style))
+            sub_style = ParagraphStyle(
+                "Sub", parent=styles["Normal"],
+                fontSize=8, textColor=colors.grey, alignment=TA_CENTER,
+            )
+            elements.append(Paragraph("RUCH Solutions — Prometheus", sub_style))
+            elements.append(Spacer(1, 16))
 
             if dados:
                 headers = ["Data", "Tipo", "Descrição", "Categoria", "Valor", "Status", "Conta"]
