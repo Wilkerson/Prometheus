@@ -4207,3 +4207,321 @@ class AtivoBaixaView(PermissionRequiredMixin, View):
         ativo.motivo_baixa = request.POST.get("motivo", "").strip()
         ativo.save()
         return redirect("web:fin-ativos")
+
+
+# ---------------------------------------------------------------------------
+# Dashboard Financeiro
+# ---------------------------------------------------------------------------
+class DashboardFinanceiroView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.view_lancamento"
+
+    def get(self, request):
+        from django.utils import timezone
+        from django.db.models import Sum
+        from datetime import timedelta
+
+        hoje = timezone.now().date()
+        inicio_mes = hoje.replace(day=1)
+
+        # Receitas e despesas do mes (confirmadas)
+        lancs_mes = Lancamento.objects.filter(
+            status="confirmado", data_pagamento__gte=inicio_mes, data_pagamento__lte=hoje,
+        )
+        receita_mes = lancs_mes.filter(tipo="receita").aggregate(t=Sum("valor"))["t"] or 0
+        despesa_mes = lancs_mes.filter(tipo="despesa").aggregate(t=Sum("valor"))["t"] or 0
+
+        # Saldo total das contas
+        saldo_total = sum(c.saldo_atual for c in ContaBancaria.objects.filter(ativo=True))
+
+        # Inadimplencia (cobrancas vencidas)
+        cobrancas_vencidas = Cobranca.objects.filter(
+            status="pendente", vencimento__lt=hoje,
+        ).count()
+        valor_inadimplente = Cobranca.objects.filter(
+            status="pendente", vencimento__lt=hoje,
+        ).aggregate(t=Sum("valor"))["t"] or 0
+
+        # Tributos a vencer (proximos 30 dias)
+        tributos_vencer = Tributo.objects.filter(
+            status="a_vencer", vencimento__lte=hoje + timedelta(days=30),
+        ).aggregate(t=Sum("valor"))["t"] or 0
+
+        # Despesas pendentes
+        despesas_pendentes = Despesa.objects.filter(
+            status="agendado",
+        ).aggregate(t=Sum("valor"))["t"] or 0
+
+        # Folha pendente
+        folha_pendente = FolhaPagamento.objects.filter(
+            status__in=["calculado", "aprovado"],
+        ).aggregate(t=Sum("valor_liquido"))["t"] or 0
+
+        # Patrimonio
+        patrimonio_total = Ativo.objects.filter(status="ativo").aggregate(t=Sum("valor_compra"))["t"] or 0
+
+        return render(request, "financeiro/relatorios/dashboard.html", {
+            "receita_mes": receita_mes,
+            "despesa_mes": despesa_mes,
+            "resultado_mes": receita_mes - despesa_mes,
+            "saldo_total": saldo_total,
+            "cobrancas_vencidas": cobrancas_vencidas,
+            "valor_inadimplente": valor_inadimplente,
+            "tributos_vencer": tributos_vencer,
+            "despesas_pendentes": despesas_pendentes,
+            "folha_pendente": folha_pendente,
+            "patrimonio_total": patrimonio_total,
+            "mes_nome": inicio_mes.strftime("%B %Y").capitalize(),
+        })
+
+
+# ---------------------------------------------------------------------------
+# DRE
+# ---------------------------------------------------------------------------
+class DREView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.view_lancamento"
+
+    def get(self, request):
+        from django.utils import timezone
+        from django.db.models import Sum
+
+        hoje = timezone.now().date()
+        mes = int(request.GET.get("mes", hoje.month))
+        ano = int(request.GET.get("ano", hoje.year))
+        inicio = hoje.replace(year=ano, month=mes, day=1)
+        if mes == 12:
+            fim = inicio.replace(year=ano + 1, month=1, day=1)
+        else:
+            fim = inicio.replace(month=mes + 1, day=1)
+
+        # Lancamentos confirmados no periodo (competencia)
+        lancs = Lancamento.objects.filter(
+            status="confirmado",
+            data_competencia__gte=inicio,
+            data_competencia__lt=fim,
+        )
+
+        # Receitas por categoria
+        receitas = lancs.filter(tipo="receita").values(
+            "categoria__nome", "categoria__pai__nome"
+        ).annotate(total=Sum("valor")).order_by("-total")
+
+        # Despesas por categoria
+        despesas = lancs.filter(tipo="despesa").values(
+            "categoria__nome", "categoria__pai__nome"
+        ).annotate(total=Sum("valor")).order_by("-total")
+
+        receita_bruta = lancs.filter(tipo="receita").aggregate(t=Sum("valor"))["t"] or 0
+        despesa_total = lancs.filter(tipo="despesa").aggregate(t=Sum("valor"))["t"] or 0
+
+        # Navegacao
+        if mes == 1:
+            prev_mes, prev_ano = 12, ano - 1
+        else:
+            prev_mes, prev_ano = mes - 1, ano
+        if mes == 12:
+            next_mes, next_ano = 1, ano + 1
+        else:
+            next_mes, next_ano = mes + 1, ano
+
+        return render(request, "financeiro/relatorios/dre.html", {
+            "receitas": receitas,
+            "despesas": despesas,
+            "receita_bruta": receita_bruta,
+            "despesa_total": despesa_total,
+            "resultado": receita_bruta - despesa_total,
+            "mes": mes, "ano": ano,
+            "mes_nome": inicio.strftime("%B %Y").capitalize(),
+            "prev_mes": prev_mes, "prev_ano": prev_ano,
+            "next_mes": next_mes, "next_ano": next_ano,
+        })
+
+
+# ---------------------------------------------------------------------------
+# Fluxo de Caixa
+# ---------------------------------------------------------------------------
+class FluxoCaixaView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.view_lancamento"
+
+    def get(self, request):
+        from django.utils import timezone
+        from django.db.models import Sum
+        from datetime import timedelta
+
+        hoje = timezone.now().date()
+        inicio_mes = hoje.replace(day=1)
+
+        # Realizado (confirmados no mes)
+        lancs_realizados = Lancamento.objects.filter(
+            status="confirmado", data_pagamento__gte=inicio_mes,
+        )
+        entradas = lancs_realizados.filter(tipo="receita").aggregate(t=Sum("valor"))["t"] or 0
+        saidas = lancs_realizados.filter(tipo="despesa").aggregate(t=Sum("valor"))["t"] or 0
+
+        # Projetado 30 dias
+        futuro_30 = hoje + timedelta(days=30)
+        projetado = Lancamento.objects.filter(
+            status__in=["previsto", "pendente"],
+            data_vencimento__gte=hoje, data_vencimento__lte=futuro_30,
+        )
+        entradas_proj = projetado.filter(tipo="receita").aggregate(t=Sum("valor"))["t"] or 0
+        saidas_proj = projetado.filter(tipo="despesa").aggregate(t=Sum("valor"))["t"] or 0
+
+        # Cobrancas pendentes
+        cobrancas_pendentes = Cobranca.objects.filter(
+            status="pendente", vencimento__gte=hoje, vencimento__lte=futuro_30,
+        ).select_related("cliente").order_by("vencimento")[:10]
+
+        # Despesas agendadas
+        despesas_agendadas = Despesa.objects.filter(
+            status="agendado", vencimento__gte=hoje, vencimento__lte=futuro_30,
+        ).order_by("vencimento")[:10]
+
+        return render(request, "financeiro/relatorios/fluxo_caixa.html", {
+            "entradas": entradas,
+            "saidas": saidas,
+            "saldo_realizado": entradas - saidas,
+            "entradas_proj": entradas_proj,
+            "saidas_proj": saidas_proj,
+            "saldo_projetado": entradas_proj - saidas_proj,
+            "cobrancas_pendentes": cobrancas_pendentes,
+            "despesas_agendadas": despesas_agendadas,
+        })
+
+
+# ---------------------------------------------------------------------------
+# Fechamento Mensal (exportacao pro contador)
+# ---------------------------------------------------------------------------
+class FechamentoMensalView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.view_lancamento"
+
+    def get(self, request):
+        from django.utils import timezone
+        hoje = timezone.now().date()
+        # Meses disponiveis
+        meses = Lancamento.objects.dates("data_competencia", "month", order="DESC")[:12]
+        return render(request, "financeiro/relatorios/fechamento.html", {
+            "meses": meses,
+            "current_mes": request.GET.get("mes", ""),
+        })
+
+
+class FechamentoExportView(PermissionRequiredMixin, View):
+    """Exporta dados do mes em CSV, JSON, XML ou PDF."""
+    permission_required = "financeiro.view_lancamento"
+
+    def get(self, request):
+        from django.utils import timezone
+        from datetime import date
+        import csv
+        import json
+        from io import BytesIO, StringIO
+
+        competencia = request.GET.get("mes")
+        formato = request.GET.get("formato", "csv")
+
+        if not competencia:
+            return redirect("web:fin-fechamento")
+
+        ano, mes_num = int(competencia[:4]), int(competencia[5:7])
+        inicio = date(ano, mes_num, 1)
+        if mes_num == 12:
+            fim = date(ano + 1, 1, 1)
+        else:
+            fim = date(ano, mes_num + 1, 1)
+
+        # Dados do periodo
+        lancamentos = Lancamento.objects.filter(
+            data_competencia__gte=inicio, data_competencia__lt=fim,
+        ).select_related("categoria", "conta").order_by("data_competencia")
+
+        dados = []
+        for l in lancamentos:
+            dados.append({
+                "data_competencia": str(l.data_competencia),
+                "data_vencimento": str(l.data_vencimento),
+                "data_pagamento": str(l.data_pagamento) if l.data_pagamento else "",
+                "tipo": l.tipo,
+                "descricao": l.descricao,
+                "categoria": str(l.categoria),
+                "valor": str(l.valor),
+                "valor_liquido": str(l.valor_liquido),
+                "status": l.status,
+                "conta": l.conta.nome if l.conta else "",
+                "canal": l.get_canal_display(),
+            })
+
+        nome_arquivo = f"fechamento_{ano}_{mes_num:02d}"
+
+        if formato == "csv":
+            response = HttpResponse(content_type="text/csv; charset=utf-8")
+            response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}.csv"'
+            response.write("\ufeff")  # BOM pra Excel
+            if dados:
+                writer = csv.DictWriter(response, fieldnames=dados[0].keys(), delimiter=";")
+                writer.writeheader()
+                writer.writerows(dados)
+            return response
+
+        elif formato == "json":
+            response = HttpResponse(
+                json.dumps(dados, indent=2, ensure_ascii=False),
+                content_type="application/json; charset=utf-8",
+            )
+            response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}.json"'
+            return response
+
+        elif formato == "xml":
+            xml = '<?xml version="1.0" encoding="UTF-8"?>\n<fechamento>\n'
+            for d in dados:
+                xml += "  <lancamento>\n"
+                for k, v in d.items():
+                    xml += f"    <{k}>{v}</{k}>\n"
+                xml += "  </lancamento>\n"
+            xml += "</fechamento>"
+            response = HttpResponse(xml, content_type="application/xml; charset=utf-8")
+            response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}.xml"'
+            return response
+
+        elif formato == "pdf":
+            from reportlab.lib.pagesizes import A4, landscape
+            from reportlab.lib import colors
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+            from reportlab.lib.styles import getSampleStyleSheet
+
+            buf = BytesIO()
+            doc = SimpleDocTemplate(buf, pagesize=landscape(A4), topMargin=30, bottomMargin=30)
+            styles = getSampleStyleSheet()
+            elements = []
+
+            elements.append(Paragraph(f"RUCH Solutions — Fechamento {mes_num:02d}/{ano}", styles["Title"]))
+            elements.append(Spacer(1, 12))
+
+            if dados:
+                headers = ["Data", "Tipo", "Descrição", "Categoria", "Valor", "Status", "Conta"]
+                table_data = [headers]
+                for d in dados:
+                    table_data.append([
+                        d["data_competencia"], d["tipo"], d["descricao"][:40],
+                        d["categoria"][:25], f"R$ {d['valor']}", d["status"], d["conta"][:15],
+                    ])
+                t = Table(table_data, repeatRows=1)
+                t.setStyle(TableStyle([
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2d4a3e")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTSIZE", (0, 0), (-1, -1), 8),
+                    ("FONTSIZE", (0, 0), (-1, 0), 9),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f5f5f5")]),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ]))
+                elements.append(t)
+            else:
+                elements.append(Paragraph("Nenhum lançamento no período.", styles["Normal"]))
+
+            doc.build(elements)
+            buf.seek(0)
+            response = HttpResponse(buf.read(), content_type="application/pdf")
+            response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}.pdf"'
+            return response
+
+        return redirect("web:fin-fechamento")

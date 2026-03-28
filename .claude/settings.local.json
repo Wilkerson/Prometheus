@@ -12,7 +12,8 @@
       "Bash(python manage.py check)",
       "Bash(python manage.py makemigrations crm -n notificacao_tipos_rh)",
       "Bash(python -m pytailwindcss -i static/src/input.css -o static/css/output.css --minify)",
-      "Bash(python manage.py loaddata fixtures/dev_seed_financeiro.json)"
+      "Bash(python manage.py loaddata fixtures/dev_seed_financeiro.json)",
+      "Bash(python -c \"import reportlab; print\\(''reportlab OK''\\)\")"
     ]
   }
 }

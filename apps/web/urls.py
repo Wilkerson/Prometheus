@@ -163,4 +163,10 @@ urlpatterns = [
     path("financeiro/ativos/<int:pk>/", views.AtivoDetailView.as_view(), name="fin-ativo-detail"),
     path("financeiro/ativos/<int:pk>/editar/", views.AtivoEditView.as_view(), name="fin-ativo-edit"),
     path("financeiro/ativos/<int:pk>/baixa/", views.AtivoBaixaView.as_view(), name="fin-ativo-baixa"),
+    # Financeiro — Relatorios
+    path("financeiro/dashboard/", views.DashboardFinanceiroView.as_view(), name="fin-dashboard"),
+    path("financeiro/dre/", views.DREView.as_view(), name="fin-dre"),
+    path("financeiro/fluxo-caixa/", views.FluxoCaixaView.as_view(), name="fin-fluxo-caixa"),
+    path("financeiro/fechamento/", views.FechamentoMensalView.as_view(), name="fin-fechamento"),
+    path("financeiro/fechamento/exportar/", views.FechamentoExportView.as_view(), name="fin-fechamento-exportar"),
 ]
