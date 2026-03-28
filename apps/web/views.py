@@ -4530,8 +4530,12 @@ class FechamentoExportView(PermissionRequiredMixin, View):
                 ]
                 table_data = [headers]
                 for d in dados:
+                    # Formatar data dd/mm/aa e capitalizar tipo
+                    data_fmt = d["data_competencia"]
+                    if data_fmt and len(data_fmt) == 10:
+                        data_fmt = f"{data_fmt[8:10]}/{data_fmt[5:7]}/{data_fmt[2:4]}"
                     table_data.append([
-                        d["data_competencia"], d["tipo"], d["descricao"][:50],
+                        data_fmt, d["tipo"].capitalize(), d["descricao"][:50],
                         d["categoria"][:30], f"R$ {d['valor']}", d["status"], d["conta"][:20],
                     ])
                 t = Table(table_data, repeatRows=1, colWidths=col_widths)
