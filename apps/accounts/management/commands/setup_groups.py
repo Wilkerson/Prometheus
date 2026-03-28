@@ -112,6 +112,28 @@ class Command(BaseCommand):
         if removed:
             self.stdout.write(f"  Removidos {removed} grupo(s) legado(s)")
 
+        # Atribuir grupo Empresa Parceira a usuarios com EntidadeParceira
+        from apps.crm.models import EntidadeParceira
+        grupo_parceira = Group.objects.filter(name="Empresa Parceira").first()
+        if grupo_parceira:
+            parceiros = EntidadeParceira.objects.select_related("usuario").filter(
+                usuario__isnull=False, usuario__is_active=True
+            )
+            count = 0
+            for p in parceiros:
+                if not p.usuario.groups.filter(pk=grupo_parceira.pk).exists():
+                    p.usuario.groups.add(grupo_parceira)
+                    count += 1
+            if count:
+                self.stdout.write(f"  {count} parceiro(s) vinculado(s) ao grupo Empresa Parceira")
+
+        # Remover grupo Colaborador do superuser (nao precisa)
+        from apps.accounts.models import Usuario
+        grupo_colab = Group.objects.filter(name="Colaborador").first()
+        if grupo_colab:
+            for su in Usuario.objects.filter(is_superuser=True):
+                su.groups.remove(grupo_colab)
+
         self.stdout.write(self.style.SUCCESS("Grupos configurados com sucesso!"))
 
     def _log(self, group, created):

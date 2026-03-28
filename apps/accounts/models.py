@@ -26,7 +26,9 @@ class Usuario(AbstractUser):
 
     @property
     def grupo_nome(self):
-        """Retorna o nome do primeiro grupo do usuario."""
+        """Retorna o nome do grupo/perfil do usuario."""
+        if self.is_superuser:
+            return "Superusuário"
         first = self.groups.first()
         return first.name if first else "Sem grupo"
 

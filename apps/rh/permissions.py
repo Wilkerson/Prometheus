@@ -121,13 +121,15 @@ def atribuir_permissoes(colaborador):
     user.last_name = " ".join(partes[1:]) if len(partes) > 1 else ""
     user.save(update_fields=["first_name", "last_name"])
 
-    # Manter grupo Colaborador + permissoes calculadas
-    from django.contrib.auth.models import Group
-    grupo_colab = Group.objects.filter(name="Colaborador").first()
+    # Superuser ja tem todas as permissoes — nao precisa de grupo/perms diretas
+    if user.is_superuser:
+        return
 
     # Limpar permissoes diretas anteriores e reatribuir
     user.user_permissions.set(perms)
 
     # Garantir grupo Colaborador
+    from django.contrib.auth.models import Group
+    grupo_colab = Group.objects.filter(name="Colaborador").first()
     if grupo_colab and not user.groups.filter(pk=grupo_colab.pk).exists():
         user.groups.add(grupo_colab)
