@@ -107,12 +107,19 @@ def calcular_permissoes(colaborador):
 def atribuir_permissoes(colaborador):
     """Atribui permissoes diretas ao usuario vinculado ao colaborador.
     Remove permissoes anteriores e recalcula do zero.
+    Sincroniza nome do usuario com o nome do colaborador.
     """
     if not colaborador.usuario or not colaborador.usuario.is_active:
         return
 
     user = colaborador.usuario
     perms = calcular_permissoes(colaborador)
+
+    # Sincronizar nome do usuario com o colaborador
+    partes = colaborador.nome_completo.split()
+    user.first_name = partes[0] if partes else ""
+    user.last_name = " ".join(partes[1:]) if len(partes) > 1 else ""
+    user.save(update_fields=["first_name", "last_name"])
 
     # Manter grupo Colaborador + permissoes calculadas
     from django.contrib.auth.models import Group
