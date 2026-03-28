@@ -372,7 +372,7 @@
     "model": "rh.colaborador",
     "pk": 9,
     "fields": {
-      "nome_completo": "Wilkerson Oliveira",
+      "nome_completo": "Wilkerson Carlos",
       "cpf": "999.999.999-99",
       "data_nascimento": "1990-01-15",
       "endereco": 30,
