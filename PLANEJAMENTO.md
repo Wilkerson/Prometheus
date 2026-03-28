@@ -484,9 +484,9 @@ Novos modulos sao implementados como submenus dentro do departamento corresponde
 
 | # | Departamento | Status | Submenus atuais | Submenus futuros |
 |---|---|---|---|---|
-| 1 | **Comercial** | Implementado | Clientes, Pipeline, Calendario, +Novo, Produtos, Planos | — |
-| 2 | **Financeiro** | Em implementacao (Fase 1) | Lancamentos, Contas Bancarias | Cobrancas, Despesas, Folha, Tributos, DRE, Orcamento |
-| 3 | **RH / Pessoas** | Completo (Fases 1-5) | Colaboradores, Documentos, Onboarding, Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios, Cargos, Setores | — |
+| 1 | **RH / Pessoas** | Completo (Fases 1-5) | Colaboradores, Documentos, Onboarding, Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios, Cargos, Setores | — |
+| 2 | **Comercial** | Implementado | Clientes, Pipeline, Calendario, +Novo, Produtos, Planos | — |
+| 3 | **Financeiro** | Em implementacao (Fases 1-4) | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Contas Bancarias | DRE, Orcamento, Fechamento mensal |
 | 4 | **Marketing** | Placeholder | — | Campanhas, Leads de marketing, Analytics |
 | 5 | **Tecnologia** | Placeholder | — | Projetos, Roadmap, Infraestrutura |
 | 6 | **Juridico** | Placeholder | — | Contratos, Compliance, LGPD |
@@ -500,8 +500,26 @@ Usuarios, Parceiros, Tokens API, Grupos, Admin Django
 - Departamentos sao seedados via migration (system-managed, sem CRUD manual)
 - Cada departamento implementado ganha um grupo de permissoes correspondente no `setup_groups`
 - O modulo `organization` mencionado no doc de referencia do RH **nao foi criado** — Cargo/Departamento/Setor ficam no app `rh`
-- O submodulo 2 do doc (Cargos e estrutura) **ja foi implementado** na Fase 1
-- API REST dos modulos de RH ainda nao foi criada (apenas CRUD web)
+- App `comissoes` foi removido — sera reimplementado no financeiro quando fluxo de pagamento for definido
+- Permissoes atribuidas automaticamente por departamento + nivel hierarquico do cargo
+- Models senssiveis (folha, tributos) so acessiveis por Gerente+
+- Folha de pagamento gerada automaticamente via Celery Beat (salario, PJ, pro-labore)
+- Tributo com tipo texto livre (extensivel pra qualquer regime fiscal: Simples, Presumido, Real)
+- Patrimonio com 3 categorias (imovel, movel duravel, movel consumo) e tipo texto livre
+- Sidebar com accordion exclusivo (1 menu aberto por vez), ordem: RH > Comercial > Financeiro > Admin
+- Email backend: console em dev, SMTP em producao
+- Redis via Docker, Celery worker + beat configurados
+- API REST ainda nao criada (apenas CRUD web)
+
+### Grupos de permissoes (6)
+| Grupo | Permissoes | Descricao |
+|---|---|---|
+| Administrador | 168 | Acesso total |
+| Comercial | 16 | Clientes, produtos, planos |
+| Financeiro | 36 | Lancamentos, cobrancas, despesas, NFs, folha, tributos, ativos, contas |
+| RH / Pessoas | 68 | Colaboradores, cargos, setores, docs, ferias, treinamentos, metas, eNPS |
+| Colaborador | 12 | Self-service (ausencias, treinamentos proprios) |
+| Empresa Parceira | 3 | Clientes (ver/criar/editar) |
 
 ---
 

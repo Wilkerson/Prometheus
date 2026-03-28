@@ -97,9 +97,10 @@ Cria 6 grupos:
 - **Administrador** — acesso total (132 permissoes)
 - **Comercial** — clientes, produtos, planos, comissoes
 - **Financeiro** — comissoes CRUD
-- **RH / Pessoas** — colaboradores, documentos, ferias, treinamentos, metas, eNPS
-- **Colaborador** — acesso limitado (solicitar ausencias, ver treinamentos, responder eNPS)
-- **Empresa Parceira** — clientes (ver/criar/editar)
+- **Financeiro** (36) — lancamentos, cobrancas, despesas, NFs, folha, tributos, patrimonio, contas
+- **RH / Pessoas** (68) — colaboradores, documentos, ferias, treinamentos, metas, eNPS
+- **Colaborador** (12) — acesso limitado (solicitar ausencias, ver treinamentos, responder eNPS)
+- **Empresa Parceira** (3) — clientes (ver/criar/editar)
 
 ---
 
@@ -108,9 +109,10 @@ Cria 6 grupos:
 ```bash
 python manage.py loaddata fixtures/dev_seed.json
 python manage.py loaddata fixtures/dev_seed_rh.json
+python manage.py loaddata fixtures/dev_seed_financeiro.json
 ```
 
-Cria dados realistas: usuarios, parceiros, produtos, planos, clientes, colaboradores, cargos, setores, treinamentos, metas, pesquisa eNPS e mais.
+Cria dados realistas: usuarios vinculados a colaboradores, parceiros, produtos, planos, clientes, colaboradores com cargos/setores, treinamentos, metas, pesquisa eNPS, lancamentos, cobrancas, despesas, NFs, folha, tributos, ativos.
 
 > **Senha dos usuarios de seed:** todos usam `testpass123`
 
@@ -176,8 +178,14 @@ DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps
 - Integracao com sistema externo (Zypher) via Celery
 
 ### Financeiro
-- Comissoes geradas automaticamente ao concluir cliente
-- Acao "Marcar como pago"
+- **Lancamentos** — core financeiro, receitas e despesas com regime caixa + competencia
+- **Contas a Receber** — cobrancas por cliente com confirmacao de pagamento automatica
+- **Contas a Pagar** — despesas com recorrencia (mensal/trimestral/anual) e geracao automatica
+- **Notas Fiscais** — emitidas (clientes) e recebidas (fornecedores) com upload PDF
+- **Folha de Pagamento** — geracao automatica por Celery Beat, fluxo calculado > aprovado > pago
+- **Tributos** — tipo extensivel (Simples, Presumido, Real), controle de vencimentos
+- **Patrimonio** — bens imoveis, moveis duraveis e de consumo, depreciacao calculada
+- **Contas Bancarias** — saldo em tempo real calculado dos lancamentos
 
 ### RH / Pessoas
 - **Colaboradores** — cadastro CLT/PJ, historico de cargos/salarios, foto
@@ -223,18 +231,19 @@ Prometheus/
 ├── apps/
 │   ├── accounts/       # Usuario + JWT + permissions + setup_groups
 │   ├── crm/            # Cliente, Produto, Plano, Notificacao
-│   ├── comissoes/      # Comissao (signal automatico)
+│   ├── financeiro/     # Lancamento, Cobranca, Despesa, NF, Folha, Tributo, Ativo
 │   ├── integracao/     # Token, API Key, callback Zypher
 │   ├── rh/             # Colaborador, Cargo, Setor, Documentos, Onboarding,
 │   │                   # Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios
 │   └── web/            # Views, mixins, context processors, URLs
 ├── templates/
-│   ├── base.html       # Layout (sidebar accordion + topbar + main)
+│   ├── base.html       # Layout (sidebar accordion exclusivo + topbar + main)
 │   ├── components/     # Logo, avatar (reutilizaveis)
 │   ├── accounts/       # Login
 │   ├── clientes/       # CRUD + pipeline + calendario
+│   ├── financeiro/     # Lancamentos, cobrancas, despesas, NFs, folha, tributos, ativos, contas
 │   ├── rh/             # Todos os submodulos de RH
-│   ├── grupos/         # Matriz de permissoes
+│   ├── grupos/         # Matriz de permissoes (colapsavel por departamento)
 │   └── public/         # Landing page
 ├── static/
 │   ├── src/input.css   # Tailwind source (temas claro/escuro)
@@ -263,13 +272,13 @@ Prometheus/
 
 ## Sidebar (departamentos)
 
-A sidebar e organizada por departamentos do sistema:
+A sidebar e organizada por departamentos com accordion exclusivo (1 aberto por vez):
 
 | Departamento | Status | Submenus |
 |---|---|---|
-| Comercial | Implementado | Clientes, Pipeline, Calendario, Produtos, Planos |
-| Financeiro | Parcial | Comissoes |
 | RH / Pessoas | Completo | Colaboradores, Documentos, Onboarding, Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios, Cargos, Setores |
+| Comercial | Implementado | Clientes, Pipeline, Calendario, Produtos, Planos |
+| Financeiro | Fases 1-4 | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Contas Bancarias |
 | Marketing | Placeholder | — |
 | Tecnologia | Placeholder | — |
 | Juridico | Placeholder | — |
@@ -313,8 +322,14 @@ python manage.py setup_groups
 # Alertas RH (manual)
 python manage.py rh_alertas
 
+# Gerar folha do mes (manual)
+python manage.py gerar_folha_mensal
+
+# Gerar despesas recorrentes (manual)
+python manage.py gerar_recorrentes
+
 # Fixtures
-python manage.py loaddata fixtures/dev_seed.json fixtures/dev_seed_rh.json
+python manage.py loaddata fixtures/dev_seed.json fixtures/dev_seed_rh.json fixtures/dev_seed_financeiro.json
 ```
 
 ---
