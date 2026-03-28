@@ -465,10 +465,10 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 72. [x] Modulo RH Fase 5: Dashboard de relatorios e indicadores (headcount, turnover, custo, alertas, eNPS)
 73. [x] Remover app comissoes (sera reimplementado no modulo Financeiro)
 74. [x] Modulo Financeiro Fase 1: app financeiro, CategoriaFinanceira (23 seedadas), ContaBancaria (3 seedadas), Lancamento (CRUD web + filtros HTMX)
-75. [ ] Modulo Financeiro Fase 2: Cobranca (contas a receber) + Despesa (contas a pagar + recorrencia)
-76. [ ] Modulo Financeiro Fase 3: FolhaPagamento + ProLabore + Tributo
+75. [ ] Modulo Financeiro Fase 2: Cobranca (contas a receber) + Despesa (contas a pagar + recorrencia) + Notas Fiscais (emitidas e recebidas)
+76. [ ] Modulo Financeiro Fase 3: FolhaPagamento + ProLabore + Tributo (extensivel pra qualquer regime fiscal)
 77. [ ] Modulo Financeiro Fase 4: Ativo (patrimonio + depreciacao)
-78. [ ] Modulo Financeiro Fase 5: DRE + Fluxo de caixa + Orcamento
+78. [ ] Modulo Financeiro Fase 5: DRE + Fluxo de caixa + Orcamento + Fechamento mensal (pacote pro contador)
 79. [ ] Modulo Financeiro Fase 6: Gateway Asaas
 80. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
 41. [ ] Aplicar design system (JSON) quando fornecido
