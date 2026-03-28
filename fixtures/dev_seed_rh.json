@@ -1,516 +1,1754 @@
 [
-  {"model": "rh.setor", "pk": 1, "fields": {
-    "nome": "Vendas", "departamento": 1, "descricao": "Equipe de vendas e prospecao de clientes", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.setor", "pk": 2, "fields": {
-    "nome": "Pos-venda", "departamento": 1, "descricao": "Suporte e acompanhamento apos a venda", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.setor", "pk": 3, "fields": {
-    "nome": "Contas a Pagar", "departamento": 2, "descricao": "Controle de pagamentos e despesas", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.setor", "pk": 4, "fields": {
-    "nome": "Contas a Receber", "departamento": 2, "descricao": "Controle de recebiveis e faturamento", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.setor", "pk": 5, "fields": {
-    "nome": "Recrutamento e Selecao", "departamento": 3, "descricao": "Contratacao de novos colaboradores", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.setor", "pk": 6, "fields": {
-    "nome": "Treinamento e Desenvolvimento", "departamento": 3, "descricao": "Capacitacao e PDI dos colaboradores", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.setor", "pk": 7, "fields": {
-    "nome": "Desenvolvimento", "departamento": 5, "descricao": "Engenharia de software e desenvolvimento de produtos", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.setor", "pk": 8, "fields": {
-    "nome": "Infraestrutura", "departamento": 5, "descricao": "Servidores, cloud, DevOps e seguranca", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-
-  {"model": "rh.setor", "pk": 9, "fields": {
-    "nome": "Diretoria", "departamento": 1, "descricao": "Diretoria executiva", "ativo": true,
-    "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-
-  {"model": "rh.cargo", "pk": 9, "fields": {
-    "nome": "CEO / Diretor Geral", "departamento": 1, "nivel": "diretor",
-    "faixa_salarial_min": "20000.00", "faixa_salarial_max": "40000.00",
-    "descricao": "Diretor geral da empresa — gestao estrategica e operacional",
-    "requisitos": "Socio fundador",
-    "ativo": true, "criado_em": "2025-01-01T10:00:00Z", "atualizado_em": "2025-01-01T10:00:00Z"
-  }},
-
-  {"model": "rh.cargo", "pk": 1, "fields": {
-    "nome": "Diretor Comercial", "departamento": 1, "nivel": "diretor",
-    "faixa_salarial_min": "15000.00", "faixa_salarial_max": "25000.00",
-    "descricao": "Lideranca estrategica do departamento comercial", "requisitos": "Experiencia em gestao de vendas",
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.cargo", "pk": 2, "fields": {
-    "nome": "Analista Comercial", "departamento": 1, "nivel": "analista",
-    "faixa_salarial_min": "3500.00", "faixa_salarial_max": "6000.00",
-    "descricao": "Atendimento ao cliente e suporte comercial", "requisitos": "Experiencia em vendas B2B",
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.cargo", "pk": 3, "fields": {
-    "nome": "Gerente Financeiro", "departamento": 2, "nivel": "gerente",
-    "faixa_salarial_min": "10000.00", "faixa_salarial_max": "18000.00",
-    "descricao": "Gestao do departamento financeiro", "requisitos": "Formacao em contabilidade ou administracao",
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.cargo", "pk": 4, "fields": {
-    "nome": "Assistente Financeiro", "departamento": 2, "nivel": "assistente",
-    "faixa_salarial_min": "2200.00", "faixa_salarial_max": "3500.00",
-    "descricao": "Apoio em contas a pagar e receber", "requisitos": "Cursando administracao ou contabilidade",
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.cargo", "pk": 5, "fields": {
-    "nome": "Gerente de RH", "departamento": 3, "nivel": "gerente",
-    "faixa_salarial_min": "9000.00", "faixa_salarial_max": "15000.00",
-    "descricao": "Gestao de pessoas e processos de RH", "requisitos": "Formacao em RH ou psicologia organizacional",
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.cargo", "pk": 6, "fields": {
-    "nome": "Analista de RH", "departamento": 3, "nivel": "analista",
-    "faixa_salarial_min": "3500.00", "faixa_salarial_max": "5500.00",
-    "descricao": "Recrutamento, selecao e rotinas de pessoal", "requisitos": "Experiencia em recrutamento",
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.cargo", "pk": 7, "fields": {
-    "nome": "Especialista em Desenvolvimento", "departamento": 5, "nivel": "especialista",
-    "faixa_salarial_min": "8000.00", "faixa_salarial_max": "14000.00",
-    "descricao": "Desenvolvimento de software e solucoes tecnicas", "requisitos": "Experiencia solida em programacao",
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.cargo", "pk": 8, "fields": {
-    "nome": "Estagiario de Tecnologia", "departamento": 5, "nivel": "estagiario",
-    "faixa_salarial_min": "1200.00", "faixa_salarial_max": "1800.00",
-    "descricao": "Apoio em projetos de desenvolvimento", "requisitos": "Cursando ciencia da computacao ou afins",
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-
-  {"model": "crm.endereco", "pk": 30, "fields": {"cep": "70070-120", "logradouro": "SBS Quadra 2", "numero": "12", "complemento": "Bloco E, Sala 1801", "bairro": "Asa Sul", "cidade": "Brasilia", "uf": "DF"}},
-
-  {"model": "crm.endereco", "pk": 20, "fields": {"cep": "01311-200", "logradouro": "Rua Augusta", "numero": "1508", "complemento": "Apto 42", "bairro": "Consolacao", "cidade": "Sao Paulo", "uf": "SP"}},
-  {"model": "crm.endereco", "pk": 21, "fields": {"cep": "22041-001", "logradouro": "Rua Santa Clara", "numero": "75", "complemento": "", "bairro": "Copacabana", "cidade": "Rio de Janeiro", "uf": "RJ"}},
-  {"model": "crm.endereco", "pk": 22, "fields": {"cep": "30130-001", "logradouro": "Rua dos Caetes", "numero": "234", "complemento": "Sala 3", "bairro": "Centro", "cidade": "Belo Horizonte", "uf": "MG"}},
-  {"model": "crm.endereco", "pk": 23, "fields": {"cep": "80060-150", "logradouro": "Rua XV de Novembro", "numero": "700", "complemento": "", "bairro": "Centro", "cidade": "Curitiba", "uf": "PR"}},
-  {"model": "crm.endereco", "pk": 24, "fields": {"cep": "90010-280", "logradouro": "Rua dos Andradas", "numero": "1001", "complemento": "Conj 501", "bairro": "Centro Historico", "cidade": "Porto Alegre", "uf": "RS"}},
-  {"model": "crm.endereco", "pk": 25, "fields": {"cep": "40020-000", "logradouro": "Av. Sete de Setembro", "numero": "555", "complemento": "", "bairro": "Centro", "cidade": "Salvador", "uf": "BA"}},
-  {"model": "crm.endereco", "pk": 26, "fields": {"cep": "01310-300", "logradouro": "Alameda Santos", "numero": "211", "complemento": "Apto 15", "bairro": "Cerqueira Cesar", "cidade": "Sao Paulo", "uf": "SP"}},
-  {"model": "crm.endereco", "pk": 27, "fields": {"cep": "22031-070", "logradouro": "Rua Tonelero", "numero": "148", "complemento": "Bloco A", "bairro": "Copacabana", "cidade": "Rio de Janeiro", "uf": "RJ"}},
-
-  {"model": "rh.colaborador", "pk": 9, "fields": {
-    "nome_completo": "Wilkerson Oliveira", "cpf": "999.999.999-99", "data_nascimento": "1990-01-15",
-    "endereco": 30, "telefone": "61999999999", "email_pessoal": "wilkerson@ruch.solutions",
-    "contato_emergencia_nome": "", "contato_emergencia_telefone": "",
-    "tipo_contrato": "pj", "data_admissao": "2025-01-01", "data_desligamento": null,
-    "cargo": 9, "departamento": 1, "setor": 9, "remuneracao": "25000.00", "carga_horaria_semanal": 40,
-    "status": "ativo",
-    "pis_nit": "", "ctps_numero": "", "ctps_serie": "",
-    "banco_deposito": "", "regime_trabalho": "",
-    "cnpj_pj": "", "razao_social": "RUCH Solutions",
-    "banco_pagamento_pj": "", "chave_pix": "wilkerson@ruch.solutions",
-    "foto": "",
-    "usuario": 1,
-    "criado_em": "2025-01-01T10:00:00Z", "atualizado_em": "2025-01-01T10:00:00Z"
-  }},
-
-  {"model": "rh.colaborador", "pk": 1, "fields": {
-    "nome_completo": "Mariana Costa Silva", "cpf": "123.456.789-01", "data_nascimento": "1990-03-15",
-    "endereco": 20, "telefone": "11999887766", "email_pessoal": "mariana.costa@gmail.com",
-    "contato_emergencia_nome": "Pedro Costa", "contato_emergencia_telefone": "11988776655",
-    "tipo_contrato": "clt", "data_admissao": "2025-06-01", "data_desligamento": null,
-    "cargo": 1, "departamento": 1, "setor": 1, "remuneracao": "18000.00", "carga_horaria_semanal": 40,
-    "status": "ativo",
-    "pis_nit": "123.45678.90-1", "ctps_numero": "1234567", "ctps_serie": "001",
-    "banco_deposito": "Itau 341", "regime_trabalho": "hibrido",
-    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
-    "usuario": null,
-    "criado_em": "2025-06-01T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.colaborador", "pk": 2, "fields": {
-    "nome_completo": "Lucas Ferreira Oliveira", "cpf": "234.567.890-12", "data_nascimento": "1995-08-22",
-    "endereco": 21, "telefone": "21998877665", "email_pessoal": "lucas.ferreira@hotmail.com",
-    "contato_emergencia_nome": "Maria Oliveira", "contato_emergencia_telefone": "21987766554",
-    "tipo_contrato": "clt", "data_admissao": "2025-09-15", "data_desligamento": null,
-    "cargo": 2, "departamento": 1, "setor": 1, "remuneracao": "4500.00", "carga_horaria_semanal": 40,
-    "status": "ativo",
-    "pis_nit": "234.56789.01-2", "ctps_numero": "2345678", "ctps_serie": "002",
-    "banco_deposito": "Bradesco 237", "regime_trabalho": "presencial",
-    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
-    "usuario": null,
-    "criado_em": "2025-09-15T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.colaborador", "pk": 3, "fields": {
-    "nome_completo": "Camila Rodrigues Santos", "cpf": "345.678.901-23", "data_nascimento": "1988-11-10",
-    "endereco": 22, "telefone": "31997766554", "email_pessoal": "camila.rsantos@gmail.com",
-    "contato_emergencia_nome": "Jose Santos", "contato_emergencia_telefone": "31986655443",
-    "tipo_contrato": "clt", "data_admissao": "2025-03-01", "data_desligamento": null,
-    "cargo": 3, "departamento": 2, "setor": 3, "remuneracao": "12000.00", "carga_horaria_semanal": 40,
-    "status": "ativo",
-    "pis_nit": "345.67890.12-3", "ctps_numero": "3456789", "ctps_serie": "003",
-    "banco_deposito": "Nubank 260", "regime_trabalho": "remoto",
-    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
-    "usuario": null,
-    "criado_em": "2025-03-01T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.colaborador", "pk": 4, "fields": {
-    "nome_completo": "Rafael Almeida Lima", "cpf": "456.789.012-34", "data_nascimento": "1998-05-28",
-    "endereco": 23, "telefone": "41996655443", "email_pessoal": "rafael.almeida@outlook.com",
-    "contato_emergencia_nome": "Ana Lima", "contato_emergencia_telefone": "41985544332",
-    "tipo_contrato": "clt", "data_admissao": "2026-01-10", "data_desligamento": null,
-    "cargo": 4, "departamento": 2, "setor": 4, "remuneracao": "2800.00", "carga_horaria_semanal": 40,
-    "status": "ativo",
-    "pis_nit": "456.78901.23-4", "ctps_numero": "4567890", "ctps_serie": "004",
-    "banco_deposito": "Inter 077", "regime_trabalho": "presencial",
-    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
-    "usuario": null,
-    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.colaborador", "pk": 5, "fields": {
-    "nome_completo": "Patricia Mendes Souza", "cpf": "567.890.123-45", "data_nascimento": "1992-07-03",
-    "endereco": 24, "telefone": "51995544332", "email_pessoal": "patricia.mendes@gmail.com",
-    "contato_emergencia_nome": "Carlos Souza", "contato_emergencia_telefone": "51984433221",
-    "tipo_contrato": "clt", "data_admissao": "2025-08-01", "data_desligamento": null,
-    "cargo": 5, "departamento": 3, "setor": 5, "remuneracao": "11000.00", "carga_horaria_semanal": 40,
-    "status": "ativo",
-    "pis_nit": "567.89012.34-5", "ctps_numero": "5678901", "ctps_serie": "005",
-    "banco_deposito": "Caixa 104", "regime_trabalho": "hibrido",
-    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
-    "usuario": null,
-    "criado_em": "2025-08-01T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.colaborador", "pk": 6, "fields": {
-    "nome_completo": "Thiago Barbosa Pereira", "cpf": "678.901.234-56", "data_nascimento": "1994-12-18",
-    "endereco": 25, "telefone": "71994433221", "email_pessoal": "thiago.barbosa@yahoo.com",
-    "contato_emergencia_nome": "Lucia Pereira", "contato_emergencia_telefone": "71983322110",
-    "tipo_contrato": "pj", "data_admissao": "2025-11-01", "data_desligamento": null,
-    "cargo": 7, "departamento": 5, "setor": 7, "remuneracao": "12000.00", "carga_horaria_semanal": 40,
-    "status": "ativo",
-    "pis_nit": "", "ctps_numero": "", "ctps_serie": "",
-    "banco_deposito": "", "regime_trabalho": "",
-    "cnpj_pj": "12.345.678/0001-90", "razao_social": "Thiago Dev LTDA",
-    "banco_pagamento_pj": "Nubank 260", "chave_pix": "thiago.barbosa@yahoo.com",
-    "usuario": null,
-    "criado_em": "2025-11-01T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.colaborador", "pk": 7, "fields": {
-    "nome_completo": "Juliana Nascimento Dias", "cpf": "789.012.345-67", "data_nascimento": "2001-02-14",
-    "endereco": 26, "telefone": "11993322110", "email_pessoal": "juliana.dias@gmail.com",
-    "contato_emergencia_nome": "Sandra Nascimento", "contato_emergencia_telefone": "11982211009",
-    "tipo_contrato": "clt", "data_admissao": "2026-02-01", "data_desligamento": null,
-    "cargo": 8, "departamento": 5, "setor": 7, "remuneracao": "1500.00", "carga_horaria_semanal": 30,
-    "status": "ativo",
-    "pis_nit": "789.01234.56-7", "ctps_numero": "7890123", "ctps_serie": "007",
-    "banco_deposito": "Inter 077", "regime_trabalho": "hibrido",
-    "cnpj_pj": "", "razao_social": "", "banco_pagamento_pj": "", "chave_pix": "",
-    "usuario": null,
-    "criado_em": "2026-02-01T10:00:00Z", "atualizado_em": "2026-02-01T10:00:00Z"
-  }},
-  {"model": "rh.colaborador", "pk": 8, "fields": {
-    "nome_completo": "Fernando Gomes Araujo", "cpf": "890.123.456-78", "data_nascimento": "1987-09-25",
-    "endereco": 27, "telefone": "21992211009", "email_pessoal": "fernando.araujo@outlook.com",
-    "contato_emergencia_nome": "Claudia Gomes", "contato_emergencia_telefone": "21981100998",
-    "tipo_contrato": "pj", "data_admissao": "2025-04-01", "data_desligamento": "2026-01-31",
-    "cargo": 2, "departamento": 1, "setor": 2, "remuneracao": "5000.00", "carga_horaria_semanal": 40,
-    "status": "desligado",
-    "pis_nit": "", "ctps_numero": "", "ctps_serie": "",
-    "banco_deposito": "", "regime_trabalho": "",
-    "cnpj_pj": "98.765.432/0001-10", "razao_social": "Fernando Consultoria ME",
-    "banco_pagamento_pj": "Bradesco 237", "chave_pix": "98765432000110",
-    "usuario": null,
-    "criado_em": "2025-04-01T10:00:00Z", "atualizado_em": "2026-01-31T10:00:00Z"
-  }},
-
-  {"model": "rh.historicocolaborador", "pk": 1, "fields": {
-    "colaborador": 1, "tipo": "admissao",
-    "cargo_anterior": "", "cargo_novo": "Diretor Comercial (Comercial)",
-    "departamento_anterior": "", "departamento_novo": "Comercial",
-    "remuneracao_anterior": null, "remuneracao_nova": "18000.00",
-    "observacao": "Admissao registrada no sistema.", "registrado_por": null,
-    "criado_em": "2025-06-01T10:00:00Z"
-  }},
-  {"model": "rh.historicocolaborador", "pk": 2, "fields": {
-    "colaborador": 3, "tipo": "admissao",
-    "cargo_anterior": "", "cargo_novo": "Gerente Financeiro (Financeiro)",
-    "departamento_anterior": "", "departamento_novo": "Financeiro",
-    "remuneracao_anterior": null, "remuneracao_nova": "10000.00",
-    "observacao": "Admissao registrada no sistema.", "registrado_por": null,
-    "criado_em": "2025-03-01T10:00:00Z"
-  }},
-  {"model": "rh.historicocolaborador", "pk": 3, "fields": {
-    "colaborador": 3, "tipo": "reajuste",
-    "cargo_anterior": "", "cargo_novo": "",
-    "departamento_anterior": "", "departamento_novo": "",
-    "remuneracao_anterior": "10000.00", "remuneracao_nova": "12000.00",
-    "observacao": "Reajuste anual por desempenho.", "registrado_por": null,
-    "criado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.historicocolaborador", "pk": 4, "fields": {
-    "colaborador": 8, "tipo": "admissao",
-    "cargo_anterior": "", "cargo_novo": "Analista Comercial (Comercial)",
-    "departamento_anterior": "", "departamento_novo": "Comercial",
-    "remuneracao_anterior": null, "remuneracao_nova": "5000.00",
-    "observacao": "Admissao como PJ.", "registrado_por": null,
-    "criado_em": "2025-04-01T10:00:00Z"
-  }},
-  {"model": "rh.historicocolaborador", "pk": 5, "fields": {
-    "colaborador": 8, "tipo": "desligamento",
-    "cargo_anterior": "Analista Comercial (Comercial)", "cargo_novo": "",
-    "departamento_anterior": "Comercial", "departamento_novo": "",
-    "remuneracao_anterior": "5000.00", "remuneracao_nova": null,
-    "observacao": "Contrato PJ encerrado por termino do projeto.", "registrado_por": null,
-    "criado_em": "2026-01-31T10:00:00Z"
-  }},
-
-  {"model": "rh.onboardingtemplate", "pk": 1, "fields": {
-    "nome": "Onboarding CLT Geral", "tipo_contrato": "clt", "departamento": null,
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-  {"model": "rh.onboardingtemplate", "pk": 2, "fields": {
-    "nome": "Onboarding PJ Geral", "tipo_contrato": "pj", "departamento": null,
-    "ativo": true, "criado_em": "2026-01-01T10:00:00Z", "atualizado_em": "2026-01-01T10:00:00Z"
-  }},
-
-  {"model": "rh.onboardingtemplateitem", "pk": 1, "fields": {"template": 1, "fase": "antes", "descricao": "Contrato assinado e arquivado", "ordem": 0}},
-  {"model": "rh.onboardingtemplateitem", "pk": 2, "fields": {"template": 1, "fase": "antes", "descricao": "Acesso ao sistema criado (e-mail corporativo)", "ordem": 1}},
-  {"model": "rh.onboardingtemplateitem", "pk": 3, "fields": {"template": 1, "fase": "antes", "descricao": "Equipamentos preparados (notebook, perifericos)", "ordem": 2}},
-  {"model": "rh.onboardingtemplateitem", "pk": 4, "fields": {"template": 1, "fase": "antes", "descricao": "Ferramentas configuradas (Slack, N8N, etc.)", "ordem": 3}},
-  {"model": "rh.onboardingtemplateitem", "pk": 5, "fields": {"template": 1, "fase": "primeiro_dia", "descricao": "Boas-vindas e apresentacao a equipe", "ordem": 0}},
-  {"model": "rh.onboardingtemplateitem", "pk": 6, "fields": {"template": 1, "fase": "primeiro_dia", "descricao": "Tour pelas ferramentas e processos", "ordem": 1}},
-  {"model": "rh.onboardingtemplateitem", "pk": 7, "fields": {"template": 1, "fase": "primeiro_dia", "descricao": "Acesso confirmado em todos os sistemas", "ordem": 2}},
-  {"model": "rh.onboardingtemplateitem", "pk": 8, "fields": {"template": 1, "fase": "primeiro_dia", "descricao": "Documentos de RH assinados (NDA, politica interna)", "ordem": 3}},
-  {"model": "rh.onboardingtemplateitem", "pk": 9, "fields": {"template": 1, "fase": "primeira_semana", "descricao": "Reuniao com gestor direto (alinhamento de expectativas)", "ordem": 0}},
-  {"model": "rh.onboardingtemplateitem", "pk": 10, "fields": {"template": 1, "fase": "primeira_semana", "descricao": "Apresentacao dos projetos em andamento", "ordem": 1}},
-  {"model": "rh.onboardingtemplateitem", "pk": 11, "fields": {"template": 1, "fase": "primeira_semana", "descricao": "Acesso a documentacao interna", "ordem": 2}},
-  {"model": "rh.onboardingtemplateitem", "pk": 12, "fields": {"template": 1, "fase": "primeiro_mes", "descricao": "Check-in de 30 dias (feedback inicial)", "ordem": 0}},
-  {"model": "rh.onboardingtemplateitem", "pk": 13, "fields": {"template": 1, "fase": "primeiro_mes", "descricao": "Metas do periodo definidas", "ordem": 1}},
-  {"model": "rh.onboardingtemplateitem", "pk": 14, "fields": {"template": 1, "fase": "primeiro_mes", "descricao": "PDI inicial criado", "ordem": 2}},
-
-  {"model": "rh.onboardingtemplateitem", "pk": 15, "fields": {"template": 2, "fase": "antes", "descricao": "Contrato de prestacao de servicos assinado", "ordem": 0}},
-  {"model": "rh.onboardingtemplateitem", "pk": 16, "fields": {"template": 2, "fase": "antes", "descricao": "NDA assinado", "ordem": 1}},
-  {"model": "rh.onboardingtemplateitem", "pk": 17, "fields": {"template": 2, "fase": "antes", "descricao": "Acesso as ferramentas configurado", "ordem": 2}},
-  {"model": "rh.onboardingtemplateitem", "pk": 18, "fields": {"template": 2, "fase": "primeiro_dia", "descricao": "Apresentacao a equipe do projeto", "ordem": 0}},
-  {"model": "rh.onboardingtemplateitem", "pk": 19, "fields": {"template": 2, "fase": "primeiro_dia", "descricao": "Alinhamento de escopo e entregas", "ordem": 1}},
-  {"model": "rh.onboardingtemplateitem", "pk": 20, "fields": {"template": 2, "fase": "primeira_semana", "descricao": "Acesso a documentacao tecnica do projeto", "ordem": 0}},
-  {"model": "rh.onboardingtemplateitem", "pk": 21, "fields": {"template": 2, "fase": "primeira_semana", "descricao": "Primeira entrega ou checkpoint", "ordem": 1}},
-
-  {"model": "rh.documentocolaborador", "pk": 1, "fields": {
-    "colaborador": 1, "tipo": "contrato_clt", "nome": "Contrato de trabalho CLT 2025",
-    "arquivo": "", "data_emissao": "2025-06-01", "data_vencimento": null,
-    "alerta_dias_antes": 30, "observacao": "", "enviado_por": null,
-    "criado_em": "2025-06-01T10:00:00Z", "atualizado_em": "2025-06-01T10:00:00Z"
-  }},
-  {"model": "rh.documentocolaborador", "pk": 2, "fields": {
-    "colaborador": 1, "tipo": "nda", "nome": "NDA Confidencialidade",
-    "arquivo": "", "data_emissao": "2025-06-01", "data_vencimento": "2027-06-01",
-    "alerta_dias_antes": 60, "observacao": "Renovacao automatica", "enviado_por": null,
-    "criado_em": "2025-06-01T10:00:00Z", "atualizado_em": "2025-06-01T10:00:00Z"
-  }},
-  {"model": "rh.documentocolaborador", "pk": 3, "fields": {
-    "colaborador": 6, "tipo": "contrato_pj", "nome": "Contrato PJ Thiago Dev LTDA",
-    "arquivo": "", "data_emissao": "2025-11-01", "data_vencimento": "2026-11-01",
-    "alerta_dias_antes": 30, "observacao": "", "enviado_por": null,
-    "criado_em": "2025-11-01T10:00:00Z", "atualizado_em": "2025-11-01T10:00:00Z"
-  }},
-  {"model": "rh.documentocolaborador", "pk": 4, "fields": {
-    "colaborador": 8, "tipo": "distrato", "nome": "Distrato Fernando Consultoria",
-    "arquivo": "", "data_emissao": "2026-01-31", "data_vencimento": null,
-    "alerta_dias_antes": 30, "observacao": "Encerramento por termino do projeto", "enviado_por": null,
-    "criado_em": "2026-01-31T10:00:00Z", "atualizado_em": "2026-01-31T10:00:00Z"
-  }},
-
-  {"model": "rh.solicitacaoausencia", "pk": 1, "fields": {
-    "colaborador": 1, "tipo": "ferias", "data_inicio": "2026-04-14", "data_fim": "2026-04-28",
-    "total_dias": 15, "observacao": "Ferias de abril", "status": "aprovada",
-    "aprovado_por": null, "justificativa_rejeicao": "",
-    "criado_em": "2026-03-01T10:00:00Z", "atualizado_em": "2026-03-05T10:00:00Z"
-  }},
-  {"model": "rh.solicitacaoausencia", "pk": 2, "fields": {
-    "colaborador": 2, "tipo": "atestado", "data_inicio": "2026-03-20", "data_fim": "2026-03-22",
-    "total_dias": 3, "observacao": "Atestado medico", "status": "aprovada",
-    "aprovado_por": null, "justificativa_rejeicao": "",
-    "criado_em": "2026-03-20T08:00:00Z", "atualizado_em": "2026-03-20T08:00:00Z"
-  }},
-  {"model": "rh.solicitacaoausencia", "pk": 3, "fields": {
-    "colaborador": 5, "tipo": "ferias", "data_inicio": "2026-05-01", "data_fim": "2026-05-15",
-    "total_dias": 15, "observacao": "", "status": "solicitada",
-    "aprovado_por": null, "justificativa_rejeicao": "",
-    "criado_em": "2026-03-25T14:00:00Z", "atualizado_em": "2026-03-25T14:00:00Z"
-  }},
-  {"model": "rh.solicitacaoausencia", "pk": 4, "fields": {
-    "colaborador": 4, "tipo": "folga_compensatoria", "data_inicio": "2026-03-28", "data_fim": "2026-03-28",
-    "total_dias": 1, "observacao": "Hora extra do dia 15/03", "status": "rejeitada",
-    "aprovado_por": null, "justificativa_rejeicao": "Periodo de fechamento, reagendar para proxima semana",
-    "criado_em": "2026-03-24T10:00:00Z", "atualizado_em": "2026-03-24T14:00:00Z"
-  }},
-
-  {"model": "rh.saldoferias", "pk": 1, "fields": {
-    "colaborador": 1, "periodo_inicio": "2025-06-01", "periodo_fim": "2026-05-31",
-    "dias_direito": 30, "dias_usufruidos": 15, "criado_em": "2025-06-01T10:00:00Z"
-  }},
-  {"model": "rh.saldoferias", "pk": 2, "fields": {
-    "colaborador": 2, "periodo_inicio": "2025-09-15", "periodo_fim": "2026-09-14",
-    "dias_direito": 30, "dias_usufruidos": 0, "criado_em": "2025-09-15T10:00:00Z"
-  }},
-  {"model": "rh.saldoferias", "pk": 3, "fields": {
-    "colaborador": 3, "periodo_inicio": "2025-03-01", "periodo_fim": "2026-02-28",
-    "dias_direito": 30, "dias_usufruidos": 0, "criado_em": "2025-03-01T10:00:00Z"
-  }},
-  {"model": "rh.saldoferias", "pk": 4, "fields": {
-    "colaborador": 5, "periodo_inicio": "2025-08-01", "periodo_fim": "2026-07-31",
-    "dias_direito": 30, "dias_usufruidos": 0, "criado_em": "2025-08-01T10:00:00Z"
-  }},
-
-  {"model": "rh.treinamento", "pk": 1, "fields": {
-    "nome": "N8N — Automacao de workflows", "tipo": "tecnico_interno", "modalidade": "online",
-    "carga_horaria": 16, "instituicao": "RUCH Academy", "descricao": "Treinamento interno sobre automacao de processos com N8N.",
-    "obrigatorio": true, "ativo": true,
-    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-01-10T10:00:00Z"
-  }},
-  {"model": "rh.treinamento", "pk": 2, "fields": {
-    "nome": "LGPD e Seguranca da Informacao", "tipo": "compliance", "modalidade": "online",
-    "carga_horaria": 8, "instituicao": "Compliance Academy", "descricao": "Treinamento obrigatorio sobre protecao de dados.",
-    "obrigatorio": true, "ativo": true,
-    "criado_em": "2026-01-15T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.treinamento", "pk": 3, "fields": {
-    "nome": "Lideranca e Gestao de Equipes", "tipo": "comportamental", "modalidade": "hibrido",
-    "carga_horaria": 24, "instituicao": "FGV Online", "descricao": "Desenvolvimento de habilidades de lideranca para gestores.",
-    "obrigatorio": false, "ativo": true,
-    "criado_em": "2026-02-01T10:00:00Z", "atualizado_em": "2026-02-01T10:00:00Z"
-  }},
-  {"model": "rh.treinamento", "pk": 4, "fields": {
-    "nome": "Python Avancado para Automacao", "tipo": "tecnico_externo", "modalidade": "online",
-    "carga_horaria": 40, "instituicao": "Alura", "descricao": "Curso avancado de Python aplicado a automacao e integracao de sistemas.",
-    "obrigatorio": false, "ativo": true,
-    "criado_em": "2026-02-15T10:00:00Z", "atualizado_em": "2026-02-15T10:00:00Z"
-  }},
-
-  {"model": "rh.participacaotreinamento", "pk": 1, "fields": {
-    "colaborador": 6, "treinamento": 1, "data_inicio": "2026-02-01", "data_conclusao": "2026-02-15",
-    "status": "concluido", "nota": "9.50", "certificado": "", "observacao": "",
-    "criado_em": "2026-02-01T10:00:00Z", "atualizado_em": "2026-02-15T10:00:00Z"
-  }},
-  {"model": "rh.participacaotreinamento", "pk": 2, "fields": {
-    "colaborador": 7, "treinamento": 1, "data_inicio": "2026-02-10", "data_conclusao": null,
-    "status": "em_andamento", "nota": null, "certificado": "", "observacao": "",
-    "criado_em": "2026-02-10T10:00:00Z", "atualizado_em": "2026-03-01T10:00:00Z"
-  }},
-  {"model": "rh.participacaotreinamento", "pk": 3, "fields": {
-    "colaborador": 1, "treinamento": 2, "data_inicio": "2026-01-20", "data_conclusao": "2026-01-25",
-    "status": "concluido", "nota": "10.00", "certificado": "", "observacao": "",
-    "criado_em": "2026-01-20T10:00:00Z", "atualizado_em": "2026-01-25T10:00:00Z"
-  }},
-  {"model": "rh.participacaotreinamento", "pk": 4, "fields": {
-    "colaborador": 1, "treinamento": 3, "data_inicio": "2026-03-01", "data_conclusao": null,
-    "status": "em_andamento", "nota": null, "certificado": "", "observacao": "",
-    "criado_em": "2026-03-01T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
-  }},
-  {"model": "rh.participacaotreinamento", "pk": 5, "fields": {
-    "colaborador": 6, "treinamento": 4, "data_inicio": "2026-03-10", "data_conclusao": null,
-    "status": "inscrito", "nota": null, "certificado": "", "observacao": "Aguardando inicio da turma",
-    "criado_em": "2026-03-10T10:00:00Z", "atualizado_em": "2026-03-10T10:00:00Z"
-  }},
-
-  {"model": "rh.cicloavaliacao", "pk": 1, "fields": {
-    "nome": "1o Semestre 2026", "periodo_inicio": "2026-01-01", "periodo_fim": "2026-06-30",
-    "status": "em_andamento", "descricao": "Ciclo de avaliacao do primeiro semestre.",
-    "criado_em": "2026-01-05T10:00:00Z"
-  }},
-
-  {"model": "rh.meta", "pk": 1, "fields": {
-    "ciclo": 1, "colaborador": 1, "descricao": "Fechar 5 novos contratos", "indicador": "Contratos fechados",
-    "valor_meta": "5.00", "valor_realizado": "3.00", "peso": 50, "observacao": "",
-    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
-  }},
-  {"model": "rh.meta", "pk": 2, "fields": {
-    "ciclo": 1, "colaborador": 1, "descricao": "NPS dos clientes >= 8", "indicador": "NPS medio",
-    "valor_meta": "8.00", "valor_realizado": "8.50", "peso": 50, "observacao": "",
-    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
-  }},
-  {"model": "rh.meta", "pk": 3, "fields": {
-    "ciclo": 1, "colaborador": 6, "descricao": "Entregar 3 projetos no prazo", "indicador": "% entregue no prazo",
-    "valor_meta": "100.00", "valor_realizado": "66.00", "peso": 60, "observacao": "",
-    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
-  }},
-  {"model": "rh.meta", "pk": 4, "fields": {
-    "ciclo": 1, "colaborador": 6, "descricao": "Certificacao Python avancado", "indicador": "Certificado obtido",
-    "valor_meta": "1.00", "valor_realizado": "0.00", "peso": 40, "observacao": "",
-    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
-  }},
-
-  {"model": "rh.pdi", "pk": 1, "fields": {
-    "colaborador": 2, "competencia": "Gestao de projetos", "ano": 2026,
-    "observacao": "Desenvolver habilidades de gestao para futura promocao.",
-    "criado_em": "2026-01-15T10:00:00Z", "atualizado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.acaopdi", "pk": 1, "fields": {
-    "pdi": 1, "descricao": "Curso de metodologias ageis", "prazo": "2026-03-31",
-    "responsavel": "Colaborador", "status": "concluido", "treinamento": null,
-    "criado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.acaopdi", "pk": 2, "fields": {
-    "pdi": 1, "descricao": "Liderar 1 projeto como responsavel", "prazo": "2026-06-30",
-    "responsavel": "Gestor", "status": "em_andamento", "treinamento": null,
-    "criado_em": "2026-01-15T10:00:00Z"
-  }},
-  {"model": "rh.acaopdi", "pk": 3, "fields": {
-    "pdi": 1, "descricao": "Leitura: Scrum Guide", "prazo": "2026-04-30",
-    "responsavel": "Colaborador", "status": "pendente", "treinamento": null,
-    "criado_em": "2026-01-15T10:00:00Z"
-  }},
-
-  {"model": "rh.pesquisaenps", "pk": 1, "fields": {
-    "titulo": "eNPS 1T 2026", "descricao": "Pesquisa trimestral de satisfacao.",
-    "data_inicio": "2026-03-15", "data_encerramento": "2026-03-31", "status": "ativa",
-    "criado_em": "2026-03-10T10:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
-  }},
-  {"model": "rh.perguntaenps", "pk": 1, "fields": {
-    "pesquisa": 1, "texto": "Em uma escala de 0 a 10, o quanto voce recomendaria a RUCH como um bom lugar para trabalhar?",
-    "tipo": "enps", "ordem": 0
-  }},
-  {"model": "rh.perguntaenps", "pk": 2, "fields": {
-    "pesquisa": 1, "texto": "Voce se sente reconhecido pelo seu trabalho?",
-    "tipo": "escala", "ordem": 1
-  }},
-  {"model": "rh.perguntaenps", "pk": 3, "fields": {
-    "pesquisa": 1, "texto": "Voce tem as ferramentas e recursos para fazer um bom trabalho?",
-    "tipo": "escala", "ordem": 2
-  }},
-  {"model": "rh.perguntaenps", "pk": 4, "fields": {
-    "pesquisa": 1, "texto": "O que a RUCH poderia melhorar para voce?",
-    "tipo": "aberta", "ordem": 3
-  }},
-
-  {"model": "rh.respostaenps", "pk": 1, "fields": {"pesquisa": 1, "colaborador": 1, "pergunta": 1, "nota": 9, "texto": "", "criado_em": "2026-03-18T10:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 2, "fields": {"pesquisa": 1, "colaborador": 1, "pergunta": 2, "nota": 9, "texto": "", "criado_em": "2026-03-18T10:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 3, "fields": {"pesquisa": 1, "colaborador": 1, "pergunta": 3, "nota": 8, "texto": "", "criado_em": "2026-03-18T10:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 4, "fields": {"pesquisa": 1, "colaborador": 1, "pergunta": 4, "nota": null, "texto": "Mais treinamentos de lideranca seriam otimos.", "criado_em": "2026-03-18T10:00:00Z"}},
-
-  {"model": "rh.respostaenps", "pk": 5, "fields": {"pesquisa": 1, "colaborador": 2, "pergunta": 1, "nota": 10, "texto": "", "criado_em": "2026-03-19T09:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 6, "fields": {"pesquisa": 1, "colaborador": 2, "pergunta": 2, "nota": 8, "texto": "", "criado_em": "2026-03-19T09:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 7, "fields": {"pesquisa": 1, "colaborador": 2, "pergunta": 3, "nota": 9, "texto": "", "criado_em": "2026-03-19T09:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 8, "fields": {"pesquisa": 1, "colaborador": 2, "pergunta": 4, "nota": null, "texto": "Estou satisfeito com a empresa!", "criado_em": "2026-03-19T09:00:00Z"}},
-
-  {"model": "rh.respostaenps", "pk": 9, "fields": {"pesquisa": 1, "colaborador": 3, "pergunta": 1, "nota": 8, "texto": "", "criado_em": "2026-03-20T14:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 10, "fields": {"pesquisa": 1, "colaborador": 3, "pergunta": 2, "nota": 7, "texto": "", "criado_em": "2026-03-20T14:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 11, "fields": {"pesquisa": 1, "colaborador": 3, "pergunta": 3, "nota": 8, "texto": "", "criado_em": "2026-03-20T14:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 12, "fields": {"pesquisa": 1, "colaborador": 3, "pergunta": 4, "nota": null, "texto": "Melhorar comunicacao entre departamentos.", "criado_em": "2026-03-20T14:00:00Z"}},
-
-  {"model": "rh.respostaenps", "pk": 13, "fields": {"pesquisa": 1, "colaborador": 5, "pergunta": 1, "nota": 9, "texto": "", "criado_em": "2026-03-21T11:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 14, "fields": {"pesquisa": 1, "colaborador": 5, "pergunta": 2, "nota": 9, "texto": "", "criado_em": "2026-03-21T11:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 15, "fields": {"pesquisa": 1, "colaborador": 5, "pergunta": 3, "nota": 9, "texto": "", "criado_em": "2026-03-21T11:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 16, "fields": {"pesquisa": 1, "colaborador": 5, "pergunta": 4, "nota": null, "texto": "", "criado_em": "2026-03-21T11:00:00Z"}},
-
-  {"model": "rh.respostaenps", "pk": 17, "fields": {"pesquisa": 1, "colaborador": 6, "pergunta": 1, "nota": 7, "texto": "", "criado_em": "2026-03-22T16:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 18, "fields": {"pesquisa": 1, "colaborador": 6, "pergunta": 2, "nota": 6, "texto": "", "criado_em": "2026-03-22T16:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 19, "fields": {"pesquisa": 1, "colaborador": 6, "pergunta": 3, "nota": 7, "texto": "", "criado_em": "2026-03-22T16:00:00Z"}},
-  {"model": "rh.respostaenps", "pk": 20, "fields": {"pesquisa": 1, "colaborador": 6, "pergunta": 4, "nota": null, "texto": "Gostaria de mais flexibilidade no horario de trabalho.", "criado_em": "2026-03-22T16:00:00Z"}}
+  {
+    "model": "rh.setor",
+    "pk": 1,
+    "fields": {
+      "nome": "Vendas",
+      "departamento": 1,
+      "descricao": "Equipe de vendas e prospecao de clientes",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.setor",
+    "pk": 2,
+    "fields": {
+      "nome": "Pos-venda",
+      "departamento": 1,
+      "descricao": "Suporte e acompanhamento apos a venda",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.setor",
+    "pk": 3,
+    "fields": {
+      "nome": "Contas a Pagar",
+      "departamento": 2,
+      "descricao": "Controle de pagamentos e despesas",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.setor",
+    "pk": 4,
+    "fields": {
+      "nome": "Contas a Receber",
+      "departamento": 2,
+      "descricao": "Controle de recebiveis e faturamento",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.setor",
+    "pk": 5,
+    "fields": {
+      "nome": "Recrutamento e Selecao",
+      "departamento": 3,
+      "descricao": "Contratacao de novos colaboradores",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.setor",
+    "pk": 6,
+    "fields": {
+      "nome": "Treinamento e Desenvolvimento",
+      "departamento": 3,
+      "descricao": "Capacitacao e PDI dos colaboradores",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.setor",
+    "pk": 7,
+    "fields": {
+      "nome": "Desenvolvimento",
+      "departamento": 5,
+      "descricao": "Engenharia de software e desenvolvimento de produtos",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.setor",
+    "pk": 8,
+    "fields": {
+      "nome": "Infraestrutura",
+      "departamento": 5,
+      "descricao": "Servidores, cloud, DevOps e seguranca",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.setor",
+    "pk": 9,
+    "fields": {
+      "nome": "Diretoria",
+      "departamento": 1,
+      "descricao": "Diretoria executiva",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 9,
+    "fields": {
+      "nome": "CEO / Diretor Geral",
+      "departamento": 1,
+      "nivel": "diretor",
+      "faixa_salarial_min": "20000.00",
+      "faixa_salarial_max": "40000.00",
+      "descricao": "Diretor geral da empresa — gestao estrategica e operacional",
+      "requisitos": "Socio fundador",
+      "ativo": true,
+      "criado_em": "2025-01-01T10:00:00Z",
+      "atualizado_em": "2025-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 1,
+    "fields": {
+      "nome": "Diretor Comercial",
+      "departamento": 1,
+      "nivel": "diretor",
+      "faixa_salarial_min": "15000.00",
+      "faixa_salarial_max": "25000.00",
+      "descricao": "Lideranca estrategica do departamento comercial",
+      "requisitos": "Experiencia em gestao de vendas",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 2,
+    "fields": {
+      "nome": "Analista Comercial",
+      "departamento": 1,
+      "nivel": "analista",
+      "faixa_salarial_min": "3500.00",
+      "faixa_salarial_max": "6000.00",
+      "descricao": "Atendimento ao cliente e suporte comercial",
+      "requisitos": "Experiencia em vendas B2B",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 3,
+    "fields": {
+      "nome": "Gerente Financeiro",
+      "departamento": 2,
+      "nivel": "gerente",
+      "faixa_salarial_min": "10000.00",
+      "faixa_salarial_max": "18000.00",
+      "descricao": "Gestao do departamento financeiro",
+      "requisitos": "Formacao em contabilidade ou administracao",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 4,
+    "fields": {
+      "nome": "Assistente Financeiro",
+      "departamento": 2,
+      "nivel": "assistente",
+      "faixa_salarial_min": "2200.00",
+      "faixa_salarial_max": "3500.00",
+      "descricao": "Apoio em contas a pagar e receber",
+      "requisitos": "Cursando administracao ou contabilidade",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 5,
+    "fields": {
+      "nome": "Gerente de RH",
+      "departamento": 3,
+      "nivel": "gerente",
+      "faixa_salarial_min": "9000.00",
+      "faixa_salarial_max": "15000.00",
+      "descricao": "Gestao de pessoas e processos de RH",
+      "requisitos": "Formacao em RH ou psicologia organizacional",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 6,
+    "fields": {
+      "nome": "Analista de RH",
+      "departamento": 3,
+      "nivel": "analista",
+      "faixa_salarial_min": "3500.00",
+      "faixa_salarial_max": "5500.00",
+      "descricao": "Recrutamento, selecao e rotinas de pessoal",
+      "requisitos": "Experiencia em recrutamento",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 7,
+    "fields": {
+      "nome": "Especialista em Desenvolvimento",
+      "departamento": 5,
+      "nivel": "especialista",
+      "faixa_salarial_min": "8000.00",
+      "faixa_salarial_max": "14000.00",
+      "descricao": "Desenvolvimento de software e solucoes tecnicas",
+      "requisitos": "Experiencia solida em programacao",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cargo",
+    "pk": 8,
+    "fields": {
+      "nome": "Estagiario de Tecnologia",
+      "departamento": 5,
+      "nivel": "estagiario",
+      "faixa_salarial_min": "1200.00",
+      "faixa_salarial_max": "1800.00",
+      "descricao": "Apoio em projetos de desenvolvimento",
+      "requisitos": "Cursando ciencia da computacao ou afins",
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 30,
+    "fields": {
+      "cep": "70070-120",
+      "logradouro": "SBS Quadra 2",
+      "numero": "12",
+      "complemento": "Bloco E, Sala 1801",
+      "bairro": "Asa Sul",
+      "cidade": "Brasilia",
+      "uf": "DF"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 20,
+    "fields": {
+      "cep": "01311-200",
+      "logradouro": "Rua Augusta",
+      "numero": "1508",
+      "complemento": "Apto 42",
+      "bairro": "Consolacao",
+      "cidade": "Sao Paulo",
+      "uf": "SP"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 21,
+    "fields": {
+      "cep": "22041-001",
+      "logradouro": "Rua Santa Clara",
+      "numero": "75",
+      "complemento": "",
+      "bairro": "Copacabana",
+      "cidade": "Rio de Janeiro",
+      "uf": "RJ"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 22,
+    "fields": {
+      "cep": "30130-001",
+      "logradouro": "Rua dos Caetes",
+      "numero": "234",
+      "complemento": "Sala 3",
+      "bairro": "Centro",
+      "cidade": "Belo Horizonte",
+      "uf": "MG"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 23,
+    "fields": {
+      "cep": "80060-150",
+      "logradouro": "Rua XV de Novembro",
+      "numero": "700",
+      "complemento": "",
+      "bairro": "Centro",
+      "cidade": "Curitiba",
+      "uf": "PR"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 24,
+    "fields": {
+      "cep": "90010-280",
+      "logradouro": "Rua dos Andradas",
+      "numero": "1001",
+      "complemento": "Conj 501",
+      "bairro": "Centro Historico",
+      "cidade": "Porto Alegre",
+      "uf": "RS"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 25,
+    "fields": {
+      "cep": "40020-000",
+      "logradouro": "Av. Sete de Setembro",
+      "numero": "555",
+      "complemento": "",
+      "bairro": "Centro",
+      "cidade": "Salvador",
+      "uf": "BA"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 26,
+    "fields": {
+      "cep": "01310-300",
+      "logradouro": "Alameda Santos",
+      "numero": "211",
+      "complemento": "Apto 15",
+      "bairro": "Cerqueira Cesar",
+      "cidade": "Sao Paulo",
+      "uf": "SP"
+    }
+  },
+  {
+    "model": "crm.endereco",
+    "pk": 27,
+    "fields": {
+      "cep": "22031-070",
+      "logradouro": "Rua Tonelero",
+      "numero": "148",
+      "complemento": "Bloco A",
+      "bairro": "Copacabana",
+      "cidade": "Rio de Janeiro",
+      "uf": "RJ"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 9,
+    "fields": {
+      "nome_completo": "Wilkerson Oliveira",
+      "cpf": "999.999.999-99",
+      "data_nascimento": "1990-01-15",
+      "endereco": 30,
+      "telefone": "61999999999",
+      "email_pessoal": "wilkerson@ruch.solutions",
+      "contato_emergencia_nome": "",
+      "contato_emergencia_telefone": "",
+      "tipo_contrato": "pj",
+      "data_admissao": "2025-01-01",
+      "data_desligamento": null,
+      "cargo": 9,
+      "departamento": 1,
+      "setor": 9,
+      "remuneracao": "25000.00",
+      "carga_horaria_semanal": 40,
+      "status": "ativo",
+      "pis_nit": "",
+      "ctps_numero": "",
+      "ctps_serie": "",
+      "banco_deposito": "",
+      "regime_trabalho": "",
+      "cnpj_pj": "",
+      "razao_social": "RUCH Solutions",
+      "banco_pagamento_pj": "",
+      "chave_pix": "wilkerson@ruch.solutions",
+      "foto": "",
+      "usuario": 1,
+      "criado_em": "2025-01-01T10:00:00Z",
+      "atualizado_em": "2025-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 1,
+    "fields": {
+      "nome_completo": "Mariana Costa Silva",
+      "cpf": "123.456.789-01",
+      "data_nascimento": "1990-03-15",
+      "endereco": 20,
+      "telefone": "11999887766",
+      "email_pessoal": "mariana.costa@gmail.com",
+      "contato_emergencia_nome": "Pedro Costa",
+      "contato_emergencia_telefone": "11988776655",
+      "tipo_contrato": "clt",
+      "data_admissao": "2025-06-01",
+      "data_desligamento": null,
+      "cargo": 1,
+      "departamento": 1,
+      "setor": 1,
+      "remuneracao": "18000.00",
+      "carga_horaria_semanal": 40,
+      "status": "ativo",
+      "pis_nit": "123.45678.90-1",
+      "ctps_numero": "1234567",
+      "ctps_serie": "001",
+      "banco_deposito": "Itau 341",
+      "regime_trabalho": "hibrido",
+      "cnpj_pj": "",
+      "razao_social": "",
+      "banco_pagamento_pj": "",
+      "chave_pix": "",
+      "usuario": 13,
+      "criado_em": "2025-06-01T10:00:00Z",
+      "atualizado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 2,
+    "fields": {
+      "nome_completo": "Lucas Ferreira Oliveira",
+      "cpf": "234.567.890-12",
+      "data_nascimento": "1995-08-22",
+      "endereco": 21,
+      "telefone": "21998877665",
+      "email_pessoal": "lucas.ferreira@hotmail.com",
+      "contato_emergencia_nome": "Maria Oliveira",
+      "contato_emergencia_telefone": "21987766554",
+      "tipo_contrato": "clt",
+      "data_admissao": "2025-09-15",
+      "data_desligamento": null,
+      "cargo": 2,
+      "departamento": 1,
+      "setor": 1,
+      "remuneracao": "4500.00",
+      "carga_horaria_semanal": 40,
+      "status": "ativo",
+      "pis_nit": "234.56789.01-2",
+      "ctps_numero": "2345678",
+      "ctps_serie": "002",
+      "banco_deposito": "Bradesco 237",
+      "regime_trabalho": "presencial",
+      "cnpj_pj": "",
+      "razao_social": "",
+      "banco_pagamento_pj": "",
+      "chave_pix": "",
+      "usuario": 14,
+      "criado_em": "2025-09-15T10:00:00Z",
+      "atualizado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 3,
+    "fields": {
+      "nome_completo": "Camila Rodrigues Santos",
+      "cpf": "345.678.901-23",
+      "data_nascimento": "1988-11-10",
+      "endereco": 22,
+      "telefone": "31997766554",
+      "email_pessoal": "camila.rsantos@gmail.com",
+      "contato_emergencia_nome": "Jose Santos",
+      "contato_emergencia_telefone": "31986655443",
+      "tipo_contrato": "clt",
+      "data_admissao": "2025-03-01",
+      "data_desligamento": null,
+      "cargo": 3,
+      "departamento": 2,
+      "setor": 3,
+      "remuneracao": "12000.00",
+      "carga_horaria_semanal": 40,
+      "status": "ativo",
+      "pis_nit": "345.67890.12-3",
+      "ctps_numero": "3456789",
+      "ctps_serie": "003",
+      "banco_deposito": "Nubank 260",
+      "regime_trabalho": "remoto",
+      "cnpj_pj": "",
+      "razao_social": "",
+      "banco_pagamento_pj": "",
+      "chave_pix": "",
+      "usuario": 20,
+      "criado_em": "2025-03-01T10:00:00Z",
+      "atualizado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 4,
+    "fields": {
+      "nome_completo": "Rafael Almeida Lima",
+      "cpf": "456.789.012-34",
+      "data_nascimento": "1998-05-28",
+      "endereco": 23,
+      "telefone": "41996655443",
+      "email_pessoal": "rafael.almeida@outlook.com",
+      "contato_emergencia_nome": "Ana Lima",
+      "contato_emergencia_telefone": "41985544332",
+      "tipo_contrato": "clt",
+      "data_admissao": "2026-01-10",
+      "data_desligamento": null,
+      "cargo": 4,
+      "departamento": 2,
+      "setor": 4,
+      "remuneracao": "2800.00",
+      "carga_horaria_semanal": 40,
+      "status": "ativo",
+      "pis_nit": "456.78901.23-4",
+      "ctps_numero": "4567890",
+      "ctps_serie": "004",
+      "banco_deposito": "Inter 077",
+      "regime_trabalho": "presencial",
+      "cnpj_pj": "",
+      "razao_social": "",
+      "banco_pagamento_pj": "",
+      "chave_pix": "",
+      "usuario": 21,
+      "criado_em": "2026-01-10T10:00:00Z",
+      "atualizado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 5,
+    "fields": {
+      "nome_completo": "Patricia Mendes Souza",
+      "cpf": "567.890.123-45",
+      "data_nascimento": "1992-07-03",
+      "endereco": 24,
+      "telefone": "51995544332",
+      "email_pessoal": "patricia.mendes@gmail.com",
+      "contato_emergencia_nome": "Carlos Souza",
+      "contato_emergencia_telefone": "51984433221",
+      "tipo_contrato": "clt",
+      "data_admissao": "2025-08-01",
+      "data_desligamento": null,
+      "cargo": 5,
+      "departamento": 3,
+      "setor": 5,
+      "remuneracao": "11000.00",
+      "carga_horaria_semanal": 40,
+      "status": "ativo",
+      "pis_nit": "567.89012.34-5",
+      "ctps_numero": "5678901",
+      "ctps_serie": "005",
+      "banco_deposito": "Caixa 104",
+      "regime_trabalho": "hibrido",
+      "cnpj_pj": "",
+      "razao_social": "",
+      "banco_pagamento_pj": "",
+      "chave_pix": "",
+      "usuario": 22,
+      "criado_em": "2025-08-01T10:00:00Z",
+      "atualizado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 6,
+    "fields": {
+      "nome_completo": "Thiago Barbosa Pereira",
+      "cpf": "678.901.234-56",
+      "data_nascimento": "1994-12-18",
+      "endereco": 25,
+      "telefone": "71994433221",
+      "email_pessoal": "thiago.barbosa@yahoo.com",
+      "contato_emergencia_nome": "Lucia Pereira",
+      "contato_emergencia_telefone": "71983322110",
+      "tipo_contrato": "pj",
+      "data_admissao": "2025-11-01",
+      "data_desligamento": null,
+      "cargo": 7,
+      "departamento": 5,
+      "setor": 7,
+      "remuneracao": "12000.00",
+      "carga_horaria_semanal": 40,
+      "status": "ativo",
+      "pis_nit": "",
+      "ctps_numero": "",
+      "ctps_serie": "",
+      "banco_deposito": "",
+      "regime_trabalho": "",
+      "cnpj_pj": "12.345.678/0001-90",
+      "razao_social": "Thiago Dev LTDA",
+      "banco_pagamento_pj": "Nubank 260",
+      "chave_pix": "thiago.barbosa@yahoo.com",
+      "usuario": 23,
+      "criado_em": "2025-11-01T10:00:00Z",
+      "atualizado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 7,
+    "fields": {
+      "nome_completo": "Juliana Nascimento Dias",
+      "cpf": "789.012.345-67",
+      "data_nascimento": "2001-02-14",
+      "endereco": 26,
+      "telefone": "11993322110",
+      "email_pessoal": "juliana.dias@gmail.com",
+      "contato_emergencia_nome": "Sandra Nascimento",
+      "contato_emergencia_telefone": "11982211009",
+      "tipo_contrato": "clt",
+      "data_admissao": "2026-02-01",
+      "data_desligamento": null,
+      "cargo": 8,
+      "departamento": 5,
+      "setor": 7,
+      "remuneracao": "1500.00",
+      "carga_horaria_semanal": 30,
+      "status": "ativo",
+      "pis_nit": "789.01234.56-7",
+      "ctps_numero": "7890123",
+      "ctps_serie": "007",
+      "banco_deposito": "Inter 077",
+      "regime_trabalho": "hibrido",
+      "cnpj_pj": "",
+      "razao_social": "",
+      "banco_pagamento_pj": "",
+      "chave_pix": "",
+      "usuario": 24,
+      "criado_em": "2026-02-01T10:00:00Z",
+      "atualizado_em": "2026-02-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.colaborador",
+    "pk": 8,
+    "fields": {
+      "nome_completo": "Fernando Gomes Araujo",
+      "cpf": "890.123.456-78",
+      "data_nascimento": "1987-09-25",
+      "endereco": 27,
+      "telefone": "21992211009",
+      "email_pessoal": "fernando.araujo@outlook.com",
+      "contato_emergencia_nome": "Claudia Gomes",
+      "contato_emergencia_telefone": "21981100998",
+      "tipo_contrato": "pj",
+      "data_admissao": "2025-04-01",
+      "data_desligamento": "2026-01-31",
+      "cargo": 2,
+      "departamento": 1,
+      "setor": 2,
+      "remuneracao": "5000.00",
+      "carga_horaria_semanal": 40,
+      "status": "desligado",
+      "pis_nit": "",
+      "ctps_numero": "",
+      "ctps_serie": "",
+      "banco_deposito": "",
+      "regime_trabalho": "",
+      "cnpj_pj": "98.765.432/0001-10",
+      "razao_social": "Fernando Consultoria ME",
+      "banco_pagamento_pj": "Bradesco 237",
+      "chave_pix": "98765432000110",
+      "usuario": null,
+      "criado_em": "2025-04-01T10:00:00Z",
+      "atualizado_em": "2026-01-31T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.historicocolaborador",
+    "pk": 1,
+    "fields": {
+      "colaborador": 1,
+      "tipo": "admissao",
+      "cargo_anterior": "",
+      "cargo_novo": "Diretor Comercial (Comercial)",
+      "departamento_anterior": "",
+      "departamento_novo": "Comercial",
+      "remuneracao_anterior": null,
+      "remuneracao_nova": "18000.00",
+      "observacao": "Admissao registrada no sistema.",
+      "registrado_por": null,
+      "criado_em": "2025-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.historicocolaborador",
+    "pk": 2,
+    "fields": {
+      "colaborador": 3,
+      "tipo": "admissao",
+      "cargo_anterior": "",
+      "cargo_novo": "Gerente Financeiro (Financeiro)",
+      "departamento_anterior": "",
+      "departamento_novo": "Financeiro",
+      "remuneracao_anterior": null,
+      "remuneracao_nova": "10000.00",
+      "observacao": "Admissao registrada no sistema.",
+      "registrado_por": null,
+      "criado_em": "2025-03-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.historicocolaborador",
+    "pk": 3,
+    "fields": {
+      "colaborador": 3,
+      "tipo": "reajuste",
+      "cargo_anterior": "",
+      "cargo_novo": "",
+      "departamento_anterior": "",
+      "departamento_novo": "",
+      "remuneracao_anterior": "10000.00",
+      "remuneracao_nova": "12000.00",
+      "observacao": "Reajuste anual por desempenho.",
+      "registrado_por": null,
+      "criado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.historicocolaborador",
+    "pk": 4,
+    "fields": {
+      "colaborador": 8,
+      "tipo": "admissao",
+      "cargo_anterior": "",
+      "cargo_novo": "Analista Comercial (Comercial)",
+      "departamento_anterior": "",
+      "departamento_novo": "Comercial",
+      "remuneracao_anterior": null,
+      "remuneracao_nova": "5000.00",
+      "observacao": "Admissao como PJ.",
+      "registrado_por": null,
+      "criado_em": "2025-04-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.historicocolaborador",
+    "pk": 5,
+    "fields": {
+      "colaborador": 8,
+      "tipo": "desligamento",
+      "cargo_anterior": "Analista Comercial (Comercial)",
+      "cargo_novo": "",
+      "departamento_anterior": "Comercial",
+      "departamento_novo": "",
+      "remuneracao_anterior": "5000.00",
+      "remuneracao_nova": null,
+      "observacao": "Contrato PJ encerrado por termino do projeto.",
+      "registrado_por": null,
+      "criado_em": "2026-01-31T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.onboardingtemplate",
+    "pk": 1,
+    "fields": {
+      "nome": "Onboarding CLT Geral",
+      "tipo_contrato": "clt",
+      "departamento": null,
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.onboardingtemplate",
+    "pk": 2,
+    "fields": {
+      "nome": "Onboarding PJ Geral",
+      "tipo_contrato": "pj",
+      "departamento": null,
+      "ativo": true,
+      "criado_em": "2026-01-01T10:00:00Z",
+      "atualizado_em": "2026-01-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 1,
+    "fields": {
+      "template": 1,
+      "fase": "antes",
+      "descricao": "Contrato assinado e arquivado",
+      "ordem": 0
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 2,
+    "fields": {
+      "template": 1,
+      "fase": "antes",
+      "descricao": "Acesso ao sistema criado (e-mail corporativo)",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 3,
+    "fields": {
+      "template": 1,
+      "fase": "antes",
+      "descricao": "Equipamentos preparados (notebook, perifericos)",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 4,
+    "fields": {
+      "template": 1,
+      "fase": "antes",
+      "descricao": "Ferramentas configuradas (Slack, N8N, etc.)",
+      "ordem": 3
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 5,
+    "fields": {
+      "template": 1,
+      "fase": "primeiro_dia",
+      "descricao": "Boas-vindas e apresentacao a equipe",
+      "ordem": 0
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 6,
+    "fields": {
+      "template": 1,
+      "fase": "primeiro_dia",
+      "descricao": "Tour pelas ferramentas e processos",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 7,
+    "fields": {
+      "template": 1,
+      "fase": "primeiro_dia",
+      "descricao": "Acesso confirmado em todos os sistemas",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 8,
+    "fields": {
+      "template": 1,
+      "fase": "primeiro_dia",
+      "descricao": "Documentos de RH assinados (NDA, politica interna)",
+      "ordem": 3
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 9,
+    "fields": {
+      "template": 1,
+      "fase": "primeira_semana",
+      "descricao": "Reuniao com gestor direto (alinhamento de expectativas)",
+      "ordem": 0
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 10,
+    "fields": {
+      "template": 1,
+      "fase": "primeira_semana",
+      "descricao": "Apresentacao dos projetos em andamento",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 11,
+    "fields": {
+      "template": 1,
+      "fase": "primeira_semana",
+      "descricao": "Acesso a documentacao interna",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 12,
+    "fields": {
+      "template": 1,
+      "fase": "primeiro_mes",
+      "descricao": "Check-in de 30 dias (feedback inicial)",
+      "ordem": 0
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 13,
+    "fields": {
+      "template": 1,
+      "fase": "primeiro_mes",
+      "descricao": "Metas do periodo definidas",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 14,
+    "fields": {
+      "template": 1,
+      "fase": "primeiro_mes",
+      "descricao": "PDI inicial criado",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 15,
+    "fields": {
+      "template": 2,
+      "fase": "antes",
+      "descricao": "Contrato de prestacao de servicos assinado",
+      "ordem": 0
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 16,
+    "fields": {
+      "template": 2,
+      "fase": "antes",
+      "descricao": "NDA assinado",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 17,
+    "fields": {
+      "template": 2,
+      "fase": "antes",
+      "descricao": "Acesso as ferramentas configurado",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 18,
+    "fields": {
+      "template": 2,
+      "fase": "primeiro_dia",
+      "descricao": "Apresentacao a equipe do projeto",
+      "ordem": 0
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 19,
+    "fields": {
+      "template": 2,
+      "fase": "primeiro_dia",
+      "descricao": "Alinhamento de escopo e entregas",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 20,
+    "fields": {
+      "template": 2,
+      "fase": "primeira_semana",
+      "descricao": "Acesso a documentacao tecnica do projeto",
+      "ordem": 0
+    }
+  },
+  {
+    "model": "rh.onboardingtemplateitem",
+    "pk": 21,
+    "fields": {
+      "template": 2,
+      "fase": "primeira_semana",
+      "descricao": "Primeira entrega ou checkpoint",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "rh.documentocolaborador",
+    "pk": 1,
+    "fields": {
+      "colaborador": 1,
+      "tipo": "contrato_clt",
+      "nome": "Contrato de trabalho CLT 2025",
+      "arquivo": "",
+      "data_emissao": "2025-06-01",
+      "data_vencimento": null,
+      "alerta_dias_antes": 30,
+      "observacao": "",
+      "enviado_por": null,
+      "criado_em": "2025-06-01T10:00:00Z",
+      "atualizado_em": "2025-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.documentocolaborador",
+    "pk": 2,
+    "fields": {
+      "colaborador": 1,
+      "tipo": "nda",
+      "nome": "NDA Confidencialidade",
+      "arquivo": "",
+      "data_emissao": "2025-06-01",
+      "data_vencimento": "2027-06-01",
+      "alerta_dias_antes": 60,
+      "observacao": "Renovacao automatica",
+      "enviado_por": null,
+      "criado_em": "2025-06-01T10:00:00Z",
+      "atualizado_em": "2025-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.documentocolaborador",
+    "pk": 3,
+    "fields": {
+      "colaborador": 6,
+      "tipo": "contrato_pj",
+      "nome": "Contrato PJ Thiago Dev LTDA",
+      "arquivo": "",
+      "data_emissao": "2025-11-01",
+      "data_vencimento": "2026-11-01",
+      "alerta_dias_antes": 30,
+      "observacao": "",
+      "enviado_por": null,
+      "criado_em": "2025-11-01T10:00:00Z",
+      "atualizado_em": "2025-11-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.documentocolaborador",
+    "pk": 4,
+    "fields": {
+      "colaborador": 8,
+      "tipo": "distrato",
+      "nome": "Distrato Fernando Consultoria",
+      "arquivo": "",
+      "data_emissao": "2026-01-31",
+      "data_vencimento": null,
+      "alerta_dias_antes": 30,
+      "observacao": "Encerramento por termino do projeto",
+      "enviado_por": null,
+      "criado_em": "2026-01-31T10:00:00Z",
+      "atualizado_em": "2026-01-31T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.solicitacaoausencia",
+    "pk": 1,
+    "fields": {
+      "colaborador": 1,
+      "tipo": "ferias",
+      "data_inicio": "2026-04-14",
+      "data_fim": "2026-04-28",
+      "total_dias": 15,
+      "observacao": "Ferias de abril",
+      "status": "aprovada",
+      "aprovado_por": null,
+      "justificativa_rejeicao": "",
+      "criado_em": "2026-03-01T10:00:00Z",
+      "atualizado_em": "2026-03-05T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.solicitacaoausencia",
+    "pk": 2,
+    "fields": {
+      "colaborador": 2,
+      "tipo": "atestado",
+      "data_inicio": "2026-03-20",
+      "data_fim": "2026-03-22",
+      "total_dias": 3,
+      "observacao": "Atestado medico",
+      "status": "aprovada",
+      "aprovado_por": null,
+      "justificativa_rejeicao": "",
+      "criado_em": "2026-03-20T08:00:00Z",
+      "atualizado_em": "2026-03-20T08:00:00Z"
+    }
+  },
+  {
+    "model": "rh.solicitacaoausencia",
+    "pk": 3,
+    "fields": {
+      "colaborador": 5,
+      "tipo": "ferias",
+      "data_inicio": "2026-05-01",
+      "data_fim": "2026-05-15",
+      "total_dias": 15,
+      "observacao": "",
+      "status": "solicitada",
+      "aprovado_por": null,
+      "justificativa_rejeicao": "",
+      "criado_em": "2026-03-25T14:00:00Z",
+      "atualizado_em": "2026-03-25T14:00:00Z"
+    }
+  },
+  {
+    "model": "rh.solicitacaoausencia",
+    "pk": 4,
+    "fields": {
+      "colaborador": 4,
+      "tipo": "folga_compensatoria",
+      "data_inicio": "2026-03-28",
+      "data_fim": "2026-03-28",
+      "total_dias": 1,
+      "observacao": "Hora extra do dia 15/03",
+      "status": "rejeitada",
+      "aprovado_por": null,
+      "justificativa_rejeicao": "Periodo de fechamento, reagendar para proxima semana",
+      "criado_em": "2026-03-24T10:00:00Z",
+      "atualizado_em": "2026-03-24T14:00:00Z"
+    }
+  },
+  {
+    "model": "rh.saldoferias",
+    "pk": 1,
+    "fields": {
+      "colaborador": 1,
+      "periodo_inicio": "2025-06-01",
+      "periodo_fim": "2026-05-31",
+      "dias_direito": 30,
+      "dias_usufruidos": 15,
+      "criado_em": "2025-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.saldoferias",
+    "pk": 2,
+    "fields": {
+      "colaborador": 2,
+      "periodo_inicio": "2025-09-15",
+      "periodo_fim": "2026-09-14",
+      "dias_direito": 30,
+      "dias_usufruidos": 0,
+      "criado_em": "2025-09-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.saldoferias",
+    "pk": 3,
+    "fields": {
+      "colaborador": 3,
+      "periodo_inicio": "2025-03-01",
+      "periodo_fim": "2026-02-28",
+      "dias_direito": 30,
+      "dias_usufruidos": 0,
+      "criado_em": "2025-03-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.saldoferias",
+    "pk": 4,
+    "fields": {
+      "colaborador": 5,
+      "periodo_inicio": "2025-08-01",
+      "periodo_fim": "2026-07-31",
+      "dias_direito": 30,
+      "dias_usufruidos": 0,
+      "criado_em": "2025-08-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.treinamento",
+    "pk": 1,
+    "fields": {
+      "nome": "N8N — Automacao de workflows",
+      "tipo": "tecnico_interno",
+      "modalidade": "online",
+      "carga_horaria": 16,
+      "instituicao": "RUCH Academy",
+      "descricao": "Treinamento interno sobre automacao de processos com N8N.",
+      "obrigatorio": true,
+      "ativo": true,
+      "criado_em": "2026-01-10T10:00:00Z",
+      "atualizado_em": "2026-01-10T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.treinamento",
+    "pk": 2,
+    "fields": {
+      "nome": "LGPD e Seguranca da Informacao",
+      "tipo": "compliance",
+      "modalidade": "online",
+      "carga_horaria": 8,
+      "instituicao": "Compliance Academy",
+      "descricao": "Treinamento obrigatorio sobre protecao de dados.",
+      "obrigatorio": true,
+      "ativo": true,
+      "criado_em": "2026-01-15T10:00:00Z",
+      "atualizado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.treinamento",
+    "pk": 3,
+    "fields": {
+      "nome": "Lideranca e Gestao de Equipes",
+      "tipo": "comportamental",
+      "modalidade": "hibrido",
+      "carga_horaria": 24,
+      "instituicao": "FGV Online",
+      "descricao": "Desenvolvimento de habilidades de lideranca para gestores.",
+      "obrigatorio": false,
+      "ativo": true,
+      "criado_em": "2026-02-01T10:00:00Z",
+      "atualizado_em": "2026-02-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.treinamento",
+    "pk": 4,
+    "fields": {
+      "nome": "Python Avancado para Automacao",
+      "tipo": "tecnico_externo",
+      "modalidade": "online",
+      "carga_horaria": 40,
+      "instituicao": "Alura",
+      "descricao": "Curso avancado de Python aplicado a automacao e integracao de sistemas.",
+      "obrigatorio": false,
+      "ativo": true,
+      "criado_em": "2026-02-15T10:00:00Z",
+      "atualizado_em": "2026-02-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.participacaotreinamento",
+    "pk": 1,
+    "fields": {
+      "colaborador": 6,
+      "treinamento": 1,
+      "data_inicio": "2026-02-01",
+      "data_conclusao": "2026-02-15",
+      "status": "concluido",
+      "nota": "9.50",
+      "certificado": "",
+      "observacao": "",
+      "criado_em": "2026-02-01T10:00:00Z",
+      "atualizado_em": "2026-02-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.participacaotreinamento",
+    "pk": 2,
+    "fields": {
+      "colaborador": 7,
+      "treinamento": 1,
+      "data_inicio": "2026-02-10",
+      "data_conclusao": null,
+      "status": "em_andamento",
+      "nota": null,
+      "certificado": "",
+      "observacao": "",
+      "criado_em": "2026-02-10T10:00:00Z",
+      "atualizado_em": "2026-03-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.participacaotreinamento",
+    "pk": 3,
+    "fields": {
+      "colaborador": 1,
+      "treinamento": 2,
+      "data_inicio": "2026-01-20",
+      "data_conclusao": "2026-01-25",
+      "status": "concluido",
+      "nota": "10.00",
+      "certificado": "",
+      "observacao": "",
+      "criado_em": "2026-01-20T10:00:00Z",
+      "atualizado_em": "2026-01-25T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.participacaotreinamento",
+    "pk": 4,
+    "fields": {
+      "colaborador": 1,
+      "treinamento": 3,
+      "data_inicio": "2026-03-01",
+      "data_conclusao": null,
+      "status": "em_andamento",
+      "nota": null,
+      "certificado": "",
+      "observacao": "",
+      "criado_em": "2026-03-01T10:00:00Z",
+      "atualizado_em": "2026-03-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.participacaotreinamento",
+    "pk": 5,
+    "fields": {
+      "colaborador": 6,
+      "treinamento": 4,
+      "data_inicio": "2026-03-10",
+      "data_conclusao": null,
+      "status": "inscrito",
+      "nota": null,
+      "certificado": "",
+      "observacao": "Aguardando inicio da turma",
+      "criado_em": "2026-03-10T10:00:00Z",
+      "atualizado_em": "2026-03-10T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.cicloavaliacao",
+    "pk": 1,
+    "fields": {
+      "nome": "1o Semestre 2026",
+      "periodo_inicio": "2026-01-01",
+      "periodo_fim": "2026-06-30",
+      "status": "em_andamento",
+      "descricao": "Ciclo de avaliacao do primeiro semestre.",
+      "criado_em": "2026-01-05T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.meta",
+    "pk": 1,
+    "fields": {
+      "ciclo": 1,
+      "colaborador": 1,
+      "descricao": "Fechar 5 novos contratos",
+      "indicador": "Contratos fechados",
+      "valor_meta": "5.00",
+      "valor_realizado": "3.00",
+      "peso": 50,
+      "observacao": "",
+      "criado_em": "2026-01-10T10:00:00Z",
+      "atualizado_em": "2026-03-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.meta",
+    "pk": 2,
+    "fields": {
+      "ciclo": 1,
+      "colaborador": 1,
+      "descricao": "NPS dos clientes >= 8",
+      "indicador": "NPS medio",
+      "valor_meta": "8.00",
+      "valor_realizado": "8.50",
+      "peso": 50,
+      "observacao": "",
+      "criado_em": "2026-01-10T10:00:00Z",
+      "atualizado_em": "2026-03-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.meta",
+    "pk": 3,
+    "fields": {
+      "ciclo": 1,
+      "colaborador": 6,
+      "descricao": "Entregar 3 projetos no prazo",
+      "indicador": "% entregue no prazo",
+      "valor_meta": "100.00",
+      "valor_realizado": "66.00",
+      "peso": 60,
+      "observacao": "",
+      "criado_em": "2026-01-10T10:00:00Z",
+      "atualizado_em": "2026-03-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.meta",
+    "pk": 4,
+    "fields": {
+      "ciclo": 1,
+      "colaborador": 6,
+      "descricao": "Certificacao Python avancado",
+      "indicador": "Certificado obtido",
+      "valor_meta": "1.00",
+      "valor_realizado": "0.00",
+      "peso": 40,
+      "observacao": "",
+      "criado_em": "2026-01-10T10:00:00Z",
+      "atualizado_em": "2026-03-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.pdi",
+    "pk": 1,
+    "fields": {
+      "colaborador": 2,
+      "competencia": "Gestao de projetos",
+      "ano": 2026,
+      "observacao": "Desenvolver habilidades de gestao para futura promocao.",
+      "criado_em": "2026-01-15T10:00:00Z",
+      "atualizado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.acaopdi",
+    "pk": 1,
+    "fields": {
+      "pdi": 1,
+      "descricao": "Curso de metodologias ageis",
+      "prazo": "2026-03-31",
+      "responsavel": "Colaborador",
+      "status": "concluido",
+      "treinamento": null,
+      "criado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.acaopdi",
+    "pk": 2,
+    "fields": {
+      "pdi": 1,
+      "descricao": "Liderar 1 projeto como responsavel",
+      "prazo": "2026-06-30",
+      "responsavel": "Gestor",
+      "status": "em_andamento",
+      "treinamento": null,
+      "criado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.acaopdi",
+    "pk": 3,
+    "fields": {
+      "pdi": 1,
+      "descricao": "Leitura: Scrum Guide",
+      "prazo": "2026-04-30",
+      "responsavel": "Colaborador",
+      "status": "pendente",
+      "treinamento": null,
+      "criado_em": "2026-01-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.pesquisaenps",
+    "pk": 1,
+    "fields": {
+      "titulo": "eNPS 1T 2026",
+      "descricao": "Pesquisa trimestral de satisfacao.",
+      "data_inicio": "2026-03-15",
+      "data_encerramento": "2026-03-31",
+      "status": "ativa",
+      "criado_em": "2026-03-10T10:00:00Z",
+      "atualizado_em": "2026-03-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.perguntaenps",
+    "pk": 1,
+    "fields": {
+      "pesquisa": 1,
+      "texto": "Em uma escala de 0 a 10, o quanto voce recomendaria a RUCH como um bom lugar para trabalhar?",
+      "tipo": "enps",
+      "ordem": 0
+    }
+  },
+  {
+    "model": "rh.perguntaenps",
+    "pk": 2,
+    "fields": {
+      "pesquisa": 1,
+      "texto": "Voce se sente reconhecido pelo seu trabalho?",
+      "tipo": "escala",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "rh.perguntaenps",
+    "pk": 3,
+    "fields": {
+      "pesquisa": 1,
+      "texto": "Voce tem as ferramentas e recursos para fazer um bom trabalho?",
+      "tipo": "escala",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "rh.perguntaenps",
+    "pk": 4,
+    "fields": {
+      "pesquisa": 1,
+      "texto": "O que a RUCH poderia melhorar para voce?",
+      "tipo": "aberta",
+      "ordem": 3
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 1,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 1,
+      "pergunta": 1,
+      "nota": 9,
+      "texto": "",
+      "criado_em": "2026-03-18T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 2,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 1,
+      "pergunta": 2,
+      "nota": 9,
+      "texto": "",
+      "criado_em": "2026-03-18T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 3,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 1,
+      "pergunta": 3,
+      "nota": 8,
+      "texto": "",
+      "criado_em": "2026-03-18T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 4,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 1,
+      "pergunta": 4,
+      "nota": null,
+      "texto": "Mais treinamentos de lideranca seriam otimos.",
+      "criado_em": "2026-03-18T10:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 5,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 2,
+      "pergunta": 1,
+      "nota": 10,
+      "texto": "",
+      "criado_em": "2026-03-19T09:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 6,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 2,
+      "pergunta": 2,
+      "nota": 8,
+      "texto": "",
+      "criado_em": "2026-03-19T09:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 7,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 2,
+      "pergunta": 3,
+      "nota": 9,
+      "texto": "",
+      "criado_em": "2026-03-19T09:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 8,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 2,
+      "pergunta": 4,
+      "nota": null,
+      "texto": "Estou satisfeito com a empresa!",
+      "criado_em": "2026-03-19T09:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 9,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 3,
+      "pergunta": 1,
+      "nota": 8,
+      "texto": "",
+      "criado_em": "2026-03-20T14:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 10,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 3,
+      "pergunta": 2,
+      "nota": 7,
+      "texto": "",
+      "criado_em": "2026-03-20T14:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 11,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 3,
+      "pergunta": 3,
+      "nota": 8,
+      "texto": "",
+      "criado_em": "2026-03-20T14:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 12,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 3,
+      "pergunta": 4,
+      "nota": null,
+      "texto": "Melhorar comunicacao entre departamentos.",
+      "criado_em": "2026-03-20T14:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 13,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 5,
+      "pergunta": 1,
+      "nota": 9,
+      "texto": "",
+      "criado_em": "2026-03-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 14,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 5,
+      "pergunta": 2,
+      "nota": 9,
+      "texto": "",
+      "criado_em": "2026-03-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 15,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 5,
+      "pergunta": 3,
+      "nota": 9,
+      "texto": "",
+      "criado_em": "2026-03-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 16,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 5,
+      "pergunta": 4,
+      "nota": null,
+      "texto": "",
+      "criado_em": "2026-03-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 17,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 6,
+      "pergunta": 1,
+      "nota": 7,
+      "texto": "",
+      "criado_em": "2026-03-22T16:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 18,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 6,
+      "pergunta": 2,
+      "nota": 6,
+      "texto": "",
+      "criado_em": "2026-03-22T16:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 19,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 6,
+      "pergunta": 3,
+      "nota": 7,
+      "texto": "",
+      "criado_em": "2026-03-22T16:00:00Z"
+    }
+  },
+  {
+    "model": "rh.respostaenps",
+    "pk": 20,
+    "fields": {
+      "pesquisa": 1,
+      "colaborador": 6,
+      "pergunta": 4,
+      "nota": null,
+      "texto": "Gostaria de mais flexibilidade no horario de trabalho.",
+      "criado_em": "2026-03-22T16:00:00Z"
+    }
+  }
 ]

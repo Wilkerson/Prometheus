@@ -18,16 +18,46 @@
     "date_joined": "2026-02-01T10:00:00Z"
   }},
   {"model": "accounts.usuario", "pk": 13, "fields": {
-    "username": "administrador1", "email": "adm@ruch.solutions", "first_name": "Juliana", "last_name": "Torres",
+    "username": "mariana.costa", "email": "mariana.costa@ruch.solutions", "first_name": "Mariana", "last_name": "Costa Silva",
     "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
-    "date_joined": "2026-01-05T10:00:00Z"
+    "date_joined": "2025-06-01T10:00:00Z"
   }},
   {"model": "accounts.usuario", "pk": 14, "fields": {
-    "username": "comercial1", "email": "comercial@ruch.solutions", "first_name": "Felipe", "last_name": "Ramos",
+    "username": "lucas.ferreira", "email": "lucas.ferreira@ruch.solutions", "first_name": "Lucas", "last_name": "Ferreira Oliveira",
     "is_active": true, "is_staff": false, "is_superuser": false,
     "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
-    "date_joined": "2026-01-05T10:00:00Z"
+    "date_joined": "2025-09-15T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 20, "fields": {
+    "username": "camila.rsantos", "email": "camila.rsantos@ruch.solutions", "first_name": "Camila", "last_name": "Rodrigues Santos",
+    "is_active": true, "is_staff": false, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2025-03-01T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 21, "fields": {
+    "username": "rafael.almeida", "email": "rafael.almeida@ruch.solutions", "first_name": "Rafael", "last_name": "Almeida Lima",
+    "is_active": true, "is_staff": false, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2026-01-10T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 22, "fields": {
+    "username": "patricia.mendes", "email": "patricia.mendes@ruch.solutions", "first_name": "Patricia", "last_name": "Mendes Souza",
+    "is_active": true, "is_staff": false, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2025-08-01T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 23, "fields": {
+    "username": "thiago.barbosa", "email": "thiago.barbosa@ruch.solutions", "first_name": "Thiago", "last_name": "Barbosa Pereira",
+    "is_active": true, "is_staff": false, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2025-11-01T10:00:00Z"
+  }},
+  {"model": "accounts.usuario", "pk": 24, "fields": {
+    "username": "juliana.dias", "email": "juliana.dias@ruch.solutions", "first_name": "Juliana", "last_name": "Nascimento Dias",
+    "is_active": true, "is_staff": false, "is_superuser": false,
+    "password": "pbkdf2_sha256$870000$test$KzPPFwMmOFqVJfNaQljjlR9YvO5TzUHnBkTkulDT4bk=",
+    "date_joined": "2026-02-01T10:00:00Z"
   }},
 
   {"model": "crm.entidadeparceira", "pk": 1, "fields": {
