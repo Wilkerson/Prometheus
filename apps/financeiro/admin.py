@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria, Despesa, FolhaPagamento, Lancamento, NotaFiscal, Tributo
+from .models import Ativo, CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria, Despesa, FolhaPagamento, Lancamento, NotaFiscal, Tributo
 
 
 @admin.register(CategoriaFinanceira)
@@ -66,3 +66,10 @@ class TributoAdmin(admin.ModelAdmin):
 @admin.register(ConfiguracaoFolha)
 class ConfiguracaoFolhaAdmin(admin.ModelAdmin):
     list_display = ("dia_pagamento", "gerar_salario", "gerar_pj", "gerar_pro_labore")
+
+
+@admin.register(Ativo)
+class AtivoAdmin(admin.ModelAdmin):
+    list_display = ("nome", "tipo", "valor_compra", "valor_residual", "status", "data_aquisicao")
+    list_filter = ("tipo", "status")
+    search_fields = ("nome", "numero_serie")

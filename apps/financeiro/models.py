@@ -595,3 +595,82 @@ class Tributo(models.Model):
             return None
         from django.utils import timezone
         return (self.vencimento - timezone.now().date()).days
+
+
+# =========================================================================
+# Patrimonio e Ativos
+# =========================================================================
+class Ativo(models.Model):
+    class TipoAtivo(models.TextChoices):
+        EQUIPAMENTO = "equipamento", "Equipamento de informática"
+        SOFTWARE = "software", "Licença de software"
+        MOVEIS = "moveis", "Móveis e utensílios"
+        VEICULO = "veiculo", "Veículo"
+        OUTRO = "outro", "Outro"
+
+    class StatusAtivo(models.TextChoices):
+        ATIVO = "ativo", "Ativo"
+        DEPRECIADO = "depreciado", "Totalmente depreciado"
+        BAIXADO = "baixado", "Baixado"
+
+    nome = models.CharField("Nome do ativo", max_length=200)
+    tipo = models.CharField("Tipo", max_length=12, choices=TipoAtivo.choices)
+    numero_serie = models.CharField("Nº de série / Identificador", max_length=100, blank=True)
+    descricao = models.TextField("Descrição", blank=True)
+    valor_compra = models.DecimalField("Valor de compra (R$)", max_digits=12, decimal_places=2)
+    data_aquisicao = models.DateField("Data de aquisição")
+    vida_util_anos = models.PositiveSmallIntegerField(
+        "Vida útil estimada (anos)", default=5,
+    )
+    taxa_depreciacao = models.DecimalField(
+        "Taxa de depreciação anual (%)", max_digits=5, decimal_places=2, default=20,
+        help_text="Ex: 20% ao ano para equipamentos de informática",
+    )
+    status = models.CharField(
+        "Status", max_length=10, choices=StatusAtivo.choices,
+        default=StatusAtivo.ATIVO,
+    )
+    responsavel = models.CharField("Responsável / Localização", max_length=200, blank=True)
+    departamento = models.ForeignKey(
+        "rh.Departamento", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="ativos", verbose_name="Departamento",
+    )
+    data_baixa = models.DateField("Data de baixa", null=True, blank=True)
+    motivo_baixa = models.CharField(
+        "Motivo da baixa", max_length=200, blank=True,
+        help_text="Venda, descarte, perda, etc.",
+    )
+    observacao = models.TextField("Observação", blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Ativo"
+        verbose_name_plural = "Ativos"
+        ordering = ["-data_aquisicao"]
+
+    def __str__(self):
+        return f"{self.nome} (R${self.valor_compra})"
+
+    @property
+    def depreciacao_mensal(self):
+        """Valor da depreciação mensal."""
+        return round(self.valor_compra * self.taxa_depreciacao / 100 / 12, 2)
+
+    @property
+    def depreciacao_acumulada(self):
+        """Total depreciado desde a aquisição até hoje."""
+        if self.status == "baixado" and self.data_baixa:
+            from django.utils import timezone
+            meses = (self.data_baixa.year - self.data_aquisicao.year) * 12 + (self.data_baixa.month - self.data_aquisicao.month)
+        else:
+            from django.utils import timezone
+            hoje = timezone.now().date()
+            meses = (hoje.year - self.data_aquisicao.year) * 12 + (hoje.month - self.data_aquisicao.month)
+        total = round(self.depreciacao_mensal * meses, 2)
+        return min(total, self.valor_compra)
+
+    @property
+    def valor_residual(self):
+        """Valor contábil atual (compra - depreciação acumulada)."""
+        return max(self.valor_compra - self.depreciacao_acumulada, 0)

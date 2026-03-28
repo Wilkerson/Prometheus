@@ -15,8 +15,8 @@ from django.contrib.auth.models import Group
 from apps.accounts.models import Usuario
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.financeiro.models import (
-    CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria, Despesa,
-    FolhaPagamento, Lancamento, NotaFiscal, Tributo,
+    Ativo, CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria,
+    Despesa, FolhaPagamento, Lancamento, NotaFiscal, Tributo,
 )
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
@@ -1094,6 +1094,7 @@ MODULOS_PERMISSOES_GRUPOS = [
         {"label": "Notas Fiscais", "app": "financeiro", "model": "notafiscal"},
         {"label": "Folha Pgto", "app": "financeiro", "model": "folhapagamento"},
         {"label": "Tributos", "app": "financeiro", "model": "tributo"},
+        {"label": "Patrimônio", "app": "financeiro", "model": "ativo"},
         {"label": "Contas Bancárias", "app": "financeiro", "model": "contabancaria"},
         {"label": "Categorias", "app": "financeiro", "model": "categoriafinanceira"},
     ]},
@@ -4054,3 +4055,101 @@ class GerarFolhaView(PermissionRequiredMixin, View):
             else:
                 messages.success(request, resultado)
         return redirect("web:fin-folha")
+
+
+# ---------------------------------------------------------------------------
+# Patrimonio (Ativos)
+# ---------------------------------------------------------------------------
+class AtivoListView(PermissionRequiredMixin, HtmxMixin, ListView):
+    template_name = "financeiro/ativos/list.html"
+    partial_template_name = "financeiro/ativos/_table.html"
+    context_object_name = "ativos"
+    paginate_by = 20
+    permission_required = "financeiro.view_ativo"
+
+    def get_queryset(self):
+        qs = Ativo.objects.select_related("departamento")
+        search = self.request.GET.get("q")
+        if search:
+            qs = qs.filter(Q(nome__icontains=search) | Q(numero_serie__icontains=search))
+        tipo = self.request.GET.get("tipo")
+        if tipo:
+            qs = qs.filter(tipo=tipo)
+        status = self.request.GET.get("status")
+        if status:
+            qs = qs.filter(status=status)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tipo_choices"] = Ativo.TipoAtivo.choices
+        ctx["status_choices"] = Ativo.StatusAtivo.choices
+        ctx["current_tipo"] = self.request.GET.get("tipo", "")
+        ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["can_add"] = self.request.user.has_perm("financeiro.add_ativo")
+        from django.db.models import Sum
+        ativos_qs = Ativo.objects.filter(status="ativo")
+        ctx["total_valor_compra"] = ativos_qs.aggregate(t=Sum("valor_compra"))["t"] or 0
+        return ctx
+
+
+class AtivoCreateView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.add_ativo"
+
+    def get(self, request):
+        return render(request, "financeiro/ativos/create.html", {
+            "tipo_choices": Ativo.TipoAtivo.choices,
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request):
+        erros = {}
+        nome = request.POST.get("nome", "").strip()
+        if not nome:
+            erros["nome"] = "O nome é obrigatório."
+        tipo = request.POST.get("tipo", "").strip()
+        if not tipo:
+            erros["tipo"] = "O tipo é obrigatório."
+        valor_compra = request.POST.get("valor_compra", "").strip()
+        if not valor_compra:
+            erros["valor_compra"] = "O valor é obrigatório."
+        data_aquisicao = request.POST.get("data_aquisicao", "").strip()
+        if not data_aquisicao:
+            erros["data_aquisicao"] = "A data é obrigatória."
+
+        if erros:
+            return render(request, "financeiro/ativos/create.html", {
+                "tipo_choices": Ativo.TipoAtivo.choices,
+                "departamentos": Departamento.objects.filter(ativo=True),
+                "erros": erros,
+            })
+
+        Ativo.objects.create(
+            nome=nome, tipo=tipo,
+            numero_serie=request.POST.get("numero_serie", "").strip(),
+            descricao=request.POST.get("descricao", "").strip(),
+            valor_compra=valor_compra,
+            data_aquisicao=data_aquisicao,
+            vida_util_anos=request.POST.get("vida_util_anos", 5) or 5,
+            taxa_depreciacao=request.POST.get("taxa_depreciacao", 20) or 20,
+            responsavel=request.POST.get("responsavel", "").strip(),
+            departamento_id=request.POST.get("departamento") or None,
+            observacao=request.POST.get("observacao", "").strip(),
+        )
+        return redirect("web:fin-ativos")
+
+
+class AtivoBaixaView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.change_ativo"
+
+    def post(self, request, pk):
+        ativo = get_object_or_404(Ativo, pk=pk)
+        if ativo.status == "baixado":
+            return redirect("web:fin-ativos")
+        from django.utils import timezone
+        ativo.status = "baixado"
+        ativo.data_baixa = timezone.now().date()
+        ativo.motivo_baixa = request.POST.get("motivo", "").strip()
+        ativo.save()
+        return redirect("web:fin-ativos")

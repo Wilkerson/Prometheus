@@ -467,7 +467,7 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 74. [x] Modulo Financeiro Fase 1: app financeiro, CategoriaFinanceira (23 seedadas), ContaBancaria (3 seedadas), Lancamento (CRUD web + filtros HTMX)
 75. [x] Modulo Financeiro Fase 2: Cobranca (contas a receber) + Despesa (contas a pagar + recorrencia) + Notas Fiscais + comando gerar_recorrentes
 76. [x] Modulo Financeiro Fase 3: FolhaPagamento (salario/pro-labore/bonus, fluxo calculado>aprovado>pago) + Tributo (tipo extensivel, datalist com sugestoes)
-77. [ ] Modulo Financeiro Fase 4: Ativo (patrimonio + depreciacao)
+77. [x] Modulo Financeiro Fase 4: Ativo (patrimonio, depreciacao calculada, baixa, inventario)
 78. [ ] Modulo Financeiro Fase 5: DRE + Fluxo de caixa + Orcamento + Fechamento mensal (pacote pro contador)
 79. [ ] Modulo Financeiro Fase 6: Gateway Asaas
 80. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)

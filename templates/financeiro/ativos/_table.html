@@ -1,0 +1,55 @@
+{% if ativos %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium">Ativo</th>
+        <th class="pb-3 font-medium">Tipo</th>
+        <th class="pb-3 font-medium">Valor compra</th>
+        <th class="pb-3 font-medium">Valor residual</th>
+        <th class="pb-3 font-medium">Depreciação</th>
+        <th class="pb-3 font-medium">Status</th>
+        <th class="pb-3 font-medium">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for a in ativos %}
+      <tr class="hover:bg-bg3">
+        <td class="py-3">
+          <div class="font-medium text-t1">{{ a.nome }}</div>
+          {% if a.numero_serie %}<div class="text-[10px] text-t3">{{ a.numero_serie }}</div>{% endif %}
+        </td>
+        <td class="py-3 text-t2">{{ a.get_tipo_display }}</td>
+        <td class="py-3 text-t2">R$ {{ a.valor_compra|floatformat:2 }}</td>
+        <td class="py-3 font-medium text-t1">R$ {{ a.valor_residual|floatformat:2 }}</td>
+        <td class="py-3 text-t2">
+          <div>R$ {{ a.depreciacao_acumulada|floatformat:2 }}</div>
+          <div class="text-[10px] text-t3">{{ a.taxa_depreciacao }}% a.a. (R$ {{ a.depreciacao_mensal|floatformat:2 }}/mês)</div>
+        </td>
+        <td class="py-3">
+          {% if a.status == 'ativo' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativo</span>
+          {% elif a.status == 'depreciado' %}<span class="badge bg-amber-500/15 text-amber-500">Depreciado</span>
+          {% else %}<span class="badge bg-bg4 text-t3">Baixado</span>{% endif %}
+        </td>
+        <td class="py-3">
+          {% if a.status == 'ativo' %}
+          <form method="post" action="{% url 'web:fin-ativo-baixa' a.pk %}" x-data="{ show: false }">
+            {% csrf_token %}
+            <button type="button" @click="show = !show" class="text-[12px] text-red-400 hover:text-red-300">Baixar</button>
+            <div x-show="show" x-cloak class="mt-1">
+              <input type="text" name="motivo" placeholder="Motivo..." class="input text-[11px] py-1 mb-1">
+              <button type="submit" class="text-[11px] text-red-400">Confirmar baixa</button>
+            </div>
+          </form>
+          {% elif a.status == 'baixado' %}
+          <span class="text-[10px] text-t3">{{ a.data_baixa|date:"d/m/Y" }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhum ativo cadastrado.</p>
+{% endif %}

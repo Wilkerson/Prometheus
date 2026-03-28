@@ -47,6 +47,7 @@ class Command(BaseCommand):
             "view_notafiscal", "add_notafiscal", "change_notafiscal", "delete_notafiscal",
             "view_folhapagamento", "add_folhapagamento", "change_folhapagamento", "delete_folhapagamento",
             "view_tributo", "add_tributo", "change_tributo", "delete_tributo",
+            "view_ativo", "add_ativo", "change_ativo", "delete_ativo",
         ])
         g.permissions.set(perms)
         self._log(g, created)

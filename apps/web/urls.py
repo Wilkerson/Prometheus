@@ -157,4 +157,8 @@ urlpatterns = [
     path("financeiro/tributos/", views.TributoListView.as_view(), name="fin-tributos"),
     path("financeiro/tributos/novo/", views.TributoCreateView.as_view(), name="fin-tributo-create"),
     path("financeiro/tributos/<int:pk>/confirmar/", views.TributoConfirmarView.as_view(), name="fin-tributo-confirmar"),
+    # Financeiro — Ativos (Patrimonio)
+    path("financeiro/ativos/", views.AtivoListView.as_view(), name="fin-ativos"),
+    path("financeiro/ativos/novo/", views.AtivoCreateView.as_view(), name="fin-ativo-create"),
+    path("financeiro/ativos/<int:pk>/baixa/", views.AtivoBaixaView.as_view(), name="fin-ativo-baixa"),
 ]

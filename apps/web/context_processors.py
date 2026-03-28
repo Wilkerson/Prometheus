@@ -35,6 +35,7 @@ def navigation(request):
                 {"url": "/financeiro/nfs/", "label": "Notas Fiscais", "permission": "financeiro.view_notafiscal"},
                 {"url": "/financeiro/folha/", "label": "Folha", "permission": "financeiro.view_folhapagamento"},
                 {"url": "/financeiro/tributos/", "label": "Tributos", "permission": "financeiro.view_tributo"},
+                {"url": "/financeiro/ativos/", "label": "Patrimônio", "permission": "financeiro.view_ativo"},
                 {"url": "/financeiro/contas/", "label": "Contas Bancárias", "permission": "financeiro.view_contabancaria"},
             ],
         },

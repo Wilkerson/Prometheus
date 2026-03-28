@@ -192,5 +192,42 @@
     "data_pagamento": null, "comprovante": "", "conta": 1,
     "lancamento": null, "observacao": "",
     "criado_em": "2026-03-28T10:00:00Z", "atualizado_em": "2026-03-28T10:00:00Z"
+  }},
+
+  {"model": "financeiro.ativo", "pk": 1, "fields": {
+    "nome": "MacBook Pro 14 — Wilkerson", "tipo": "equipamento",
+    "numero_serie": "C02X12345678", "descricao": "Notebook principal do CEO",
+    "valor_compra": "15000.00", "data_aquisicao": "2025-06-01",
+    "vida_util_anos": 5, "taxa_depreciacao": "20.00",
+    "status": "ativo", "responsavel": "Wilkerson Carlos", "departamento": 1,
+    "data_baixa": null, "motivo_baixa": "", "observacao": "",
+    "criado_em": "2025-06-01T10:00:00Z", "atualizado_em": "2025-06-01T10:00:00Z"
+  }},
+  {"model": "financeiro.ativo", "pk": 2, "fields": {
+    "nome": "Dell Inspiron 15 — Desenvolvimento", "tipo": "equipamento",
+    "numero_serie": "SVC-9876543", "descricao": "Notebook da equipe de desenvolvimento",
+    "valor_compra": "5500.00", "data_aquisicao": "2025-09-15",
+    "vida_util_anos": 5, "taxa_depreciacao": "20.00",
+    "status": "ativo", "responsavel": "Thiago Barbosa", "departamento": 5,
+    "data_baixa": null, "motivo_baixa": "", "observacao": "",
+    "criado_em": "2025-09-15T10:00:00Z", "atualizado_em": "2025-09-15T10:00:00Z"
+  }},
+  {"model": "financeiro.ativo", "pk": 3, "fields": {
+    "nome": "Licenca Adobe Creative Suite", "tipo": "software",
+    "numero_serie": "", "descricao": "Suite completa — anual",
+    "valor_compra": "3200.00", "data_aquisicao": "2026-01-10",
+    "vida_util_anos": 5, "taxa_depreciacao": "20.00",
+    "status": "ativo", "responsavel": "", "departamento": 4,
+    "data_baixa": null, "motivo_baixa": "", "observacao": "Renovacao anual",
+    "criado_em": "2026-01-10T10:00:00Z", "atualizado_em": "2026-01-10T10:00:00Z"
+  }},
+  {"model": "financeiro.ativo", "pk": 4, "fields": {
+    "nome": "Mesa escritorio + cadeira ergonomica", "tipo": "moveis",
+    "numero_serie": "", "descricao": "Mobiliario do escritorio principal",
+    "valor_compra": "2800.00", "data_aquisicao": "2025-03-01",
+    "vida_util_anos": 10, "taxa_depreciacao": "10.00",
+    "status": "ativo", "responsavel": "", "departamento": 1,
+    "data_baixa": null, "motivo_baixa": "", "observacao": "",
+    "criado_em": "2025-03-01T10:00:00Z", "atualizado_em": "2025-03-01T10:00:00Z"
   }}
 ]

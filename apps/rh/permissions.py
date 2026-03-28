@@ -23,6 +23,7 @@ DEPARTAMENTO_MODELS = {
         ("financeiro", "notafiscal"),
         ("financeiro", "folhapagamento"),
         ("financeiro", "tributo"),
+        ("financeiro", "ativo"),
     ],
     "rh": [
         ("rh", "colaborador"),
