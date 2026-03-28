@@ -20,12 +20,22 @@
       <label class="label">Buscar</label>
       <input type="text" name="q" placeholder="Nome do colaborador..." class="input"
              hx-get="{% url 'web:fin-folha' %}" hx-target="#table" hx-trigger="input changed delay:300ms"
-             hx-include="[name='tipo'],[name='status']" hx-push-url="true">
+             hx-include="[name='tipo'],[name='status'],[name='competencia']" hx-push-url="true">
+    </div>
+    <div>
+      <label class="label">Competência</label>
+      <select name="competencia" class="input"
+              hx-get="{% url 'web:fin-folha' %}" hx-target="#table" hx-include="[name='q'],[name='tipo'],[name='status']" hx-push-url="true">
+        <option value="">Todas</option>
+        {% for c in competencias %}
+        <option value="{{ c|date:'Y-m-d' }}" {% if current_competencia == c|date:'Y-m-d' %}selected{% endif %}>{{ c|date:"m/Y" }}</option>
+        {% endfor %}
+      </select>
     </div>
     <div>
       <label class="label">Tipo</label>
       <select name="tipo" class="input"
-              hx-get="{% url 'web:fin-folha' %}" hx-target="#table" hx-include="[name='q'],[name='status']" hx-push-url="true">
+              hx-get="{% url 'web:fin-folha' %}" hx-target="#table" hx-include="[name='q'],[name='status'],[name='competencia']" hx-push-url="true">
         <option value="">Todos</option>
         {% for v, l in tipo_choices %}
         <option value="{{ v }}" {% if current_tipo == v %}selected{% endif %}>{{ l }}</option>
@@ -35,7 +45,7 @@
     <div>
       <label class="label">Status</label>
       <select name="status" class="input"
-              hx-get="{% url 'web:fin-folha' %}" hx-target="#table" hx-include="[name='q'],[name='tipo']" hx-push-url="true">
+              hx-get="{% url 'web:fin-folha' %}" hx-target="#table" hx-include="[name='q'],[name='tipo'],[name='competencia']" hx-push-url="true">
         <option value="">Todos</option>
         {% for v, l in status_choices %}
         <option value="{{ v }}" {% if current_status == v %}selected{% endif %}>{{ l }}</option>

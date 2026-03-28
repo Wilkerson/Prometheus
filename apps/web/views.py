@@ -3694,6 +3694,9 @@ class FolhaListView(PermissionRequiredMixin, HtmxMixin, ListView):
         status = self.request.GET.get("status")
         if status:
             qs = qs.filter(status=status)
+        competencia = self.request.GET.get("competencia")
+        if competencia:
+            qs = qs.filter(competencia=competencia)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -3702,7 +3705,14 @@ class FolhaListView(PermissionRequiredMixin, HtmxMixin, ListView):
         ctx["status_choices"] = FolhaPagamento.StatusFolha.choices
         ctx["current_tipo"] = self.request.GET.get("tipo", "")
         ctx["current_status"] = self.request.GET.get("status", "")
+        ctx["current_competencia"] = self.request.GET.get("competencia", "")
         ctx["can_add"] = self.request.user.has_perm("financeiro.add_folhapagamento")
+        # Meses disponiveis
+        ctx["competencias"] = (
+            FolhaPagamento.objects.values_list("competencia", flat=True)
+            .distinct()
+            .order_by("-competencia")
+        )
         return ctx
 
 
@@ -3960,9 +3970,21 @@ class GerarFolhaView(PermissionRequiredMixin, View):
 
     def post(self, request):
         from django.core.management import call_command
-        from io import StringIO
-        out = StringIO()
-        call_command("gerar_folha_mensal", stdout=out)
         from django.contrib import messages
-        messages.success(request, out.getvalue().strip())
+        from django.utils import timezone
+        from io import StringIO
+
+        competencia = timezone.now().date().replace(day=1)
+        existentes = FolhaPagamento.objects.filter(competencia=competencia).count()
+
+        if existentes > 0:
+            messages.warning(request, f"Folha de {competencia:%m/%Y} já foi gerada ({existentes} pagamento(s) existentes).")
+        else:
+            out = StringIO()
+            call_command("gerar_folha_mensal", stdout=out)
+            resultado = out.getvalue().strip()
+            if "0 pagamento" in resultado:
+                messages.warning(request, resultado)
+            else:
+                messages.success(request, resultado)
         return redirect("web:fin-folha")

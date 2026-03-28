@@ -99,9 +99,24 @@ class Command(BaseCommand):
                 total += 1
                 self.stdout.write(f"  {socio.nome_completo} (pro-labore) — R$ {socio.remuneracao}")
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Folha {competencia:%m/%Y}: {total} pagamento(s) gerado(s) "
-                f"(pgto previsto: {config.dia_pagamento}o dia util)"
+        if total > 0:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Folha {competencia:%m/%Y}: {total} pagamento(s) gerado(s) "
+                    f"(pgto previsto: {config.dia_pagamento}o dia util)"
+                )
             )
-        )
+        else:
+            existentes = FolhaPagamento.objects.filter(competencia=competencia).count()
+            if existentes > 0:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Folha {competencia:%m/%Y}: ja gerada ({existentes} pagamento(s) existentes)"
+                    )
+                )
+            else:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Folha {competencia:%m/%Y}: nenhum colaborador ativo encontrado"
+                    )
+                )
