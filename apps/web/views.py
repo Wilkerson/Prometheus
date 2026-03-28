@@ -1954,12 +1954,23 @@ class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
         from django.utils.crypto import get_random_string
         return get_random_string(12, "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789")
 
+    @staticmethod
+    def _username_unico(base):
+        """Garante username unico adicionando numero se necessario."""
+        username = base
+        contador = 1
+        while Usuario.objects.filter(username=username).exists():
+            username = f"{base}{contador}"
+            contador += 1
+        return username
+
     def get(self, request, pk):
         colab = get_object_or_404(Colaborador, pk=pk)
         if colab.usuario:
             return redirect("web:rh-colaborador-detail", pk=pk)
         email = colab.email_pessoal
-        username_sugerido = email.split("@")[0] if email else colab.nome_completo.lower().replace(" ", ".")
+        base = email.split("@")[0] if email else colab.nome_completo.lower().replace(" ", ".")
+        username_sugerido = self._username_unico(base)
         return render(request, "rh/colaboradores/criar_acesso.html", {
             "colab": colab,
             "username_sugerido": username_sugerido,
