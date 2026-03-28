@@ -7,7 +7,6 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from apps.accounts.models import Usuario
-from apps.comissoes.models import Comissao
 
 from .models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Plano, PlanoProduto, Produto
 
@@ -205,24 +204,6 @@ class ComissaoTestCase(TestCase):
         )
         self.produto1 = make_produto("Agente IA")
         self.produto2 = make_produto("CRM")
-
-    def test_comissao_gerada_ao_concluir(self):
-        plano = make_plano(self.parceiro, [
-            (self.produto1, Decimal("1000.00")),
-            (self.produto2, Decimal("500.00")),
-        ])
-        cliente = make_cliente(
-            self.parceiro, planos=[plano], cnpj="55555555000155",
-        )
-        # Simula conclusao
-        cliente.status = Cliente.Status.CONCLUIDA
-        cliente.save()
-
-        comissao = Comissao.objects.get(cliente=cliente)
-        self.assertEqual(comissao.valor_venda, Decimal("1500.00"))
-        self.assertEqual(comissao.percentual, Decimal("15.00"))
-        self.assertEqual(comissao.valor_comissao, Decimal("225.00"))
-
 
 class DashboardTestCase(TestCase):
     def setUp(self):

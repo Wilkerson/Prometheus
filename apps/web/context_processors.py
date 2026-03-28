@@ -28,9 +28,7 @@ def navigation(request):
         {
             "key": "financeiro",
             "label": "Financeiro",
-            "items": [
-                {"url": "/comissoes/", "label": "Comissoes", "permission": "comissoes.view_comissao"},
-            ],
+            "items": [],
         },
         {
             "key": "rh",

@@ -13,7 +13,6 @@ from django.views.generic import ListView, TemplateView
 from django.contrib.auth.models import Group
 
 from apps.accounts.models import Usuario
-from apps.comissoes.models import Comissao
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
@@ -105,24 +104,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             ctx["clientes_recentes"] = []
             ctx["clientes_atrasados"] = 0
 
-        if user.has_perm("comissoes.view_comissao"):
-            if hasattr(user, "parceiro"):
-                comissoes_qs = Comissao.objects.filter(parceiro=user.parceiro)
-            else:
-                comissoes_qs = Comissao.objects.all()
-
-            comissao_stats = comissoes_qs.aggregate(
-                pendente=Sum("valor_comissao", filter=Q(status=Comissao.Status.PENDENTE)),
-                pago=Sum("valor_comissao", filter=Q(status=Comissao.Status.PAGO)),
-            )
-            ctx["comissao_pendente"] = comissao_stats["pendente"] or 0
-            ctx["comissao_pago"] = comissao_stats["pago"] or 0
-        else:
-            ctx["comissao_pendente"] = 0
-            ctx["comissao_pago"] = 0
-
         ctx["can_view_clientes"] = user.has_perm("crm.view_cliente")
-        ctx["can_view_comissoes"] = user.has_perm("comissoes.view_comissao")
 
         return ctx
 
@@ -549,32 +531,6 @@ class ClienteCalendarioView(PermissionRequiredMixin, TemplateView):
 # ---------------------------------------------------------------------------
 # Comissoes
 # ---------------------------------------------------------------------------
-class ComissaoListView(PermissionRequiredMixin, HtmxMixin, ListView):
-    template_name = "comissoes/list.html"
-    partial_template_name = "comissoes/_table.html"
-    context_object_name = "comissoes"
-    paginate_by = 20
-    permission_required = "comissoes.view_comissao"
-
-    def get_queryset(self):
-        user = self.request.user
-        qs = Comissao.objects.select_related("parceiro", "cliente").order_by("-gerado_em")
-
-        if hasattr(user, "parceiro"):
-            qs = qs.filter(parceiro=user.parceiro)
-
-        status_filter = self.request.GET.get("status")
-        if status_filter:
-            qs = qs.filter(status=status_filter)
-        return qs
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["status_choices"] = Comissao.Status.choices
-        ctx["current_status"] = self.request.GET.get("status", "")
-        return ctx
-
-
 # ---------------------------------------------------------------------------
 # Produtos
 # ---------------------------------------------------------------------------
@@ -794,18 +750,6 @@ class PlanoDeleteView(PermissionRequiredMixin, View):
 # ---------------------------------------------------------------------------
 # Comissao — acao marcar como pago
 # ---------------------------------------------------------------------------
-class ComissaoMarcarPagoView(PermissionRequiredMixin, View):
-    permission_required = "comissoes.change_comissao"
-
-    def post(self, request, pk):
-        comissao = get_object_or_404(Comissao, pk=pk)
-        comissao.status = Comissao.Status.PAGO
-        comissao.save(update_fields=["status"])
-        if is_htmx(request):
-            return HttpResponse(headers={"HX-Redirect": "/comissoes/"})
-        return redirect("web:comissoes")
-
-
 # ---------------------------------------------------------------------------
 # Usuarios
 # ---------------------------------------------------------------------------
@@ -1136,7 +1080,6 @@ MODULOS_PERMISSOES = [
     {"label": "Clientes", "app": "crm", "model": "cliente"},
     {"label": "Produtos", "app": "crm", "model": "produto"},
     {"label": "Planos", "app": "crm", "model": "plano"},
-    {"label": "Comissoes", "app": "comissoes", "model": "comissao"},
     {"label": "Usuarios", "app": "accounts", "model": "usuario"},
     {"label": "Parceiros", "app": "crm", "model": "entidadeparceira"},
     {"label": "Tokens API", "app": "integracao", "model": "tokenintegracao"},

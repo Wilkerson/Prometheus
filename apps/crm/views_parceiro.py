@@ -67,14 +67,6 @@ class ParceiroDashboardView(APIView):
         por_status = {item["status"]: item["total"] for item in stats}
         total = sum(por_status.values())
 
-        from apps.comissoes.models import Comissao
-
-        comissoes_stats = Comissao.objects.filter(parceiro=parceiro).aggregate(
-            total_pendente=Sum("valor_comissao", filter=Q(status=Comissao.Status.PENDENTE)),
-            total_pago=Sum("valor_comissao", filter=Q(status=Comissao.Status.PAGO)),
-            quantidade=Count("id"),
-        )
-
         return Response({
             "parceiro": {
                 "id": parceiro.id,
@@ -90,10 +82,5 @@ class ParceiroDashboardView(APIView):
                     "concluida": por_status.get("concluida", 0),
                     "perdida": por_status.get("perdida", 0),
                 },
-            },
-            "comissoes": {
-                "quantidade": comissoes_stats["quantidade"],
-                "total_pendente": str(comissoes_stats["total_pendente"] or 0),
-                "total_pago": str(comissoes_stats["total_pago"] or 0),
             },
         })

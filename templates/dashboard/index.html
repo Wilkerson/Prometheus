@@ -28,16 +28,6 @@
       <span class="{% if clientes_atrasados > 0 %}text-red-400 font-semibold{% else %}text-t3{% endif %}">{% if clientes_atrasados > 0 %}Requer atencao{% else %}Nenhum atraso{% endif %}</span>
     </div>
   </div>
-  {% if can_view_comissoes %}
-  <div class="card cursor-default" style="animation:fadeUp .3s ease .2s both">
-    <div class="text-[12px] text-t2 mb-2">Comissoes pendentes</div>
-    <div class="text-[24px] font-extrabold tracking-tight leading-none mb-2">R${{ comissao_pendente }}</div>
-    <div class="flex items-center gap-1.5 text-[11.5px]">
-      <span class="text-ruch-accent font-semibold">R${{ comissao_pago }}</span>
-      <span class="text-t3">ja pago</span>
-    </div>
-  </div>
-  {% endif %}
 </div>
 
 <!-- Mid Row: Pipeline + Side cards -->
@@ -144,7 +134,7 @@
 </div>
 {% endif %}
 
-{% if not can_view_clientes and not can_view_comissoes %}
+{% if not can_view_clientes %}
 <div class="card text-center py-16">
   <div class="text-t2 text-[15px] font-medium">Bem-vindo ao Prometheus!</div>
   <div class="text-[13px] text-t3 mt-2">Entre em contato com o administrador para configurar suas permissoes de acesso.</div>

@@ -41,7 +41,6 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "apps.accounts",
     "apps.crm",
-    "apps.comissoes",
     "apps.integracao",
     "apps.rh",
     "apps.web",
