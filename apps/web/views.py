@@ -3782,6 +3782,49 @@ class FolhaCreateView(PermissionRequiredMixin, View):
         return redirect("web:fin-folha")
 
 
+class FolhaEditView(PermissionRequiredMixin, View):
+    """Edita um pagamento de folha (so quando calculado)."""
+    permission_required = "financeiro.change_folhapagamento"
+
+    def get(self, request, pk):
+        folha = get_object_or_404(FolhaPagamento.objects.select_related("colaborador"), pk=pk)
+        return render(request, "financeiro/folha/edit.html", {
+            "folha": folha,
+            "tipo_choices": FolhaPagamento.TipoPagamento.choices,
+            "contas": ContaBancaria.objects.filter(ativo=True),
+            "erros": {},
+        })
+
+    def post(self, request, pk):
+        folha = get_object_or_404(FolhaPagamento, pk=pk)
+        if folha.status == "pago":
+            return redirect("web:fin-folha")
+
+        folha.tipo = request.POST.get("tipo", folha.tipo)
+        folha.valor_bruto = request.POST.get("valor_bruto", folha.valor_bruto)
+        folha.desconto_inss = request.POST.get("desconto_inss", 0) or 0
+        folha.desconto_ir = request.POST.get("desconto_ir", 0) or 0
+        folha.outros_descontos = request.POST.get("outros_descontos", 0) or 0
+        folha.conta_id = request.POST.get("conta") or folha.conta_id
+        folha.observacao = request.POST.get("observacao", "").strip()
+        folha.save()  # valor_liquido calculado no save()
+        return redirect("web:fin-folha")
+
+
+class FolhaDeleteView(PermissionRequiredMixin, View):
+    """Remove pagamento da folha (so quando calculado)."""
+    permission_required = "financeiro.delete_folhapagamento"
+
+    def post(self, request, pk):
+        folha = get_object_or_404(FolhaPagamento, pk=pk)
+        if folha.status == "pago":
+            return redirect("web:fin-folha")
+        folha.delete()
+        if is_htmx(request):
+            return HttpResponse(headers={"HX-Redirect": "/financeiro/folha/"})
+        return redirect("web:fin-folha")
+
+
 class FolhaConfirmarView(PermissionRequiredMixin, View):
     """Confirma pagamento de folha e gera lancamento."""
     permission_required = "financeiro.change_folhapagamento"
