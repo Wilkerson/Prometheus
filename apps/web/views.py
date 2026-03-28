@@ -4521,14 +4521,20 @@ class FechamentoExportView(PermissionRequiredMixin, View):
             elements.append(Spacer(1, 16))
 
             if dados:
+                page_width = landscape(A4)[0] - 4 * cm  # largura total - margens
                 headers = ["Data", "Tipo", "Descrição", "Categoria", "Valor", "Status", "Conta"]
+                # Proporcoes: data=10%, tipo=7%, descricao=30%, categoria=20%, valor=12%, status=10%, conta=11%
+                col_widths = [
+                    page_width * 0.10, page_width * 0.07, page_width * 0.30,
+                    page_width * 0.20, page_width * 0.12, page_width * 0.10, page_width * 0.11,
+                ]
                 table_data = [headers]
                 for d in dados:
                     table_data.append([
-                        d["data_competencia"], d["tipo"], d["descricao"][:40],
-                        d["categoria"][:25], f"R$ {d['valor']}", d["status"], d["conta"][:15],
+                        d["data_competencia"], d["tipo"], d["descricao"][:50],
+                        d["categoria"][:30], f"R$ {d['valor']}", d["status"], d["conta"][:20],
                     ])
-                t = Table(table_data, repeatRows=1)
+                t = Table(table_data, repeatRows=1, colWidths=col_widths)
                 t.setStyle(TableStyle([
                     ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2d4a3e")),
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
