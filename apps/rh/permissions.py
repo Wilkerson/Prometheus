@@ -143,8 +143,27 @@ def atribuir_permissoes(colaborador):
     # Limpar permissoes diretas anteriores e reatribuir
     user.user_permissions.set(perms)
 
-    # Garantir grupo Colaborador
+    # Atribuir grupo do departamento (Comercial, Financeiro, RH, etc.)
     from django.contrib.auth.models import Group
-    grupo_colab = Group.objects.filter(name="Colaborador").first()
-    if grupo_colab and not user.groups.filter(pk=grupo_colab.pk).exists():
-        user.groups.add(grupo_colab)
+
+    # Mapa slug do departamento -> nome do grupo
+    DEPTO_GRUPO = {
+        "comercial": "Comercial",
+        "financeiro": "Financeiro",
+        "rh": "RH / Pessoas",
+    }
+
+    depto_slug = colaborador.departamento.slug if colaborador.departamento else None
+    grupo_nome = DEPTO_GRUPO.get(depto_slug)
+
+    # Remover grupos antigos (departamentos + Colaborador)
+    grupos_limpar = Group.objects.filter(
+        name__in=list(DEPTO_GRUPO.values()) + ["Colaborador"]
+    )
+    user.groups.remove(*grupos_limpar)
+
+    # Atribuir grupo do departamento atual
+    if grupo_nome:
+        grupo = Group.objects.filter(name=grupo_nome).first()
+        if grupo:
+            user.groups.add(grupo)
