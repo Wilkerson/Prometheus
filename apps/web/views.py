@@ -1875,6 +1875,11 @@ class ColaboradorUpdateView(PermissionRequiredMixin, View):
             from apps.rh.notifications import notificar_colaborador_desligado
             notificar_colaborador_desligado(colab)
 
+        # Recalcular permissoes se mudou cargo ou departamento
+        if (old_cargo != new_cargo or old_depto != new_depto) and colab.usuario:
+            from apps.rh.permissions import atribuir_permissoes
+            atribuir_permissoes(colab)
+
         return redirect("web:rh-colaborador-detail", pk=pk)
 
 
@@ -2002,14 +2007,13 @@ class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
             last_name=last_name,
         )
 
-        # Atribuir grupo Colaborador
-        grupo_colab = Group.objects.filter(name="Colaborador").first()
-        if grupo_colab:
-            user.groups.add(grupo_colab)
-
         # Vincular ao colaborador
         colab.usuario = user
         colab.save(update_fields=["usuario"])
+
+        # Atribuir permissoes baseadas no departamento + nivel hierarquico
+        from apps.rh.permissions import atribuir_permissoes
+        atribuir_permissoes(colab)
 
         # Enviar email com dados de acesso
         from apps.rh.emails import enviar_acesso_criado
