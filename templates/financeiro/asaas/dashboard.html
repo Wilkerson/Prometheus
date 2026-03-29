@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Asaas{% endblock %}
-{% block page_title %}Painel{% endblock %}
+{% block page_title %}Asaas{% endblock %}
 {% block content %}
 
 <!-- Resumo -->
@@ -141,7 +141,10 @@
       {% endfor %}
     </div>
     {% else %}
-    <p class="text-sm text-t3">Nenhuma assinatura.</p>
+    <div class="flex flex-col items-center py-4">
+      <p class="text-sm text-t3 mb-2">Nenhuma assinatura.</p>
+      <a href="{% url 'web:fin-asaas-assinaturas' %}" class="w-8 h-8 rounded-full bg-ruch-green flex items-center justify-center text-white text-sm hover:bg-ruch-green/80 no-underline">+</a>
+    </div>
     {% endif %}
   </div>
 
