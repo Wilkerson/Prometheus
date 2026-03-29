@@ -4929,15 +4929,40 @@ class AsaasSincronizarTudoView(PermissionRequiredMixin, View):
 
     def post(self, request):
         from django.contrib import messages
+        from apps.financeiro.models import ClienteAsaas
+
+        total_clientes = ClienteAsaas.objects.count()
+        if total_clientes == 0:
+            messages.info(request, "Nenhum cliente sincronizado com Asaas. Sincronize clientes individuais primeiro.")
+            return redirect("web:fin-asaas")
+
+        # Rodar em background pra nao travar a tela
+        import threading
         from apps.financeiro.services.asaas_sync import sincronizar_tudo
-        resultado = sincronizar_tudo()
-        total = resultado["cobrancas_criadas"] + resultado["assinaturas_criadas"] + resultado["lancamentos_criados"]
-        if resultado["erros"]:
-            messages.warning(request, f"Sincronizacao com {len(resultado['erros'])} erro(s). {total} registro(s) importado(s).")
-        elif total > 0:
-            messages.success(request, f"Sincronizacao concluida: {resultado['cobrancas_criadas']} cobranca(s), {resultado['assinaturas_criadas']} assinatura(s), {resultado['lancamentos_criados']} lancamento(s).")
-        else:
-            messages.info(request, "Tudo sincronizado — nenhum registro novo encontrado.")
+        from apps.crm.notifications import notificar_admins
+        from apps.crm.models import Notificacao
+
+        def _sync():
+            resultado = sincronizar_tudo()
+            total = resultado["cobrancas_criadas"] + resultado["assinaturas_criadas"] + resultado["lancamentos_criados"]
+            if total > 0:
+                notificar_admins(
+                    Notificacao.Tipo.FIN_ASAAS,
+                    f"Sync Asaas concluida: {resultado['cobrancas_criadas']} cobranca(s), {resultado['assinaturas_criadas']} assinatura(s)",
+                    link="/financeiro/asaas/",
+                )
+            elif resultado["erros"]:
+                notificar_admins(
+                    Notificacao.Tipo.SISTEMA,
+                    f"Sync Asaas com {len(resultado['erros'])} erro(s)",
+                    mensagem=resultado["erros"][0] if resultado["erros"] else "",
+                    link="/financeiro/asaas/",
+                )
+
+        thread = threading.Thread(target=_sync, daemon=True)
+        thread.start()
+
+        messages.info(request, f"Sincronizacao iniciada para {total_clientes} cliente(s). Voce sera notificado quando terminar.")
         return redirect("web:fin-asaas")
 
 
