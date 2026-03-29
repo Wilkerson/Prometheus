@@ -51,6 +51,7 @@
   <div class="card">
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-sm font-semibold text-t2">Pendentes de sincronização</h3>
+      <a href="{% url 'web:fin-asaas-clientes' %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Ver todos</a>
     </div>
     {% if clientes_nao_sync and can_sync %}
     <div class="space-y-2">
