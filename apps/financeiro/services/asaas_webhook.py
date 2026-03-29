@@ -13,6 +13,8 @@ from apps.financeiro.models import (
     Lancamento,
 )
 
+from apps.auditoria.utils import registrar as audit
+
 logger = logging.getLogger(__name__)
 
 
@@ -135,6 +137,7 @@ def _processar_payment_created(payment):
             )
             cobranca.lancamento = lanc
             cobranca.save(update_fields=["lancamento"])
+            audit("criacao", "financeiro", f"Lancamento criado via webhook: {lanc.descricao}", instance=lanc, fonte="asaas_webhook")
 
 
 def _processar_payment_received(payment):
@@ -152,6 +155,7 @@ def _processar_payment_received(payment):
         cobranca.lancamento.data_pagamento = pago_em
         cobranca.lancamento.valor_liquido = cobranca.valor_liquido
         cobranca.lancamento.save(update_fields=["status", "data_pagamento", "valor_liquido"])
+        audit("status", "financeiro", f"Pagamento confirmado via webhook: {cobranca.asaas_id}", instance=cobranca.lancamento, fonte="asaas_webhook", detalhes={"pago_em": str(pago_em), "valor_liquido": str(cobranca.valor_liquido)})
     else:
         _processar_payment_created(payment)
         cobranca.refresh_from_db()
@@ -182,3 +186,4 @@ def _processar_payment_cancelled(payment):
     if cobranca.lancamento:
         cobranca.lancamento.status = "cancelado"
         cobranca.lancamento.save(update_fields=["status"])
+        audit("status", "financeiro", f"Lancamento cancelado via webhook: {cobranca.asaas_id}", instance=cobranca.lancamento, fonte="asaas_webhook")

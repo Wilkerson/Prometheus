@@ -30,6 +30,7 @@ from apps.rh.models import (
     SolicitacaoAusencia, Treinamento,
 )
 
+from apps.auditoria.utils import registrar as audit
 from .mixins import HtmxMixin, is_htmx
 
 
@@ -294,6 +295,7 @@ class ClienteCreateView(PermissionRequiredMixin, View):
         if planos_ids:
             cliente.planos.set(planos_ids)
 
+        audit("criacao", "comercial", f"Cliente criado: {cliente.nome}", instance=cliente, request=request)
         if is_htmx(request):
             return render(request, "clientes/_create_success.html", {"cliente": cliente})
         return redirect("web:cliente-detail", pk=cliente.pk)
@@ -410,6 +412,7 @@ class ClienteUpdateView(PermissionRequiredMixin, View):
             setattr(end, attr, val)
         end.save()
 
+        audit("edicao", "comercial", f"Cliente editado: {cliente.nome}", instance=cliente, request=request)
         if is_htmx(request):
             return render(request, "clientes/_edit_success.html", {"cliente": cliente})
         return redirect("web:cliente-detail", pk=cliente.pk)
@@ -439,6 +442,7 @@ class ClienteUpdateStatusView(PermissionRequiredMixin, View):
             usuario=request.user,
             observacao=observacao,
         )
+        audit("status", "comercial", f"Cliente {cliente.nome}: {status_anterior} → {novo_status}", instance=cliente, request=request, detalhes={"de": status_anterior, "para": novo_status})
 
         if novo_status == Cliente.Status.EM_PROCESSAMENTO:
             from apps.crm.tasks import enviar_cliente_sistema_externo
@@ -461,6 +465,7 @@ class ClienteDeleteView(PermissionRequiredMixin, View):
 
     def post(self, request, pk):
         cliente = get_object_or_404(Cliente, pk=pk)
+        audit("exclusao", "comercial", f"Cliente excluido: {cliente.nome}", request=request)
         cliente.delete()
         if is_htmx(request):
             return HttpResponse(headers={"HX-Redirect": "/clientes/"})
@@ -841,6 +846,7 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
             # Nao customizou — so herda dos grupos
             user.groups.set(group_ids)
 
+        audit("criacao", "administracao", f"Usuario criado: {user.username}", instance=user, request=request)
         return redirect("web:usuarios")
 
 
@@ -900,6 +906,7 @@ class UsuarioUpdateView(PermissionRequiredMixin, View):
             # Nao abriu a matriz — so atualiza os grupos
             usuario.groups.set(group_ids)
 
+        audit("edicao", "administracao", f"Usuario editado: {usuario.username}", instance=usuario, request=request)
         return redirect("web:usuarios")
 
 
@@ -910,6 +917,7 @@ class UsuarioDeleteView(PermissionRequiredMixin, View):
         usuario = get_object_or_404(Usuario, pk=pk)
         if usuario == request.user:
             return HttpResponse("Nao e possivel excluir seu proprio usuario.", status=400)
+        audit("exclusao", "administracao", f"Usuario excluido: {usuario.username}", request=request)
         usuario.delete()
         if is_htmx(request):
             return HttpResponse(headers={"HX-Redirect": "/usuarios/"})
@@ -1699,6 +1707,7 @@ class ColaboradorCreateView(PermissionRequiredMixin, View):
         from apps.rh.notifications import notificar_novo_colaborador
         notificar_novo_colaborador(colab)
 
+        audit("criacao", "rh", f"Colaborador criado: {colab.nome_completo}", instance=colab, request=request)
         return redirect("web:rh-colaborador-detail", pk=colab.pk)
 
     def _ctx(self, erros):
@@ -1861,6 +1870,7 @@ class ColaboradorUpdateView(PermissionRequiredMixin, View):
             from apps.rh.permissions import atribuir_permissoes
             atribuir_permissoes(colab)
 
+        audit("edicao", "rh", f"Colaborador editado: {colab.nome_completo}", instance=colab, request=request)
         return redirect("web:rh-colaborador-detail", pk=pk)
 
 
@@ -1868,7 +1878,9 @@ class ColaboradorDeleteView(PermissionRequiredMixin, View):
     permission_required = "rh.delete_colaborador"
 
     def post(self, request, pk):
-        get_object_or_404(Colaborador, pk=pk).delete()
+        colab = get_object_or_404(Colaborador, pk=pk)
+        audit("exclusao", "rh", f"Colaborador excluido: {colab.nome_completo}", request=request)
+        colab.delete()
         if is_htmx(request):
             return HttpResponse(headers={"HX-Redirect": "/rh/colaboradores/"})
         return redirect("web:rh-colaboradores")
@@ -2013,6 +2025,7 @@ class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
 
         from django.contrib import messages
         messages.success(request, f"Acesso criado para {colab.nome_completo} (usuario: {username}). Email enviado para {colab.email_pessoal}.")
+        audit("criacao", "rh", f"Acesso criado para {colab.nome_completo} (usuario: {username})", instance=user, request=request)
         return redirect("web:rh-colaborador-detail", pk=pk)
 
 
@@ -2025,6 +2038,7 @@ class ColaboradorRevogarAcessoView(PermissionRequiredMixin, View):
         if colab.usuario:
             colab.usuario.is_active = False
             colab.usuario.save(update_fields=["is_active"])
+            audit("exclusao", "rh", f"Acesso revogado: {colab.nome_completo}", instance=colab.usuario, request=request)
             from django.contrib import messages
             messages.success(request, f"Acesso revogado para {colab.nome_completo}")
         return redirect("web:rh-colaborador-detail", pk=pk)
@@ -3282,6 +3296,7 @@ class LancamentoCreateView(PermissionRequiredMixin, View):
             comprovante=request.FILES.get("comprovante"),
             criado_por=request.user,
         )
+        audit("criacao", "financeiro", f"Lancamento criado: {descricao} ({tipo} R${valor})", request=request)
         return redirect("web:fin-lancamentos")
 
 
@@ -3348,6 +3363,7 @@ class LancamentoEditView(PermissionRequiredMixin, View):
         if request.FILES.get("comprovante"):
             lanc.comprovante = request.FILES["comprovante"]
         lanc.save()
+        audit("edicao", "financeiro", f"Lancamento editado: {lanc.descricao}", instance=lanc, request=request)
         return redirect("web:fin-lancamento-detail", pk=pk)
 
 
@@ -3381,11 +3397,13 @@ class LancamentoStatusView(PermissionRequiredMixin, View):
         lanc = get_object_or_404(Lancamento, pk=pk)
         novo_status = request.POST.get("status")
         if novo_status in dict(Lancamento.Status.choices):
+            old_status = lanc.status
             lanc.status = novo_status
             if novo_status == "confirmado" and not lanc.data_pagamento:
                 from django.utils import timezone
                 lanc.data_pagamento = timezone.now().date()
             lanc.save()
+            audit("status", "financeiro", f"Lancamento {lanc.descricao}: {old_status} → {novo_status}", instance=lanc, request=request, detalhes={"de": old_status, "para": novo_status})
         return redirect("web:fin-lancamento-detail", pk=pk)
 
 
@@ -4931,8 +4949,9 @@ class AsaasSincronizarClienteView(PermissionRequiredMixin, View):
                 )
                 asaas_id = resultado["id"]
 
-            ClienteAsaas.objects.create(cliente=cliente, asaas_id=asaas_id)
+            ca = ClienteAsaas.objects.create(cliente=cliente, asaas_id=asaas_id)
             messages.success(request, f"{cliente.nome} sincronizado com Asaas (ID: {asaas_id})")
+            audit("criacao", "integracao", f"Cliente sincronizado Asaas: {cliente.nome} ({asaas_id})", instance=ca, request=request, fonte="asaas_webhook")
 
         except Exception as e:
             messages.error(request, f"Erro ao sincronizar: {e}")
@@ -5012,6 +5031,7 @@ class AsaasCobrancaDeleteView(PermissionRequiredMixin, View):
         if cobranca.lancamento:
             cobranca.lancamento.status = "cancelado"
             cobranca.lancamento.save(update_fields=["status"])
+        audit("exclusao", "financeiro", f"Cobranca Asaas cancelada: {cobranca.asaas_id}", request=request)
         cobranca.delete()
         return redirect("web:fin-asaas-cobrancas")
 
@@ -5095,6 +5115,7 @@ class AsaasCriarCobrancaView(PermissionRequiredMixin, View):
                 lancamento=lancamento,
             )
             messages.success(request, f"Cobrança criada no Asaas: {resultado['id']}")
+            audit("criacao", "financeiro", f"Cobranca Asaas criada: {resultado['id']} ({valor})", instance=cobranca, request=request, fonte="interno")
 
         except Exception as e:
             messages.error(request, f"Erro ao criar cobrança: {e}")
@@ -5169,6 +5190,7 @@ class AsaasCriarAssinaturaView(PermissionRequiredMixin, View):
                 billing_type=resultado.get("billingType", ""),
             )
             messages.success(request, f"Assinatura criada no Asaas: {resultado['id']}")
+            audit("criacao", "financeiro", f"Assinatura Asaas criada: {resultado['id']}", instance=assinatura, request=request)
 
         except Exception as e:
             messages.error(request, f"Erro ao criar assinatura: {e}")
@@ -5194,6 +5216,7 @@ class AsaasCancelarAssinaturaView(PermissionRequiredMixin, View):
             assinatura.cancelado_em = timezone.now()
             assinatura.save(update_fields=["status", "cancelado_em"])
             messages.success(request, f"Assinatura {assinatura.asaas_id} cancelada.")
+            audit("exclusao", "financeiro", f"Assinatura Asaas cancelada: {assinatura.asaas_id}", instance=assinatura, request=request)
         except Exception as e:
             messages.error(request, f"Erro ao cancelar: {e}")
 
