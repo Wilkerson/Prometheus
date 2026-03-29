@@ -1268,7 +1268,7 @@ class NotificacaoLerView(LoginRequiredMixin, View):
         notif_nao_lidas = Notificacao.objects.filter(destinatario=request.user, lida=False)
         return render(request, "notificacoes/_painel.html", {
             "notif_count": notif_nao_lidas.count(),
-            "notif_recentes": notif_nao_lidas[:5],
+            "notif_recentes": notif_nao_lidas[:20],
         })
 
 
@@ -1290,7 +1290,7 @@ class NotificacaoPainelView(LoginRequiredMixin, View):
         notif_nao_lidas = Notificacao.objects.filter(destinatario=request.user, lida=False)
         return render(request, "notificacoes/_painel.html", {
             "notif_count": notif_nao_lidas.count(),
-            "notif_recentes": notif_nao_lidas[:5],
+            "notif_recentes": notif_nao_lidas[:20],
         })
 
 

@@ -213,10 +213,10 @@
 
     <!-- ==================== PAINEL DE NOTIFICACOES (desliza da direita) ==================== -->
     <div id="notif-panel" style="right:-100%; transition:right 0.2s ease;"
-         class="fixed top-0 h-full w-[85vw] sm:w-[320px] z-50 bg-bg2 border-l border-bdr shadow-2xl overflow-y-auto">
+         class="fixed top-0 h-full w-[85vw] sm:w-[320px] z-50 bg-bg2 border-l border-bdr shadow-2xl flex flex-col">
 
       <!-- Header do painel -->
-      <div class="flex items-center justify-between px-4 py-3 border-b border-bdr">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-bdr flex-shrink-0">
         <div class="flex items-center gap-2">
           <span class="text-[15px] font-bold">Notificacoes</span>
           <a href="{% url 'web:notificacoes' %}" class="text-[11px] text-ruch-accent hover:text-t1 no-underline">Ver todas</a>
@@ -225,13 +225,13 @@
                 class="text-t3 hover:text-t1 text-lg cursor-pointer">&times;</button>
       </div>
 
-      <!-- Conteudo (atualizado via HTMX polling) -->
-      <div class="p-4" id="notif-content">
+      <!-- Conteudo (atualizado via HTMX polling) — scroll interno -->
+      <div class="p-4 flex-1 overflow-y-auto" id="notif-content">
         {% include "notificacoes/_painel.html" %}
       </div>
 
       <!-- Footer do painel -->
-      <div class="px-4 pb-4">
+      <div class="px-4 py-3 border-t border-bdr flex-shrink-0">
         <a href="{% url 'web:notificacao-preferencias' %}" class="text-[11px] text-t3 hover:text-t1 no-underline">Configurar notificacoes</a>
       </div>
     </div>

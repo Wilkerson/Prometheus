@@ -133,7 +133,7 @@ def navigation(request):
     from apps.crm.models import Notificacao
     notif_nao_lidas = Notificacao.objects.filter(destinatario=user, lida=False)
     notif_count = notif_nao_lidas.count()
-    notif_recentes = notif_nao_lidas[:5]
+    notif_recentes = notif_nao_lidas[:20]
 
     any_group_active = any(g["active"] for g in nav_groups)
 
