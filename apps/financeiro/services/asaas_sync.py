@@ -2,9 +2,15 @@
 Sincronizacao bidirecional com Asaas.
 Puxa cobrancas e assinaturas que existem no Asaas mas nao no sistema local.
 Idempotente — seguro pra rodar multiplas vezes.
+
+Protecoes para producao:
+- Paginacao: percorre todas as paginas da API (100 por pagina)
+- Rate limiting: 0.5s entre requests pra nao estourar limite do Asaas
+- Idempotente: checa asaas_id e id_externo antes de criar
 """
 
 import logging
+import time
 from decimal import Decimal
 
 from apps.auditoria.utils import registrar as audit
@@ -16,6 +22,9 @@ from apps.financeiro.services.asaas_client import AsaasClient
 
 logger = logging.getLogger(__name__)
 
+# Pausa entre requests pra respeitar rate limit do Asaas
+RATE_LIMIT_DELAY = 0.5  # segundos
+
 
 def _get_conta_asaas():
     return ContaBancaria.objects.filter(nome__icontains="asaas").first()
@@ -23,6 +32,23 @@ def _get_conta_asaas():
 
 def _get_categoria_receita():
     return CategoriaFinanceira.objects.filter(tipo="receita", pai__isnull=False).first()
+
+
+def _listar_paginado(api, method, customer_id):
+    """Percorre todas as paginas da API e retorna lista completa."""
+    todos = []
+    offset = 0
+    limit = 100
+    while True:
+        time.sleep(RATE_LIMIT_DELAY)
+        pagina = method(customer_id, offset=offset, limit=limit)
+        if not pagina:
+            break
+        todos.extend(pagina)
+        if len(pagina) < limit:
+            break  # ultima pagina
+        offset += limit
+    return todos
 
 
 def sincronizar_tudo():
@@ -64,6 +90,9 @@ def sincronizar_tudo():
             logger.error(erro)
             resultado["erros"].append(erro)
 
+        # Rate limit entre clientes
+        time.sleep(RATE_LIMIT_DELAY)
+
     # Registrar na auditoria
     total = resultado["cobrancas_criadas"] + resultado["assinaturas_criadas"] + resultado["lancamentos_criados"]
     if total > 0:
@@ -80,8 +109,8 @@ def sincronizar_tudo():
 
 
 def _sync_cobrancas_cliente(api, cliente_asaas, resultado):
-    """Sincroniza cobrancas de um cliente."""
-    cobrancas_api = api.listar_cobrancas_cliente(cliente_asaas.asaas_id)
+    """Sincroniza cobrancas de um cliente com paginacao."""
+    cobrancas_api = _listar_paginado(api, api.listar_cobrancas_cliente, cliente_asaas.asaas_id)
 
     for payment in cobrancas_api:
         asaas_id = payment.get("id", "")
@@ -168,8 +197,8 @@ def _sync_cobrancas_cliente(api, cliente_asaas, resultado):
 
 
 def _sync_assinaturas_cliente(api, cliente_asaas, resultado):
-    """Sincroniza assinaturas de um cliente."""
-    assinaturas_api = api.listar_assinaturas_cliente(cliente_asaas.asaas_id)
+    """Sincroniza assinaturas de um cliente com paginacao."""
+    assinaturas_api = _listar_paginado(api, api.listar_assinaturas_cliente, cliente_asaas.asaas_id)
 
     for sub in assinaturas_api:
         asaas_id = sub.get("id", "")
