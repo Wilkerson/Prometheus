@@ -4812,8 +4812,8 @@ class AsaasDashboardView(PermissionRequiredMixin, View):
             "total_nao_sync": clientes_nao_sync.count(),
             "total_cobrancas": CobrancaAsaas.objects.count(),
             "total_assinaturas": AssinaturaAsaas.objects.count(),
-            "can_sync": request.user.has_perm("financeiro.add_clienteasaas"),
-            "can_cobrar": request.user.has_perm("financeiro.add_cobrancaasaas"),
+            "can_sync": request.user.has_perm("financeiro.change_clienteasaas"),
+            "can_cobrar": request.user.has_perm("financeiro.change_cobrancaasaas"),
         })
 
 
@@ -4830,13 +4830,13 @@ class AsaasClienteListView(PermissionRequiredMixin, ListView):
         # Clientes nao sincronizados
         sincronizados = ClienteAsaas.objects.values_list("cliente_id", flat=True)
         ctx["clientes_nao_sync"] = Cliente.objects.filter(ativo=True).exclude(pk__in=sincronizados)
-        ctx["can_sync"] = self.request.user.has_perm("financeiro.add_clienteasaas")
+        ctx["can_sync"] = self.request.user.has_perm("financeiro.change_clienteasaas")
         return ctx
 
 
 class AsaasSincronizarClienteView(PermissionRequiredMixin, View):
     """Sincroniza um cliente do CRM com o Asaas."""
-    permission_required = "financeiro.add_clienteasaas"
+    permission_required = "financeiro.change_clienteasaas"
 
     def post(self, request, cliente_pk):
         from django.contrib import messages
@@ -4879,6 +4879,11 @@ class AsaasCobrancaListView(PermissionRequiredMixin, ListView):
     def get_queryset(self):
         return CobrancaAsaas.objects.select_related("cliente", "lancamento").order_by("-vencimento")
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_create"] = self.request.user.has_perm("financeiro.change_cobrancaasaas")
+        return ctx
+
 
 class AsaasCobrancaDetailView(PermissionRequiredMixin, View):
     permission_required = "financeiro.view_cobrancaasaas"
@@ -4918,7 +4923,7 @@ class AsaasCobrancaDeleteView(PermissionRequiredMixin, View):
 
 class AsaasCriarCobrancaView(PermissionRequiredMixin, View):
     """Cria cobranca no Asaas pra um cliente ja sincronizado."""
-    permission_required = "financeiro.add_cobrancaasaas"
+    permission_required = "financeiro.change_cobrancaasaas"
 
     def get(self, request):
         return render(request, "financeiro/asaas/criar_cobranca.html", {
@@ -5010,10 +5015,16 @@ class AsaasAssinaturaListView(PermissionRequiredMixin, ListView):
     def get_queryset(self):
         return AssinaturaAsaas.objects.select_related("cliente", "plano").order_by("-criado_em")
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["can_create"] = self.request.user.has_perm("financeiro.change_assinaturaasaas")
+        ctx["can_cancel"] = self.request.user.has_perm("financeiro.delete_assinaturaasaas")
+        return ctx
+
 
 class AsaasCriarAssinaturaView(PermissionRequiredMixin, View):
     """Cria assinatura recorrente no Asaas."""
-    permission_required = "financeiro.add_assinaturaasaas"
+    permission_required = "financeiro.change_assinaturaasaas"
 
     def get(self, request):
         return render(request, "financeiro/asaas/criar_assinatura.html", {
@@ -5072,7 +5083,7 @@ class AsaasCriarAssinaturaView(PermissionRequiredMixin, View):
 
 class AsaasCancelarAssinaturaView(PermissionRequiredMixin, View):
     """Cancela assinatura no Asaas."""
-    permission_required = "financeiro.change_assinaturaasaas"
+    permission_required = "financeiro.delete_assinaturaasaas"
 
     def post(self, request, pk):
         from django.contrib import messages

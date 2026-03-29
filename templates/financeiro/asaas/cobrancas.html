@@ -2,7 +2,9 @@
 {% block title %}Cobranças{% endblock %}
 {% block page_title %}Cobranças{% endblock %}
 {% block page_actions %}
+{% if can_create %}
 <a href="{% url 'web:fin-asaas-criar-cobranca' %}" class="btn-primary">+ Nova Cobrança</a>
+{% endif %}
 {% endblock %}
 {% block content %}
 <div class="card">

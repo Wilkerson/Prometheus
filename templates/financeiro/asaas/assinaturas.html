@@ -2,7 +2,9 @@
 {% block title %}Asaas — Assinaturas{% endblock %}
 {% block page_title %}Assinaturas Recorrentes{% endblock %}
 {% block page_actions %}
+{% if can_create %}
 <a href="{% url 'web:fin-asaas-criar-assinatura' %}" class="btn-primary">+ Nova Assinatura</a>
+{% endif %}
 {% endblock %}
 {% block content %}
 <div class="card">
@@ -34,7 +36,7 @@
             <span class="badge {{ a.status|asaas_badge }}">{{ a.status|asaas_status }}</span>
           </td>
           <td class="py-3 whitespace-nowrap">
-            {% if a.status == 'ACTIVE' %}
+            {% if a.status == 'ACTIVE' and can_cancel %}
             <form method="post" action="{% url 'web:fin-asaas-cancelar-assinatura' a.pk %}" x-data="{ conf: false }">
               {% csrf_token %}
               <button type="button" @click="conf = true" x-show="!conf" class="text-[12px] text-red-400 hover:text-red-300">Cancelar</button>
