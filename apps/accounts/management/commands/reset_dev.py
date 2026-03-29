@@ -44,10 +44,11 @@ class Command(BaseCommand):
         self._load_fixtures()
         self._setup_groups()
         self._atribuir_permissoes_colaboradores()
+        self._sincronizar_asaas()
         self._summary()
 
     def _drop_tables(self):
-        self.stdout.write("1/6  Removendo tabelas...")
+        self.stdout.write("1/7  Removendo tabelas...")
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute(
@@ -60,13 +61,13 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"     {len(tables)} tabelas removidas"))
 
     def _migrate(self):
-        self.stdout.write("2/6  Rodando migrations...")
+        self.stdout.write("2/7  Rodando migrations...")
         from django.core.management import call_command
         call_command("migrate", verbosity=0)
         self.stdout.write(self.style.SUCCESS("     Migrations aplicadas (inclui seeds de departamentos e categorias)"))
 
     def _create_superuser(self):
-        self.stdout.write("3/6  Criando superuser admin...")
+        self.stdout.write("3/7  Criando superuser admin...")
         from apps.accounts.models import Usuario
         admin = Usuario(
             pk=1,
@@ -82,7 +83,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("     admin / admin123 (pk=1)"))
 
     def _load_fixtures(self):
-        self.stdout.write("4/6  Carregando fixtures...")
+        self.stdout.write("4/7  Carregando fixtures...")
         from django.core.management import call_command
 
         fixtures = [
@@ -98,13 +99,13 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f"     {label}: ERRO — {e}"))
 
     def _setup_groups(self):
-        self.stdout.write("5/6  Configurando grupos e permissoes...")
+        self.stdout.write("5/7  Configurando grupos e permissoes...")
         from django.core.management import call_command
         call_command("setup_groups", verbosity=0)
         self.stdout.write(self.style.SUCCESS("     7 grupos configurados"))
 
     def _atribuir_permissoes_colaboradores(self):
-        self.stdout.write("6/6  Atribuindo permissoes por departamento/cargo...")
+        self.stdout.write("6/7  Atribuindo permissoes por departamento/cargo...")
         from apps.rh.models import Colaborador
         from apps.rh.permissions import atribuir_permissoes
         count = 0
@@ -116,6 +117,54 @@ class Command(BaseCommand):
                 pass
         self.stdout.write(self.style.SUCCESS(f"     {count} colaborador(es) com permissoes atribuidas"))
 
+    def _sincronizar_asaas(self):
+        self.stdout.write("7/7  Sincronizando clientes com Asaas (opcional)...")
+        try:
+            from django.conf import settings
+            if not getattr(settings, "ASAAS_API_KEY", "") or settings.ASAAS_API_KEY == "sua_chave_aqui":
+                self.stdout.write(self.style.WARNING("     Pulado — ASAAS_API_KEY nao configurada"))
+                return
+
+            from apps.crm.models import Cliente
+            from apps.financeiro.models import ClienteAsaas
+            from apps.financeiro.services.asaas_client import AsaasClient
+
+            api = AsaasClient()
+            clientes = Cliente.objects.filter(ativo=True)
+            count = 0
+            for cliente in clientes:
+                # Ja sincronizado?
+                if ClienteAsaas.objects.filter(cliente=cliente).exists():
+                    continue
+                try:
+                    existentes = api.buscar_cliente_por_cpf(cliente.cnpj)
+                    if existentes:
+                        asaas_id = existentes[0]["id"]
+                    else:
+                        resultado = api.criar_cliente(
+                            nome=cliente.nome,
+                            cpf_cnpj=cliente.cnpj,
+                            email=cliente.email,
+                            telefone=cliente.telefone,
+                        )
+                        asaas_id = resultado["id"]
+                    ClienteAsaas.objects.create(cliente=cliente, asaas_id=asaas_id)
+                    count += 1
+                except Exception as e:
+                    self.stdout.write(self.style.WARNING(f"     {cliente.nome}: {e}"))
+            self.stdout.write(self.style.SUCCESS(f"     {count} cliente(s) sincronizado(s) com Asaas"))
+
+            # Sincronizar cobrancas e assinaturas
+            if count > 0 or ClienteAsaas.objects.exists():
+                from apps.financeiro.services.asaas_sync import sincronizar_tudo
+                resultado = sincronizar_tudo()
+                self.stdout.write(self.style.SUCCESS(
+                    f"     {resultado['cobrancas_criadas']} cobranca(s), "
+                    f"{resultado['assinaturas_criadas']} assinatura(s) importada(s)"
+                ))
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"     Erro na sincronizacao Asaas: {e}"))
+
     def _summary(self):
         from apps.accounts.models import Usuario
         from apps.crm.models import Cliente
@@ -124,10 +173,13 @@ class Command(BaseCommand):
         self.stdout.write("\n" + "=" * 60)
         self.stdout.write("  PRONTO!")
         self.stdout.write("=" * 60)
+        from apps.financeiro.models import ClienteAsaas, CobrancaAsaas
+
         self.stdout.write(f"  Usuarios:      {Usuario.objects.count()}")
         self.stdout.write(f"  Clientes:      {Cliente.objects.count()}")
         self.stdout.write(f"  Colaboradores: {Colaborador.objects.count()}")
         self.stdout.write(f"  Departamentos: {Departamento.objects.count()}")
+        self.stdout.write(f"  Asaas sync:    {ClienteAsaas.objects.count()} clientes, {CobrancaAsaas.objects.count()} cobrancas")
         self.stdout.write(f"  Superuser:     admin / admin123")
         self.stdout.write(f"  Seed users:    testpass123")
         self.stdout.write("=" * 60 + "\n")
