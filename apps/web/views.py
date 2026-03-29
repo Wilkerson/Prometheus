@@ -777,7 +777,9 @@ class UsuarioListView(PermissionRequiredMixin, HtmxMixin, ListView):
     permission_required = "accounts.view_usuario"
 
     def get_queryset(self):
-        qs = Usuario.objects.order_by("-date_joined")
+        qs = Usuario.objects.select_related(
+            "colaborador__departamento", "colaborador__setor",
+        ).order_by("-date_joined")
         search = self.request.GET.get("q")
         if search:
             qs = qs.filter(
