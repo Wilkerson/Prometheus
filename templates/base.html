@@ -178,9 +178,7 @@
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          {% if notif_count > 0 %}
-          <span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">{{ notif_count }}</span>
-          {% endif %}
+          <span id="notif-badge" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center {% if notif_count == 0 %}hidden{% endif %}">{{ notif_count }}</span>
         </button>
       </div>
     </header>
@@ -219,7 +217,10 @@
 
       <!-- Header do painel -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-bdr">
-        <span class="text-[15px] font-bold">Notificacoes</span>
+        <div class="flex items-center gap-2">
+          <span class="text-[15px] font-bold">Notificacoes</span>
+          <a href="{% url 'web:notificacoes' %}" class="text-[11px] text-ruch-accent hover:text-t1 no-underline">Ver todas</a>
+        </div>
         <button onclick="document.getElementById('notif-panel').style.right='-100%'; document.getElementById('notif-overlay').style.display='none';"
                 class="text-t3 hover:text-t1 text-lg cursor-pointer">&times;</button>
       </div>

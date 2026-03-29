@@ -1,13 +1,15 @@
 <!-- Partial HTMX: atualizado a cada 30s via polling -->
-<div class="flex items-center justify-between mb-3">
-  <div class="flex items-center gap-2">
-    <span class="text-[15px] font-bold">Notificacoes</span>
-    {% if notif_count > 0 %}
-    <span class="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{{ notif_count }}</span>
-    {% endif %}
-  </div>
-  <a href="{% url 'web:notificacoes' %}" class="text-[11px] text-ruch-accent hover:text-t1 no-underline">Ver todas</a>
-</div>
+<!-- Atualiza badge do sino -->
+<script>
+(function(){
+  var badge = document.getElementById('notif-badge');
+  var count = {{ notif_count }};
+  if (badge) {
+    badge.textContent = count;
+    badge.classList.toggle('hidden', count === 0);
+  }
+})();
+</script>
 
 {% if notif_recentes %}
 <div class="space-y-0">
