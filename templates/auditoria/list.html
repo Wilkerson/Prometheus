@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Auditoria — {{ departamento_label }}{% endblock %}
+{% block page_title %}Auditoria — {{ departamento_label }}{% endblock %}
+{% block content %}
+
+<!-- Filtros -->
+<div class="card mb-4">
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="text-[11px] text-t3">Buscar</label>
+      <input type="search" name="q" value="{{ busca }}" placeholder="Descricao, entidade..."
+             class="input text-sm"
+             hx-get="{% url 'auditoria:list' departamento %}"
+             hx-target="#audit-table"
+             hx-trigger="keyup changed delay:300ms"
+             hx-include="[name='fonte']">
+    </div>
+    <div class="w-40">
+      <label class="text-[11px] text-t3">Fonte</label>
+      <select name="fonte" class="input text-sm"
+              hx-get="{% url 'auditoria:list' departamento %}"
+              hx-target="#audit-table"
+              hx-trigger="change"
+              hx-include="[name='q']">
+        <option value="">Todas</option>
+        <option value="interno" {% if fonte == 'interno' %}selected{% endif %}>Interno</option>
+        <option value="asaas_webhook" {% if fonte == 'asaas_webhook' %}selected{% endif %}>Asaas Webhook</option>
+        <option value="api" {% if fonte == 'api' %}selected{% endif %}>API</option>
+        <option value="celery" {% if fonte == 'celery' %}selected{% endif %}>Celery</option>
+        <option value="sistema" {% if fonte == 'sistema' %}selected{% endif %}>Sistema</option>
+      </select>
+    </div>
+    <!-- Tabs departamentos -->
+    <div class="flex gap-1 ml-auto">
+      {% for key, label in deptos.items %}
+      <a href="{% url 'auditoria:list' key %}"
+         class="px-3 py-1.5 rounded-lg text-[12px] no-underline {% if key == departamento %}bg-ruch-accent/15 text-ruch-accent font-medium{% else %}text-t3 hover:bg-bg3{% endif %}">
+        {{ label }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Tabela -->
+<div class="card">
+  <div id="audit-table">
+    {% include "auditoria/_table.html" %}
+  </div>
+</div>
+{% endblock %}

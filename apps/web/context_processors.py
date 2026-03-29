@@ -60,6 +60,17 @@ def navigation(request):
             ],
         },
         {
+            "key": "auditoria",
+            "label": "Auditoria",
+            "items": [
+                {"url": "/auditoria/", "label": "Visão Geral", "permission": "auditoria.view_auditlog"},
+                {"url": "/auditoria/financeiro/", "label": "Financeiro", "permission": "auditoria.view_auditlog"},
+                {"url": "/auditoria/comercial/", "label": "Comercial", "permission": "auditoria.view_auditlog"},
+                {"url": "/auditoria/rh/", "label": "RH / Pessoas", "permission": "auditoria.view_auditlog"},
+                {"url": "/auditoria/integracao/", "label": "Integracoes", "permission": "auditoria.view_auditlog"},
+            ],
+        },
+        {
             "key": "admin",
             "label": "Administração",
             "items": [
@@ -178,6 +189,8 @@ BREADCRUMB_LABELS = {
     "relatorios": ("Relatórios", None),
     "cargos": ("Cargos", "/rh/cargos/"),
     "setores": ("Setores", "/rh/setores/"),
+    # Auditoria
+    "auditoria": ("Auditoria", "/auditoria/"),
     # Administracao
     "usuarios": ("Usuários", "/usuarios/"),
     "parceiros": ("Parceiros", "/parceiros/"),
@@ -209,6 +222,7 @@ BREADCRUMB_DEPTOS = {
     "/parceiros/": "Administração",
     "/tokens/": "Administração",
     "/grupos/": "Administração",
+    "/auditoria/": "Auditoria",
 }
 
 
@@ -230,7 +244,7 @@ def _build_breadcrumbs(path):
     segments = [s for s in path.strip("/").split("/") if s]
 
     # Segmentos que sao raiz de departamento (ex: financeiro, rh)
-    SEGMENTOS_DEPTO = {"financeiro", "rh"}
+    SEGMENTOS_DEPTO = {"financeiro", "rh", "auditoria"}
 
     # Se primeiro segmento NAO e raiz de depto, adicionar depto como crumb
     if segments and segments[0] not in SEGMENTOS_DEPTO and depto_label:

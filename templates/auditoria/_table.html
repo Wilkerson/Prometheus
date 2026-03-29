@@ -1,0 +1,47 @@
+{% if logs %}
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-bdr text-left text-t3">
+        <th class="pb-3 font-medium w-40">Data</th>
+        <th class="pb-3 font-medium w-24">Acao</th>
+        <th class="pb-3 font-medium">Descricao</th>
+        <th class="pb-3 font-medium w-28">Usuario</th>
+        <th class="pb-3 font-medium w-24">Fonte</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-bdr">
+      {% for log in logs %}
+      <tr class="hover:bg-bg3" x-data="{ expanded: false }">
+        <td class="py-2.5 text-t2 text-[12px]">{{ log.criado_em|date:"d/m/Y H:i" }}</td>
+        <td class="py-2.5 whitespace-nowrap">
+          {% if log.acao_raw == 'criacao' %}<span class="badge bg-emerald-500/15 text-emerald-500">Criacao</span>
+          {% elif log.acao_raw == 'edicao' %}<span class="badge bg-blue-500/15 text-blue-500">Edicao</span>
+          {% elif log.acao_raw == 'exclusao' %}<span class="badge bg-red-500/15 text-red-500">Exclusao</span>
+          {% elif log.acao_raw == 'webhook' %}<span class="badge bg-amber-500/15 text-amber-500">Webhook</span>
+          {% elif log.acao_raw == 'status' %}<span class="badge bg-purple-500/15 text-purple-500">Status</span>
+          {% elif log.acao_raw == 'exportacao' %}<span class="badge bg-cyan-500/15 text-cyan-500">Export</span>
+          {% else %}<span class="badge bg-bg4 text-t3">{{ log.acao }}</span>{% endif %}
+        </td>
+        <td class="py-2.5">
+          <button type="button" @click="expanded = !expanded" class="text-left cursor-pointer hover:text-ruch-accent text-t1">
+            {{ log.descricao|truncatechars:80 }}
+          </button>
+          <div x-show="expanded" x-cloak x-transition class="mt-2 p-2 rounded bg-bg2 border border-bdr text-[11px] font-mono text-t3 whitespace-pre-wrap break-all">{{ log.detalhes }}</div>
+        </td>
+        <td class="py-2.5 text-t2 text-[12px]">{{ log.usuario }}</td>
+        <td class="py-2.5 whitespace-nowrap">
+          {% if log.fonte == 'asaas_webhook' %}<span class="text-[11px] text-amber-500">Asaas</span>
+          {% elif log.fonte == 'celery' %}<span class="text-[11px] text-purple-500">Celery</span>
+          {% elif log.fonte == 'api' %}<span class="text-[11px] text-blue-500">API</span>
+          {% elif log.fonte == 'sistema' %}<span class="text-[11px] text-t3">Sistema</span>
+          {% else %}<span class="text-[11px] text-t2">Interno</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-sm text-t3 py-4">Nenhum registro de auditoria encontrado.</p>
+{% endif %}

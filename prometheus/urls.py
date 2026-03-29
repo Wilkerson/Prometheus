@@ -31,6 +31,8 @@ urlpatterns = [
     # Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    # Auditoria
+    path("auditoria/", include("apps.auditoria.urls")),
     # Web (templates)
     path("", include("apps.web.urls")),
 ]

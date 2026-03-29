@@ -16,7 +16,7 @@ class Command(BaseCommand):
         # ---------------------------------------------------------------
         g, created = Group.objects.get_or_create(name="Administrador")
         perms = Permission.objects.filter(
-            content_type__app_label__in=["crm", "accounts", "integracao", "rh", "financeiro"]
+            content_type__app_label__in=["crm", "accounts", "integracao", "rh", "financeiro", "auditoria"]
         )
         g.permissions.set(perms)
         self._log(g, created)
@@ -116,6 +116,7 @@ class Command(BaseCommand):
         g, created = Group.objects.get_or_create(name="Auditor")
         perms = Permission.objects.filter(codename__in=[
             "view_auditorialancamento",
+            "view_auditlog",
         ])
         g.permissions.set(perms)
         self._log(g, created)

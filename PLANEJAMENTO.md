@@ -471,7 +471,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 78. [x] Modulo Financeiro Fase 5: Dashboard + DRE + Fluxo de Caixa + Fechamento mensal (CSV/JSON/XML/PDF)
 79. [x] Modulo Financeiro Fase 6: Gateway Asaas (models, service HTTP, webhook, views, Celery)
 80. [x] Protecoes fiscais: AuditoriaLancamento (log imutavel), protecao duplicata id_externo, alerta webhook inativo
-81. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
+81. [x] Modulo Auditoria Fase 1: app dedicado, AuditLog generico, dashboard + listas por departamento, agregacao de legados
+82. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
@@ -494,11 +495,13 @@ Novos modulos sao implementados como submenus dentro do departamento corresponde
 | 7 | **Operacoes** | Placeholder | — | Onboarding de servicos, Suporte, SLA |
 | 8 | **Produto** | Placeholder | — | Gestao de produto, Roadmap, Backlog |
 
+| 9 | **Auditoria** | Fase 1 completa | Visao Geral, Financeiro, Comercial, RH, Integracoes | Export, graficos, auto-auditoria |
+
 **Menu Administracao** (customizado, nao e departamento):
 Usuarios, Parceiros, Tokens API, Grupos, Admin Django
 
 ### Numeros do projeto
-- **43 models** (accounts: 1, crm: 9, financeiro: 11, integracao: 1, rh: 21)
+- **44 models** (accounts: 1, crm: 9, financeiro: 11, integracao: 1, rh: 21, auditoria: 1)
 - **134 URLs** web
 - **130 templates** HTML
 - **6 grupos** de permissoes
