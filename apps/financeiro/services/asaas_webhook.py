@@ -158,6 +158,11 @@ def _processar_payment_overdue(payment):
     cobranca.status = "OVERDUE"
     cobranca.save(update_fields=["status"])
 
+    # Atualizar lancamento vinculado se existir
+    if cobranca.lancamento and cobranca.lancamento.status == "pendente":
+        cobranca.lancamento.status = "pendente"  # mantem pendente mas pode ser filtrado por vencimento
+        cobranca.lancamento.save(update_fields=["status"])
+
 
 def _processar_payment_cancelled(payment):
     """PAYMENT_REFUNDED / PAYMENT_DELETED — cancela."""

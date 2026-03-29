@@ -4982,17 +4982,45 @@ class AsaasCriarCobrancaView(PermissionRequiredMixin, View):
                 billing_type=billing_type,
             )
 
+            from decimal import Decimal
+            valor_dec = Decimal(str(resultado["value"]))
+            valor_liq = Decimal(str(resultado.get("netValue") or resultado["value"]))
+
+            # Criar lancamento pendente na conta Asaas
+            conta_asaas = ContaBancaria.objects.filter(nome__icontains="asaas").first()
+            cat_receita = CategoriaFinanceira.objects.filter(
+                tipo="receita", pai__isnull=False
+            ).first()
+            lancamento = None
+            if conta_asaas and cat_receita:
+                lancamento = Lancamento.objects.create(
+                    tipo="receita",
+                    descricao=descricao or f"Asaas: {resultado['id']}",
+                    valor=valor_dec,
+                    valor_liquido=valor_liq,
+                    categoria=cat_receita,
+                    conta=conta_asaas,
+                    canal="gateway",
+                    data_vencimento=resultado["dueDate"],
+                    data_competencia=resultado["dueDate"],
+                    status="pendente",
+                    cliente=cliente_asaas.cliente,
+                    id_externo=resultado["id"],
+                    criado_por=request.user,
+                )
+
             CobrancaAsaas.objects.create(
                 asaas_id=resultado["id"],
                 cliente=cliente_asaas.cliente,
                 tipo=tipo,
-                valor=resultado["value"],
-                valor_liquido=resultado.get("netValue"),
+                valor=valor_dec,
+                valor_liquido=valor_liq,
                 vencimento=resultado["dueDate"],
                 status=resultado["status"],
                 billing_type=resultado.get("billingType", ""),
                 invoice_url=resultado.get("invoiceUrl", ""),
                 bank_slip_url=resultado.get("bankSlipUrl", ""),
+                lancamento=lancamento,
             )
             messages.success(request, f"Cobrança criada no Asaas: {resultado['id']}")
 
