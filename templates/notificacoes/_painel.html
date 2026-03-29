@@ -12,25 +12,30 @@
 {% if notif_recentes %}
 <div class="space-y-0">
   {% for notif in notif_recentes %}
-  <form method="post" action="{% url 'web:notificacao-ler' notif.pk %}" class="flex items-start gap-2.5 py-2 border-b border-bdr group cursor-pointer hover:bg-bg3 rounded-lg px-1 -mx-1">
-    {% csrf_token %}
-    <button type="submit" class="flex items-start gap-2.5 w-full text-left">
-      <div class="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-ruch-accent"></div>
-      <div class="flex-1 min-w-0">
-        <div class="text-[12px] font-medium text-t1 truncate">{{ notif.titulo }}</div>
-        <div class="text-[11px] text-t3 mt-0.5 truncate">{{ notif.mensagem }}</div>
-        <div class="text-[10px] text-t3 mt-0.5">{{ notif.criado_em|timesince }} atras</div>
+  <div class="flex items-start gap-2.5 py-2 border-b border-bdr group hover:bg-bg3 rounded-lg px-1 -mx-1">
+    <div class="w-2 h-2 rounded-full mt-1.5 shrink-0 bg-ruch-accent"></div>
+    <div class="flex-1 min-w-0">
+      <div class="text-[12px] font-medium text-t1 truncate">{{ notif.titulo }}</div>
+      <div class="text-[11px] text-t3 mt-0.5 truncate">{{ notif.mensagem }}</div>
+      <div class="flex items-center gap-2 mt-1">
+        <span class="text-[10px] text-t3">{{ notif.criado_em|timesince }} atras</span>
+        <button hx-post="{% url 'web:notificacao-ler' notif.pk %}"
+                hx-target="#notif-content"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                class="text-[10px] text-ruch-accent hover:text-t1 cursor-pointer">marcar lida</button>
       </div>
-    </button>
-  </form>
+    </div>
+  </div>
   {% endfor %}
 </div>
 
 {% if notif_count > 0 %}
-<form method="post" action="{% url 'web:notificacao-ler-todas' %}" class="mt-2">
-  {% csrf_token %}
-  <button type="submit" class="text-[11px] text-t3 hover:text-t1">Marcar todas como lidas</button>
-</form>
+<div class="mt-3 pt-2 border-t border-bdr">
+  <button hx-post="{% url 'web:notificacao-ler-todas' %}"
+          hx-target="#notif-content"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+          class="text-[11px] text-t3 hover:text-t1 cursor-pointer">Marcar todas como lidas</button>
+</div>
 {% endif %}
 
 {% else %}

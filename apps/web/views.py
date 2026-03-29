@@ -1251,14 +1251,28 @@ class NotificacaoLerView(LoginRequiredMixin, View):
         notif = get_object_or_404(Notificacao, pk=pk, destinatario=request.user)
         notif.lida = True
         notif.save(update_fields=["lida"])
+        if is_htmx(request):
+            return self._render_painel(request)
         if notif.link:
             return redirect(notif.link)
         return redirect("web:notificacoes")
+
+    def _render_painel(self, request):
+        notif_nao_lidas = Notificacao.objects.filter(destinatario=request.user, lida=False)
+        return render(request, "notificacoes/_painel.html", {
+            "notif_count": notif_nao_lidas.count(),
+            "notif_recentes": notif_nao_lidas[:5],
+        })
 
 
 class NotificacaoLerTodasView(LoginRequiredMixin, View):
     def post(self, request):
         Notificacao.objects.filter(destinatario=request.user, lida=False).update(lida=True)
+        if is_htmx(request):
+            return render(request, "notificacoes/_painel.html", {
+                "notif_count": 0,
+                "notif_recentes": [],
+            })
         return redirect("web:notificacoes")
 
 
