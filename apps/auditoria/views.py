@@ -43,18 +43,23 @@ class AuditoriaListView(AuditorMixin, View):
         "integracao": "Integracoes",
     }
 
+    PERIODOS = {"7": 7, "30": 30, "90": 90, "365": 365}
+
     def get(self, request, departamento):
         if departamento not in self.DEPTOS_VALIDOS:
             departamento = "financeiro"
 
         busca = request.GET.get("q", "").strip()
         fonte = request.GET.get("fonte", "").strip()
+        periodo = request.GET.get("periodo", "30").strip()
+        dias = self.PERIODOS.get(periodo, 30)
 
         logs = get_audit_logs(
             departamento=departamento,
             fonte=fonte or None,
             busca=busca or None,
-            limit=100,
+            dias=dias,
+            limit=200,
         )
 
         ctx = {
@@ -63,6 +68,7 @@ class AuditoriaListView(AuditorMixin, View):
             "departamento_label": self.DEPTOS_VALIDOS[departamento],
             "busca": busca,
             "fonte": fonte,
+            "periodo": periodo,
             "deptos": self.DEPTOS_VALIDOS,
         }
 

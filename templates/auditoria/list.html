@@ -16,21 +16,34 @@
              hx-get="{% url 'auditoria:list' departamento %}"
              hx-target="#audit-table"
              hx-trigger="keyup changed delay:300ms"
-             hx-include="[name='fonte']">
+             hx-include="[name='fonte'],[name='periodo']">
     </div>
-    <div class="w-40">
+    <div class="w-36">
       <label class="text-[11px] text-t3">Fonte</label>
       <select name="fonte" class="input text-sm"
               hx-get="{% url 'auditoria:list' departamento %}"
               hx-target="#audit-table"
               hx-trigger="change"
-              hx-include="[name='q']">
+              hx-include="[name='q'],[name='periodo']">
         <option value="">Todas</option>
         <option value="interno" {% if fonte == 'interno' %}selected{% endif %}>Interno</option>
         <option value="asaas_webhook" {% if fonte == 'asaas_webhook' %}selected{% endif %}>Asaas Webhook</option>
         <option value="api" {% if fonte == 'api' %}selected{% endif %}>API</option>
         <option value="celery" {% if fonte == 'celery' %}selected{% endif %}>Celery</option>
         <option value="sistema" {% if fonte == 'sistema' %}selected{% endif %}>Sistema</option>
+      </select>
+    </div>
+    <div class="w-32">
+      <label class="text-[11px] text-t3">Periodo</label>
+      <select name="periodo" class="input text-sm"
+              hx-get="{% url 'auditoria:list' departamento %}"
+              hx-target="#audit-table"
+              hx-trigger="change"
+              hx-include="[name='q'],[name='fonte']">
+        <option value="7" {% if periodo == '7' %}selected{% endif %}>7 dias</option>
+        <option value="30" {% if periodo == '30' %}selected{% endif %}>30 dias</option>
+        <option value="90" {% if periodo == '90' %}selected{% endif %}>90 dias</option>
+        <option value="365" {% if periodo == '365' %}selected{% endif %}>1 ano</option>
       </select>
     </div>
     <!-- Tabs departamentos -->
