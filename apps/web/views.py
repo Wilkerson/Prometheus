@@ -3326,8 +3326,10 @@ class LancamentoDetailView(PermissionRequiredMixin, View):
                 "categoria", "conta", "departamento", "cliente", "parceiro", "criado_por"
             ), pk=pk
         )
+        auditorias = lanc.auditoria.select_related("usuario").all()[:20]
         return render(request, "financeiro/lancamentos/detail.html", {
             "lanc": lanc,
+            "auditorias": auditorias,
             "can_edit": request.user.has_perm("financeiro.change_lancamento"),
         })
 

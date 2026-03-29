@@ -470,7 +470,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 77. [x] Modulo Financeiro Fase 4: Ativo (patrimonio, depreciacao calculada, baixa, inventario)
 78. [x] Modulo Financeiro Fase 5: Dashboard + DRE + Fluxo de Caixa + Fechamento mensal (CSV/JSON/XML/PDF)
 79. [x] Modulo Financeiro Fase 6: Gateway Asaas (models, service HTTP, webhook, views, Celery)
-80. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
+80. [x] Protecoes fiscais: AuditoriaLancamento (log imutavel), protecao duplicata id_externo, alerta webhook inativo
+81. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
 41. [ ] Aplicar design system (JSON) quando fornecido
 
 > **Stack front-end:** Zero Node.js. Tailwind CSS v4 via pytailwindcss (standalone binary), HTMX para interatividade server-driven, Alpine.js para estado local (dropdowns, modais, sidebar). Tudo servido pelo próprio Django.
@@ -486,7 +487,7 @@ Novos modulos sao implementados como submenus dentro do departamento corresponde
 |---|---|---|---|---|
 | 1 | **RH / Pessoas** | Completo (Fases 1-5) | Colaboradores, Documentos, Onboarding, Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios, Cargos, Setores | — |
 | 2 | **Comercial** | Implementado | Clientes, Pipeline, Calendario, +Novo, Produtos, Planos | — |
-| 3 | **Financeiro** | Completo (Fases 1-5) | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Relatorios, Contas Bancarias | Gateway Asaas (quando tiver conta) |
+| 3 | **Financeiro** | Completo (Fases 1-6) | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Relatorios, Contas Bancarias, Gateway Asaas, Auditoria | — |
 | 4 | **Marketing** | Placeholder | — | Campanhas, Leads de marketing, Analytics |
 | 5 | **Tecnologia** | Placeholder | — | Projetos, Roadmap, Infraestrutura |
 | 6 | **Juridico** | Placeholder | — | Contratos, Compliance, LGPD |

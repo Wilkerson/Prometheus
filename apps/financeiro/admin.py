@@ -1,10 +1,10 @@
 from django.contrib import admin
 
 from .models import (
-    AssinaturaAsaas, Ativo, CategoriaFinanceira, ClienteAsaas, Cobranca,
-    CobrancaAsaas, ConfiguracaoFolha, ContaBancaria, Despesa,
-    EventoWebhookAsaas, FolhaPagamento, Lancamento, LogExportacaoFolha,
-    NotaFiscal, Tributo,
+    AssinaturaAsaas, Ativo, AuditoriaLancamento, CategoriaFinanceira,
+    ClienteAsaas, Cobranca, CobrancaAsaas, ConfiguracaoFolha, ContaBancaria,
+    Despesa, EventoWebhookAsaas, FolhaPagamento, Lancamento,
+    LogExportacaoFolha, NotaFiscal, Tributo,
 )
 
 
@@ -111,3 +111,11 @@ class EventoWebhookAsaasAdmin(admin.ModelAdmin):
     list_display = ("evento", "asaas_payment_id", "processado", "recebido_em")
     list_filter = ("evento", "processado")
     readonly_fields = ("evento", "asaas_payment_id", "payload", "processado", "erro", "recebido_em")
+
+
+@admin.register(AuditoriaLancamento)
+class AuditoriaLancamentoAdmin(admin.ModelAdmin):
+    list_display = ("lancamento", "acao", "usuario", "criado_em")
+    list_filter = ("acao",)
+    search_fields = ("lancamento__descricao", "detalhes")
+    readonly_fields = ("lancamento", "acao", "detalhes", "usuario", "criado_em")

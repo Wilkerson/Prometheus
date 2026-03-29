@@ -217,6 +217,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60 * 60 * 24,  # verifica diariamente, gera no 1o dia do mes
         "options": {"queue": "default"},
     },
+    "financeiro-verificar-webhook-asaas": {
+        "task": "financeiro.verificar_webhook_asaas",
+        "schedule": 60 * 60 * 12,  # a cada 12 horas
+        "options": {"queue": "default"},
+    },
 }
 
 # -----------------------------------------------------------------------------

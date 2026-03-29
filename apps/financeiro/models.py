@@ -231,11 +231,58 @@ class Lancamento(models.Model):
         return f"{sinal} R${self.valor} — {self.descricao}"
 
     def save(self, *args, **kwargs):
+        # Registrar auditoria se e uma edicao (pk ja existe)
+        if self.pk:
+            try:
+                antigo = Lancamento.objects.get(pk=self.pk)
+                mudancas = []
+                for field in ["descricao", "valor", "valor_liquido", "status",
+                              "data_vencimento", "data_pagamento", "categoria_id",
+                              "conta_id", "canal", "observacao"]:
+                    val_antigo = getattr(antigo, field)
+                    val_novo = getattr(self, field)
+                    if str(val_antigo) != str(val_novo):
+                        mudancas.append(f"{field}: {val_antigo} → {val_novo}")
+                if mudancas:
+                    AuditoriaLancamento.objects.create(
+                        lancamento=self,
+                        acao="edicao",
+                        detalhes="; ".join(mudancas),
+                    )
+            except Lancamento.DoesNotExist:
+                pass
+
         if not self.data_competencia:
             self.data_competencia = self.data_vencimento
         if self.valor_liquido is None:
             self.valor_liquido = self.valor
         super().save(*args, **kwargs)
+
+
+# =========================================================================
+# Auditoria de Lancamentos
+# =========================================================================
+class AuditoriaLancamento(models.Model):
+    """Log imutavel de todas as alteracoes em lancamentos."""
+    lancamento = models.ForeignKey(
+        Lancamento, on_delete=models.CASCADE,
+        related_name="auditoria", verbose_name="Lançamento",
+    )
+    acao = models.CharField("Ação", max_length=20)
+    detalhes = models.TextField("Detalhes da alteração")
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, verbose_name="Usuário",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Auditoria de lançamento"
+        verbose_name_plural = "Auditorias de lançamentos"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.acao} — {self.lancamento} ({self.criado_em:%d/%m/%Y %H:%M})"
 
 
 # =========================================================================

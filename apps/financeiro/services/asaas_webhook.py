@@ -107,6 +107,15 @@ def _processar_payment_created(payment):
     cobranca = _get_or_create_cobranca(payment)
 
     if not cobranca.lancamento:
+        # Protecao contra duplicata: verificar se ja existe lancamento com esse id_externo
+        asaas_id = cobranca.asaas_id
+        lancamento_existente = Lancamento.objects.filter(id_externo=asaas_id).first()
+        if lancamento_existente:
+            cobranca.lancamento = lancamento_existente
+            cobranca.save(update_fields=["lancamento"])
+            logger.info(f"Lancamento existente vinculado: {asaas_id}")
+            return
+
         conta = _get_conta_asaas()
         cat = _get_categoria_receita()
         if conta and cat:
