@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Asaas{% endblock %}
 {% block page_title %}Asaas{% endblock %}
+{% block page_actions %}
+{% if can_sync %}
+<form method="post" action="{% url 'web:fin-asaas-sincronizar-tudo' %}" x-data="{ loading: false }">
+  {% csrf_token %}
+  <button type="submit" @click="loading = true" :disabled="loading" class="btn-secondary text-[12px]">
+    <span x-show="!loading">Sincronizar com Asaas</span>
+    <span x-show="loading" x-cloak>Sincronizando...</span>
+  </button>
+</form>
+{% endif %}
+{% endblock %}
 {% block content %}
 
 <!-- Resumo -->

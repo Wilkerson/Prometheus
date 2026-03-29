@@ -28,6 +28,23 @@ def processar_webhook_asaas(evento_id):
     processar_evento(evento_id)
 
 
+@shared_task(name="financeiro.sincronizar_asaas")
+def sincronizar_asaas():
+    """Sincroniza cobrancas e assinaturas do Asaas com o sistema local.
+    Agendado via Celery Beat para rodar diariamente.
+    """
+    import logging
+    from apps.financeiro.services.asaas_sync import sincronizar_tudo
+    logger = logging.getLogger(__name__)
+    resultado = sincronizar_tudo()
+    total = resultado["cobrancas_criadas"] + resultado["assinaturas_criadas"]
+    if total > 0:
+        logger.info(f"Sync Asaas: {resultado['cobrancas_criadas']} cobrancas, {resultado['assinaturas_criadas']} assinaturas criadas")
+    if resultado["erros"]:
+        logger.warning(f"Sync Asaas: {len(resultado['erros'])} erro(s)")
+    return resultado
+
+
 @shared_task(name="financeiro.verificar_webhook_asaas")
 def verificar_webhook_asaas():
     """Verifica se o webhook Asaas esta ativo (recebeu eventos nas ultimas 48h).

@@ -4923,6 +4923,24 @@ class FechamentoExportView(PermissionRequiredMixin, View):
 # ASAAS (Gateway)
 # ===========================================================================
 
+class AsaasSincronizarTudoView(PermissionRequiredMixin, View):
+    """Sincroniza cobrancas e assinaturas do Asaas com o sistema local."""
+    permission_required = "financeiro.change_clienteasaas"
+
+    def post(self, request):
+        from django.contrib import messages
+        from apps.financeiro.services.asaas_sync import sincronizar_tudo
+        resultado = sincronizar_tudo()
+        total = resultado["cobrancas_criadas"] + resultado["assinaturas_criadas"] + resultado["lancamentos_criados"]
+        if resultado["erros"]:
+            messages.warning(request, f"Sincronizacao com {len(resultado['erros'])} erro(s). {total} registro(s) importado(s).")
+        elif total > 0:
+            messages.success(request, f"Sincronizacao concluida: {resultado['cobrancas_criadas']} cobranca(s), {resultado['assinaturas_criadas']} assinatura(s), {resultado['lancamentos_criados']} lancamento(s).")
+        else:
+            messages.info(request, "Tudo sincronizado — nenhum registro novo encontrado.")
+        return redirect("web:fin-asaas")
+
+
 class AsaasDashboardView(PermissionRequiredMixin, View):
     """Painel de controle do Asaas — tudo em uma pagina."""
     permission_required = "financeiro.view_clienteasaas"

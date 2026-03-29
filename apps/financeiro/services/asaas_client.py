@@ -144,3 +144,24 @@ class AsaasClient:
         """Lista cobrancas de uma assinatura."""
         result = self.get(f"/subscriptions/{subscription_id}/payments")
         return result.get("data", [])
+
+    # -----------------------------------------------------------------
+    # Listagens (para sincronizacao)
+    # -----------------------------------------------------------------
+    def listar_cobrancas_cliente(self, customer_id, offset=0, limit=100):
+        """Lista cobrancas de um cliente."""
+        result = self.get("/payments", params={
+            "customer": customer_id,
+            "offset": offset,
+            "limit": limit,
+        })
+        return result.get("data", [])
+
+    def listar_assinaturas_cliente(self, customer_id, offset=0, limit=100):
+        """Lista assinaturas de um cliente."""
+        result = self.get("/subscriptions", params={
+            "customer": customer_id,
+            "offset": offset,
+            "limit": limit,
+        })
+        return result.get("data", [])
