@@ -102,9 +102,12 @@ def _normalize_cliente_historico(entry):
     }
 
 
-def get_audit_logs(departamento=None, fonte=None, busca=None, dias=30, limit=50):
-    """Retorna logs de auditoria unificados, ordenados por data desc."""
-    from datetime import timedelta
+def get_audit_logs(departamento=None, fonte=None, busca=None, dias=30, data_de=None, data_ate=None, limit=50):
+    """Retorna logs de auditoria unificados, ordenados por data desc.
+
+    Se data_de/data_ate forem fornecidos, ignoram o parametro dias.
+    """
+    from datetime import datetime, timedelta
 
     from django.utils import timezone
 
@@ -115,10 +118,22 @@ def get_audit_logs(departamento=None, fonte=None, busca=None, dias=30, limit=50)
     )
 
     results = []
-    desde = timezone.now() - timedelta(days=dias)
+
+    # Resolver periodo
+    if data_de:
+        desde = timezone.make_aware(datetime.combine(data_de, datetime.min.time())) if timezone.is_naive(datetime.combine(data_de, datetime.min.time())) else datetime.combine(data_de, datetime.min.time())
+    else:
+        desde = timezone.now() - timedelta(days=dias)
+
+    if data_ate:
+        ate = timezone.make_aware(datetime.combine(data_ate, datetime.max.time())) if timezone.is_naive(datetime.combine(data_ate, datetime.max.time())) else datetime.combine(data_ate, datetime.max.time())
+    else:
+        ate = None
 
     # 1. AuditLog (modelo canonico)
     qs_audit = AuditLog.objects.select_related("usuario").filter(criado_em__gte=desde)
+    if ate:
+        qs_audit = qs_audit.filter(criado_em__lte=ate)
     if departamento:
         qs_audit = qs_audit.filter(departamento=departamento)
     if fonte:
@@ -131,6 +146,8 @@ def get_audit_logs(departamento=None, fonte=None, busca=None, dias=30, limit=50)
     # 2. AuditoriaLancamento (legado — departamento financeiro)
     if not departamento or departamento == "financeiro":
         qs_lanc = AuditoriaLancamento.objects.select_related("lancamento", "usuario").filter(criado_em__gte=desde)
+        if ate:
+            qs_lanc = qs_lanc.filter(criado_em__lte=ate)
         if busca:
             qs_lanc = qs_lanc.filter(detalhes__icontains=busca)
         if not fonte or fonte == "interno":
@@ -140,6 +157,8 @@ def get_audit_logs(departamento=None, fonte=None, busca=None, dias=30, limit=50)
     # 3. EventoWebhookAsaas (legado — departamento integracao)
     if not departamento or departamento == "integracao":
         qs_wh = EventoWebhookAsaas.objects.filter(recebido_em__gte=desde)
+        if ate:
+            qs_wh = qs_wh.filter(recebido_em__lte=ate)
         if busca:
             qs_wh = qs_wh.filter(evento__icontains=busca)
         if not fonte or fonte == "asaas_webhook":
@@ -149,6 +168,8 @@ def get_audit_logs(departamento=None, fonte=None, busca=None, dias=30, limit=50)
     # 4. LogExportacaoFolha (legado — departamento financeiro)
     if not departamento or departamento == "financeiro":
         qs_exp = LogExportacaoFolha.objects.select_related("exportado_por").filter(criado_em__gte=desde)
+        if ate:
+            qs_exp = qs_exp.filter(criado_em__lte=ate)
         if not fonte or fonte == "interno":
             for e in qs_exp[:limit]:
                 results.append(_normalize_log_exportacao(e))
@@ -156,6 +177,8 @@ def get_audit_logs(departamento=None, fonte=None, busca=None, dias=30, limit=50)
     # 5. ClienteHistorico (legado — departamento comercial)
     if not departamento or departamento == "comercial":
         qs_hist = ClienteHistorico.objects.select_related("cliente", "usuario").filter(criado_em__gte=desde)
+        if ate:
+            qs_hist = qs_hist.filter(criado_em__lte=ate)
         if busca:
             qs_hist = qs_hist.filter(cliente__nome__icontains=busca)
         if not fonte or fonte == "interno":

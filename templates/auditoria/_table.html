@@ -1,4 +1,14 @@
 {% if logs %}
+<!-- Barra de resultados + Export -->
+<div class="flex items-center justify-between mb-3">
+  <span class="text-[12px] text-t3">{{ total_logs }} registro{{ total_logs|pluralize:"s" }} encontrado{{ total_logs|pluralize:"s" }}</span>
+  <div class="flex gap-2">
+    <a href="{% url 'auditoria:export-csv' %}?departamento={{ departamento }}&fonte={{ fonte }}&q={{ busca }}&periodo={{ periodo }}&data_de={{ data_de }}&data_ate={{ data_ate }}"
+       class="btn-secondary text-[11px]">CSV</a>
+    <a href="{% url 'auditoria:export-pdf' %}?departamento={{ departamento }}&fonte={{ fonte }}&q={{ busca }}&periodo={{ periodo }}&data_de={{ data_de }}&data_ate={{ data_ate }}"
+       class="btn-primary text-[11px]">PDF</a>
+  </div>
+</div>
 <div class="overflow-x-auto">
   <table class="w-full text-sm">
     <thead>

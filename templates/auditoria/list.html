@@ -1,30 +1,27 @@
 {% extends "base.html" %}
 {% block title %}Auditoria — {{ departamento_label }}{% endblock %}
 {% block page_title %}Auditoria — {{ departamento_label }}{% endblock %}
-{% block page_actions %}
-<a href="{% url 'auditoria:export' %}?departamento={{ departamento }}&fonte={{ fonte }}&q={{ busca }}" class="btn-secondary text-[12px]">Exportar CSV</a>
-{% endblock %}
 {% block content %}
 
 <!-- Filtros -->
-<div class="card mb-4">
+<div class="card mb-4" x-data="{ custom: {{ periodo }} === 'custom' ? true : false }">
   <div class="flex flex-wrap gap-3 items-end">
-    <div class="flex-1 min-w-[200px]">
+    <div class="flex-1 min-w-[180px]">
       <label class="text-[11px] text-t3">Buscar</label>
       <input type="search" name="q" value="{{ busca }}" placeholder="Descricao, entidade..."
              class="input text-sm"
              hx-get="{% url 'auditoria:list' departamento %}"
              hx-target="#audit-table"
              hx-trigger="keyup changed delay:300ms"
-             hx-include="[name='fonte'],[name='periodo']">
+             hx-include="[name='fonte'],[name='periodo'],[name='data_de'],[name='data_ate']">
     </div>
-    <div class="w-36">
+    <div class="w-32">
       <label class="text-[11px] text-t3">Fonte</label>
       <select name="fonte" class="input text-sm"
               hx-get="{% url 'auditoria:list' departamento %}"
               hx-target="#audit-table"
               hx-trigger="change"
-              hx-include="[name='q'],[name='periodo']">
+              hx-include="[name='q'],[name='periodo'],[name='data_de'],[name='data_ate']">
         <option value="">Todas</option>
         <option value="interno" {% if fonte == 'interno' %}selected{% endif %}>Interno</option>
         <option value="asaas_webhook" {% if fonte == 'asaas_webhook' %}selected{% endif %}>Asaas Webhook</option>
@@ -36,29 +33,50 @@
     <div class="w-32">
       <label class="text-[11px] text-t3">Periodo</label>
       <select name="periodo" class="input text-sm"
+              @change="custom = ($event.target.value === 'custom')"
               hx-get="{% url 'auditoria:list' departamento %}"
               hx-target="#audit-table"
               hx-trigger="change"
-              hx-include="[name='q'],[name='fonte']">
+              hx-include="[name='q'],[name='fonte'],[name='data_de'],[name='data_ate']">
         <option value="7" {% if periodo == '7' %}selected{% endif %}>7 dias</option>
         <option value="30" {% if periodo == '30' %}selected{% endif %}>30 dias</option>
         <option value="90" {% if periodo == '90' %}selected{% endif %}>90 dias</option>
         <option value="365" {% if periodo == '365' %}selected{% endif %}>1 ano</option>
+        <option value="custom" {% if periodo == 'custom' %}selected{% endif %}>Customizado</option>
       </select>
     </div>
-    <!-- Tabs departamentos -->
-    <div class="flex gap-1 ml-auto">
-      {% for key, label in deptos.items %}
-      <a href="{% url 'auditoria:list' key %}"
-         class="px-3 py-1.5 rounded-lg text-[12px] no-underline {% if key == departamento %}bg-ruch-accent/15 text-ruch-accent font-medium{% else %}text-t3 hover:bg-bg3{% endif %}">
-        {{ label }}
-      </a>
-      {% endfor %}
+    <!-- Datas customizadas -->
+    <div class="flex gap-2" x-show="custom" x-cloak x-transition>
+      <div class="w-36">
+        <label class="text-[11px] text-t3">De</label>
+        <input type="date" name="data_de" value="{{ data_de }}" class="input text-sm"
+               hx-get="{% url 'auditoria:list' departamento %}"
+               hx-target="#audit-table"
+               hx-trigger="change"
+               hx-include="[name='q'],[name='fonte'],[name='periodo'],[name='data_ate']">
+      </div>
+      <div class="w-36">
+        <label class="text-[11px] text-t3">Ate</label>
+        <input type="date" name="data_ate" value="{{ data_ate }}" class="input text-sm"
+               hx-get="{% url 'auditoria:list' departamento %}"
+               hx-target="#audit-table"
+               hx-trigger="change"
+               hx-include="[name='q'],[name='fonte'],[name='periodo'],[name='data_de']">
+      </div>
     </div>
+  </div>
+  <!-- Tabs departamentos -->
+  <div class="flex gap-1 mt-3 pt-3 border-t border-bdr">
+    {% for key, label in deptos.items %}
+    <a href="{% url 'auditoria:list' key %}"
+       class="px-3 py-1.5 rounded-lg text-[12px] no-underline {% if key == departamento %}bg-ruch-accent/15 text-ruch-accent font-medium{% else %}text-t3 hover:bg-bg3{% endif %}">
+      {{ label }}
+    </a>
+    {% endfor %}
   </div>
 </div>
 
-<!-- Tabela -->
+<!-- Tabela + Export -->
 <div class="card">
   <div id="audit-table">
     {% include "auditoria/_table.html" %}
