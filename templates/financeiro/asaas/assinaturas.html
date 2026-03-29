@@ -31,9 +31,7 @@
           <td class="py-3 text-t2">{{ a.get_ciclo_display }}</td>
           <td class="py-3 text-t2">{{ a.proximo_vencimento|date:"d/m/Y"|default:"—" }}</td>
           <td class="py-3 whitespace-nowrap">
-            {% if a.status == 'ACTIVE' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativa</span>
-            {% elif a.status == 'INACTIVE' %}<span class="badge bg-bg4 text-t3">Inativa</span>
-            {% else %}<span class="badge bg-red-500/15 text-red-500">Expirada</span>{% endif %}
+            <span class="badge {{ a.status|asaas_badge }}">{{ a.status|asaas_status }}</span>
           </td>
           <td class="py-3 whitespace-nowrap">
             {% if a.status == 'ACTIVE' %}

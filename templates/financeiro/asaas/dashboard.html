@@ -99,10 +99,7 @@
           <td class="py-2 font-medium text-t1">{{ c.valor|brl }}</td>
           <td class="py-2 text-t2">{{ c.vencimento|date:"d/m/Y" }}</td>
           <td class="py-2 whitespace-nowrap">
-            {% if c.status == 'RECEIVED' or c.status == 'CONFIRMED' %}<span class="badge bg-emerald-500/15 text-emerald-500">Pago</span>
-            {% elif c.status == 'PENDING' %}<span class="badge bg-blue-500/15 text-blue-500">Pendente</span>
-            {% elif c.status == 'OVERDUE' %}<span class="badge bg-red-500/15 text-red-500">Vencido</span>
-            {% else %}<span class="badge bg-bg4 text-t3">{{ c.status }}</span>{% endif %}
+            <span class="badge {{ c.status|asaas_badge }}">{{ c.status|asaas_status }}</span>
           </td>
         </tr>
         {% endfor %}
