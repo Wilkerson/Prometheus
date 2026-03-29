@@ -4818,6 +4818,33 @@ class FechamentoExportView(PermissionRequiredMixin, View):
 # ASAAS (Gateway)
 # ===========================================================================
 
+class AsaasDashboardView(PermissionRequiredMixin, View):
+    """Painel de controle do Asaas — tudo em uma pagina."""
+    permission_required = "financeiro.view_clienteasaas"
+
+    def get(self, request):
+        clientes_sync = ClienteAsaas.objects.select_related("cliente").order_by("-sincronizado_em")
+        sincronizados_ids = clientes_sync.values_list("cliente_id", flat=True)
+        clientes_nao_sync = Cliente.objects.filter(ativo=True).exclude(pk__in=sincronizados_ids)
+        cobrancas = CobrancaAsaas.objects.select_related("cliente").order_by("-vencimento")[:10]
+        assinaturas = AssinaturaAsaas.objects.select_related("cliente", "plano").order_by("-criado_em")[:10]
+        eventos = EventoWebhookAsaas.objects.order_by("-recebido_em")[:10]
+
+        return render(request, "financeiro/asaas/dashboard.html", {
+            "clientes_sync": clientes_sync,
+            "clientes_nao_sync": clientes_nao_sync,
+            "cobrancas": cobrancas,
+            "assinaturas": assinaturas,
+            "eventos": eventos,
+            "total_sync": clientes_sync.count(),
+            "total_nao_sync": clientes_nao_sync.count(),
+            "total_cobrancas": CobrancaAsaas.objects.count(),
+            "total_assinaturas": AssinaturaAsaas.objects.count(),
+            "can_sync": request.user.has_perm("financeiro.add_clienteasaas"),
+            "can_cobrar": request.user.has_perm("financeiro.add_cobrancaasaas"),
+        })
+
+
 class AsaasClienteListView(PermissionRequiredMixin, ListView):
     template_name = "financeiro/asaas/clientes.html"
     context_object_name = "clientes_asaas"

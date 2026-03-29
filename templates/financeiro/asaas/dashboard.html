@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Asaas{% endblock %}
+{% block page_title %}Gateway Asaas{% endblock %}
+{% block page_actions %}
+<div class="flex gap-2">
+  {% if can_cobrar %}<a href="{% url 'web:fin-asaas-criar-cobranca' %}" class="btn-primary">+ Nova Cobrança</a>{% endif %}
+</div>
+{% endblock %}
+{% block content %}
+
+<!-- Resumo -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-t1">{{ total_sync }}</div>
+    <div class="text-[11px] text-t3 mt-1">Clientes sincronizados</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-amber-500">{{ total_nao_sync }}</div>
+    <div class="text-[11px] text-t3 mt-1">Pendentes de sincronização</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-ruch-accent">{{ total_cobrancas }}</div>
+    <div class="text-[11px] text-t3 mt-1">Cobranças</div>
+  </div>
+  <div class="card text-center">
+    <div class="text-3xl font-bold text-blue-500">{{ total_assinaturas }}</div>
+    <div class="text-[11px] text-t3 mt-1">Assinaturas</div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+  <!-- Clientes sincronizados -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-t2">Clientes sincronizados</h3>
+      <a href="{% url 'web:fin-asaas-clientes' %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Ver todos</a>
+    </div>
+    {% if clientes_sync %}
+    <div class="space-y-2">
+      {% for ca in clientes_sync|slice:":5" %}
+      <div class="flex items-center justify-between p-2 rounded-lg bg-bg3">
+        <div>
+          <div class="text-sm text-t1">{{ ca.cliente.nome }}</div>
+          <div class="text-[10px] text-t3">{{ ca.cliente.cnpj }}</div>
+        </div>
+        <span class="font-mono text-[10px] text-ruch-accent">{{ ca.asaas_id }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-t3">Nenhum cliente sincronizado.</p>
+    {% endif %}
+  </div>
+
+  <!-- Pendentes de sincronizacao -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-t2">Pendentes de sincronização</h3>
+    </div>
+    {% if clientes_nao_sync and can_sync %}
+    <div class="space-y-2">
+      {% for c in clientes_nao_sync|slice:":5" %}
+      <div class="flex items-center justify-between p-2 rounded-lg bg-bg3">
+        <div>
+          <div class="text-sm text-t1">{{ c.nome }}</div>
+          <div class="text-[10px] text-t3">{{ c.cnpj }}</div>
+        </div>
+        <form method="post" action="{% url 'web:fin-asaas-sincronizar' c.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="text-[12px] text-ruch-accent hover:text-t1">Sincronizar</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-t3">Todos os clientes estão sincronizados.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Cobrancas recentes -->
+<div class="card mb-4">
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-sm font-semibold text-t2">Cobranças recentes</h3>
+    <a href="{% url 'web:fin-asaas-cobrancas' %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Ver todas</a>
+  </div>
+  {% if cobrancas %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-bdr text-left text-t3">
+          <th class="pb-2 font-medium">ID</th>
+          <th class="pb-2 font-medium">Cliente</th>
+          <th class="pb-2 font-medium">Valor</th>
+          <th class="pb-2 font-medium">Vencimento</th>
+          <th class="pb-2 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-bdr">
+        {% for c in cobrancas %}
+        <tr class="hover:bg-bg3">
+          <td class="py-2 font-mono text-[11px] text-ruch-accent">{{ c.asaas_id }}</td>
+          <td class="py-2 text-t1">{{ c.cliente.nome }}</td>
+          <td class="py-2 font-medium text-t1">{{ c.valor|brl }}</td>
+          <td class="py-2 text-t2">{{ c.vencimento|date:"d/m/Y" }}</td>
+          <td class="py-2 whitespace-nowrap">
+            {% if c.status == 'RECEIVED' or c.status == 'CONFIRMED' %}<span class="badge bg-emerald-500/15 text-emerald-500">Pago</span>
+            {% elif c.status == 'PENDING' %}<span class="badge bg-blue-500/15 text-blue-500">Pendente</span>
+            {% elif c.status == 'OVERDUE' %}<span class="badge bg-red-500/15 text-red-500">Vencido</span>
+            {% else %}<span class="badge bg-bg4 text-t3">{{ c.status }}</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-sm text-t3">Nenhuma cobrança registrada.</p>
+  {% endif %}
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <!-- Assinaturas -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-t2">Assinaturas recorrentes</h3>
+      <a href="{% url 'web:fin-asaas-assinaturas' %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Ver todas</a>
+    </div>
+    {% if assinaturas %}
+    <div class="space-y-2">
+      {% for a in assinaturas %}
+      <div class="flex items-center justify-between p-2 rounded-lg bg-bg3">
+        <div>
+          <div class="text-sm text-t1">{{ a.cliente.nome }}</div>
+          <div class="text-[10px] text-t3">{{ a.get_ciclo_display }} · {{ a.valor|brl }}</div>
+        </div>
+        {% if a.status == 'ACTIVE' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativa</span>
+        {% else %}<span class="badge bg-bg4 text-t3">{{ a.get_status_display }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-t3">Nenhuma assinatura.</p>
+    {% endif %}
+  </div>
+
+  <!-- Webhook log -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-t2">Últimos eventos webhook</h3>
+      <a href="{% url 'web:fin-asaas-webhook-log' %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Ver todos</a>
+    </div>
+    {% if eventos %}
+    <div class="space-y-2">
+      {% for e in eventos %}
+      <div class="flex items-center justify-between p-2 rounded-lg bg-bg3">
+        <div>
+          <div class="text-sm text-t1">{{ e.evento }}</div>
+          <div class="text-[10px] text-t3">{{ e.recebido_em|date:"d/m/Y H:i" }}</div>
+        </div>
+        {% if e.processado %}<span class="badge bg-emerald-500/15 text-emerald-500">OK</span>
+        {% else %}<span class="badge bg-amber-500/15 text-amber-500">Pendente</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-t3">Nenhum evento recebido.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

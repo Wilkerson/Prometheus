@@ -172,6 +172,7 @@ urlpatterns = [
     path("financeiro/fechamento/", views.FechamentoMensalView.as_view(), name="fin-fechamento"),
     path("financeiro/fechamento/exportar/", views.FechamentoExportView.as_view(), name="fin-fechamento-exportar"),
     # Financeiro — Asaas (Gateway)
+    path("financeiro/asaas/", views.AsaasDashboardView.as_view(), name="fin-asaas"),
     path("financeiro/asaas/clientes/", views.AsaasClienteListView.as_view(), name="fin-asaas-clientes"),
     path("financeiro/asaas/sincronizar/<int:cliente_pk>/", views.AsaasSincronizarClienteView.as_view(), name="fin-asaas-sincronizar"),
     path("financeiro/asaas/cobrancas/", views.AsaasCobrancaListView.as_view(), name="fin-asaas-cobrancas"),
