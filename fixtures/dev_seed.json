@@ -149,61 +149,61 @@
   {"model": "crm.endereco", "pk": 10, "fields": {"cep": "01452-001", "logradouro": "Av. Brig. Faria Lima", "numero": "2277", "complemento": "Conj 1801", "bairro": "Jardim Paulistano", "cidade": "Sao Paulo", "uf": "SP"}},
 
   {"model": "crm.cliente", "pk": 1, "fields": {
-    "parceiro": 1, "operador": 13, "nome": "Tech Solutions Ltda", "cnpj": "12345678000101",
+    "parceiro": 1, "operador": 13, "nome": "Tech Solutions Ltda", "cnpj": "12345678000195",
     "email": "contato@techsolutions.com.br", "telefone": "11987654321", "endereco": 1,
     "status": "concluida", "arquivo": "", "ativo": true,
     "criado_em": "2026-01-20T14:00:00Z", "atualizado_em": "2026-02-15T10:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 2, "fields": {
-    "parceiro": 1, "operador": 13, "nome": "Comercio Digital SP Ltda", "cnpj": "23456789000102",
+    "parceiro": 1, "operador": 13, "nome": "Comercio Digital SP Ltda", "cnpj": "23456789000195",
     "email": "admin@comerciodigitalsp.com.br", "telefone": "11976543210", "endereco": 2,
     "status": "em_processamento", "arquivo": "", "ativo": true,
     "criado_em": "2026-02-01T09:00:00Z", "atualizado_em": "2026-03-10T10:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 3, "fields": {
-    "parceiro": 1, "operador": null, "nome": "Industria Paulista SA", "cnpj": "34567890000103",
+    "parceiro": 1, "operador": null, "nome": "Industria Paulista SA", "cnpj": "34567890000130",
     "email": "rh@industriapaulista.com.br", "telefone": "11965432109", "endereco": 3,
     "status": "em_analise", "arquivo": "", "ativo": true,
     "criado_em": "2026-03-05T11:00:00Z", "atualizado_em": "2026-03-20T10:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 4, "fields": {
-    "parceiro": 2, "operador": 14, "nome": "Rio Marketing Digital EIRELI", "cnpj": "45678901000104",
+    "parceiro": 2, "operador": 14, "nome": "Rio Marketing Digital EIRELI", "cnpj": "45678901000175",
     "email": "contato@riomarketing.com.br", "telefone": "21987654321", "endereco": 4,
     "status": "concluida", "arquivo": "", "ativo": true,
     "criado_em": "2026-01-25T15:00:00Z", "atualizado_em": "2026-02-20T10:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 5, "fields": {
-    "parceiro": 2, "operador": 14, "nome": "Copacabana Turismo Ltda", "cnpj": "56789012000105",
+    "parceiro": 2, "operador": 14, "nome": "Copacabana Turismo Ltda", "cnpj": "56789012000100",
     "email": "reservas@copaturismo.com.br", "telefone": "21976543210", "endereco": 5,
     "status": "em_processamento", "arquivo": "", "ativo": true,
     "criado_em": "2026-02-10T08:00:00Z", "atualizado_em": "2026-03-15T10:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 6, "fields": {
-    "parceiro": 2, "operador": null, "nome": "Botafogo Empreendimentos SA", "cnpj": "67890123000106",
+    "parceiro": 2, "operador": null, "nome": "Botafogo Empreendimentos SA", "cnpj": "67890123000116",
     "email": "diretoria@botafogoempreend.com.br", "telefone": "21965432109", "endereco": 6,
     "status": "recebida", "arquivo": "", "ativo": true,
     "criado_em": "2026-03-20T16:00:00Z", "atualizado_em": "2026-03-20T16:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 7, "fields": {
-    "parceiro": 3, "operador": 13, "nome": "Minas Gerais Logistica Ltda", "cnpj": "78901234000107",
+    "parceiro": 3, "operador": 13, "nome": "Minas Gerais Logistica Ltda", "cnpj": "78901234000105",
     "email": "operacoes@mglogistica.com.br", "telefone": "31987654321", "endereco": 7,
     "status": "concluida", "arquivo": "", "ativo": true,
     "criado_em": "2026-02-08T10:00:00Z", "atualizado_em": "2026-03-01T10:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 8, "fields": {
-    "parceiro": 3, "operador": 14, "nome": "BH Consultoria Empresarial", "cnpj": "89012345000108",
+    "parceiro": 3, "operador": 14, "nome": "BH Consultoria Empresarial", "cnpj": "89012345000179",
     "email": "contato@bhconsultoria.com.br", "telefone": "31976543210", "endereco": 8,
     "status": "em_analise", "arquivo": "", "ativo": true,
     "criado_em": "2026-03-01T14:00:00Z", "atualizado_em": "2026-03-22T10:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 9, "fields": {
-    "parceiro": 3, "operador": null, "nome": "Centro Comercial Sete Ltda", "cnpj": "90123456000109",
+    "parceiro": 3, "operador": null, "nome": "Centro Comercial Sete Ltda", "cnpj": "90123456000131",
     "email": "adm@centrosete.com.br", "telefone": "31965432109", "endereco": 9,
     "status": "recebida", "arquivo": "", "ativo": true,
     "criado_em": "2026-03-22T09:00:00Z", "atualizado_em": "2026-03-22T09:00:00Z"
   }},
   {"model": "crm.cliente", "pk": 10, "fields": {
-    "parceiro": 1, "operador": 13, "nome": "Faria Lima Ventures SA", "cnpj": "01234567000110",
+    "parceiro": 1, "operador": 13, "nome": "Faria Lima Ventures SA", "cnpj": "01234567000195",
     "email": "invest@farialima.vc", "telefone": "11954321098", "endereco": 10,
     "status": "perdida", "arquivo": "", "ativo": false,
     "criado_em": "2026-01-30T12:00:00Z", "atualizado_em": "2026-02-28T10:00:00Z"
