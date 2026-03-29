@@ -80,21 +80,49 @@
         </div>
         {% endif %}
 
-        <div>
-          <label for="groups" class="label">Grupo</label>
-          <select name="groups" id="groups" class="input"
-                  hx-get="{% url 'web:usuario-permissoes-grupo' %}"
-                  hx-target="#matrix-container"
-                  hx-trigger="change"
-                  hx-vals='js:{"group_id": document.getElementById("groups").value}'>
-            <option value="">Sem grupo</option>
+        <div x-data="{
+          open: false,
+          selected: [{% for gid in usuario_groups %}{{ gid }}{% if not forloop.last %},{% endif %}{% endfor %}],
+          names: { {% for group in groups %}{{ group.id }}:'{{ group.name }}'{% if not forloop.last %},{% endif %}{% endfor %} },
+          toggle(id) {
+            const idx = this.selected.indexOf(id);
+            if (idx === -1) this.selected.push(id);
+            else this.selected.splice(idx, 1);
+          },
+          has(id) { return this.selected.includes(id); }
+        }">
+          <label class="label">Grupos</label>
+          <div @click="open = !open" class="input cursor-pointer flex flex-wrap items-center gap-1.5 min-h-[38px]">
+            <template x-for="id in selected" :key="id">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-ruch-accent/15 text-ruch-accent">
+                <span x-text="names[id]"></span>
+                <button type="button" @click.stop="toggle(id)" class="hover:text-t1">&times;</button>
+              </span>
+            </template>
+            <span x-show="selected.length === 0" class="text-sm text-t3">Selecionar grupos...</span>
+            <svg class="w-4 h-4 text-t3 ml-auto flex-shrink-0" :class="open && 'rotate-180'" style="transition:transform .15s" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div x-show="open" x-cloak @click.outside="open = false" x-transition
+               class="mt-1 rounded-lg border border-bdr bg-bg2 shadow-lg overflow-hidden max-h-48 overflow-y-auto">
             {% for group in groups %}
-            <option value="{{ group.id }}" {% if group.id in usuario_groups %}selected{% endif %}>{{ group.name }}</option>
+            <button type="button" @click="toggle({{ group.id }})"
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-bg3 text-left"
+                    :class="has({{ group.id }}) ? 'text-ruch-accent font-medium' : 'text-t2'">
+              <span class="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0"
+                    :class="has({{ group.id }}) ? 'border-ruch-accent bg-ruch-accent/15' : 'border-bdr'">
+                <svg x-show="has({{ group.id }})" class="w-3 h-3 text-ruch-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              </span>
+              {{ group.name }}
+            </button>
             {% endfor %}
-          </select>
+          </div>
+          <template x-for="id in selected" :key="'input-'+id">
+            <input type="hidden" name="groups" :value="id">
+          </template>
           {% if not groups %}
           <p class="text-xs text-t3 mt-2">Nenhum grupo cadastrado. <a href="{% url 'web:grupo-create' %}" class="text-ruch-accent no-underline">Criar grupo</a></p>
           {% endif %}
+          <p class="text-xs text-t3 mt-1">Um usuario pode pertencer a varios grupos. As permissoes sao somadas.</p>
         </div>
 
         <div class="flex flex-wrap gap-6">

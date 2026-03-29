@@ -110,6 +110,23 @@ class Command(BaseCommand):
         g.permissions.set(perms)
         self._log(g, created)
 
+        # ---------------------------------------------------------------
+        # Auditor — acesso a logs de auditoria de todos os modulos
+        # ---------------------------------------------------------------
+        g, created = Group.objects.get_or_create(name="Auditor")
+        perms = Permission.objects.filter(codename__in=[
+            "view_auditorialancamento",
+        ])
+        g.permissions.set(perms)
+        self._log(g, created)
+
+        # Adicionar permissoes de auditoria ao Administrador tambem
+        admin_group = Group.objects.filter(name="Administrador").first()
+        if admin_group:
+            audit_perms = Permission.objects.filter(codename="view_auditorialancamento")
+            for p in audit_perms:
+                admin_group.permissions.add(p)
+
         # Remove grupos legados que nao existem mais
         removed = Group.objects.filter(
             name__in=["Entidades Parceiras", "Operadores"]
