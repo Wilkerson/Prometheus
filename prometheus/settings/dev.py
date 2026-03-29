@@ -13,6 +13,13 @@ ALLOWED_HOSTS = ["*"]
 # CORS permissivo em dev
 CORS_ALLOW_ALL_ORIGINS = True
 
+# Aceitar webhooks via ngrok em dev
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "https://*.ngrok-free.app",
+    "https://*.ngrok.io",
+]
+
 # Email no console
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
