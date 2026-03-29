@@ -14,6 +14,7 @@ from apps.financeiro.models import (
 )
 
 from apps.auditoria.utils import registrar as audit
+from apps.financeiro.emails import enviar_cobranca_vencida, enviar_pagamento_recebido
 from apps.financeiro.notifications import (
     notificar_cobranca_cancelada, notificar_cobranca_vencida,
     notificar_pagamento_recebido,
@@ -161,6 +162,7 @@ def _processar_payment_received(payment):
         cobranca.lancamento.save(update_fields=["status", "data_pagamento", "valor_liquido"])
         audit("status", "financeiro", f"Pagamento confirmado via webhook: {cobranca.asaas_id}", instance=cobranca.lancamento, fonte="asaas_webhook", detalhes={"pago_em": str(pago_em), "valor_liquido": str(cobranca.valor_liquido)})
         notificar_pagamento_recebido(cobranca)
+        enviar_pagamento_recebido(cobranca)
     else:
         _processar_payment_created(payment)
         cobranca.refresh_from_db()
@@ -182,6 +184,7 @@ def _processar_payment_overdue(payment):
         cobranca.lancamento.save(update_fields=["status"])
 
     notificar_cobranca_vencida(cobranca)
+    enviar_cobranca_vencida(cobranca)
 
 
 def _processar_payment_cancelled(payment):

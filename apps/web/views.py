@@ -852,6 +852,8 @@ class UsuarioCreateView(PermissionRequiredMixin, View):
             user.groups.set(group_ids)
 
         audit("criacao", "administracao", f"Usuario criado: {user.username}", instance=user, request=request)
+        from apps.crm.notifications import notificar_admins
+        notificar_admins(Notificacao.Tipo.USUARIO_CRIADO, f"Novo usuario: {user.get_full_name() or user.username}", link=f"/usuarios/{user.pk}/editar/")
         return redirect("web:usuarios")
 
 
@@ -2045,6 +2047,8 @@ class ColaboradorCriarAcessoView(PermissionRequiredMixin, View):
         from django.contrib import messages
         messages.success(request, f"Acesso criado para {colab.nome_completo} (usuario: {username}). Email enviado para {colab.email_pessoal}.")
         audit("criacao", "rh", f"Acesso criado para {colab.nome_completo} (usuario: {username})", instance=user, request=request)
+        from apps.crm.notifications import notificar_admins
+        notificar_admins(Notificacao.Tipo.USUARIO_CRIADO, f"Acesso criado: {colab.nome_completo}", mensagem=f"Usuario: {username}", link=f"/rh/colaboradores/{pk}/")
         return redirect("web:rh-colaborador-detail", pk=pk)
 
 
