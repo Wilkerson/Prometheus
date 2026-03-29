@@ -173,6 +173,34 @@ DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps
 
 ---
 
+## Ambientes
+
+| | Dev | Staging | Producao |
+|---|---|---|---|
+| Settings | `dev.py` | `staging.py` | `production.py` |
+| Banco | prometheus | prometheus_staging | prometheus |
+| Dominio | localhost:8000 | staging.ruch.solutions | ruch.solutions |
+| Asaas | sandbox | sandbox | producao |
+| Fixtures | `reset_dev` | automatico | nunca |
+
+**Staging:** `cp .env.staging.example .env.staging && docker compose -f docker-compose.staging.yml up -d`
+
+**Producao:** `cp .env.production.example .env && docker compose up -d`
+
+---
+
+## Comandos uteis
+
+```bash
+python manage.py reset_dev              # Reseta banco dev (7 passos, inclui Asaas sync)
+python manage.py setup_groups           # Cria/atualiza 7 grupos com permissoes
+python manage.py backup_db --upload     # Backup PostgreSQL + upload S3/R2
+python manage.py sincronizar_asaas      # Sync manual com Asaas
+python manage.py gerar_folha_mensal     # Gera folha do mes
+```
+
+---
+
 ## Modulos do sistema
 
 ### Comercial (CRM)

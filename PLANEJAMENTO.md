@@ -509,7 +509,9 @@ Usuarios, Parceiros, Tokens API, Grupos, Admin Django
 - **7 grupos** de permissoes (Administrador, Comercial, Financeiro, RH/Pessoas, Colaborador, Empresa Parceira, Auditor)
 - **11 usuarios** de dev (8 colaboradores + 3 parceiros)
 - **3 fixtures** (CRM + RH + Financeiro)
-- **5 tasks Celery** periodicas
+- **8 tasks Celery** periodicas
+- **3 ambientes** (dev, staging, producao)
+- **7 management commands**
 
 ### Notas arquiteturais
 - Departamentos seedados via migration (8 total, system-managed)
@@ -525,8 +527,13 @@ Usuarios, Parceiros, Tokens API, Grupos, Admin Django
 - Tributo e Patrimonio com tipos texto livre (extensiveis)
 - Auditoria: AuditLog generico (ContentType + JSONField), agregacao de legados, retencao fiscal 1 ano
 - Auditoria: um registro por acao com todos os campos afetados (Lancamento.get_mudancas + _skip_audit)
-- Sidebar: accordion exclusivo (1 aberto por vez), ordem RH > Comercial > Financeiro > Admin
+- Sidebar: accordion exclusivo (1 aberto por vez), ordem RH > Comercial > Financeiro > Auditoria > Admin
 - Formatacao pt-BR: filter |brl (builtin), datas d/m/Y, horas H:i 24h
+- Notificacoes completas: sistema + email em todos os modulos (CRM, RH, Financeiro, Admin)
+- Sync Asaas bidirecional: paginacao + rate limiting, 3 niveis (Celery, UI, terminal)
+- Backup automatico: pg_dump + gzip + upload S3/R2, cleanup 30 dias
+- 3 ambientes: dev (localhost), staging (staging.ruch.solutions, sandbox), producao (ruch.solutions)
+- reset_dev: 7 passos (drop, migrate, admin, fixtures, groups, permissoes, Asaas sync)
 - Email: console (dev), SMTP (producao)
 - Redis via Docker, Celery worker + beat configurados
 - API REST ainda nao criada (apenas CRUD web)
