@@ -14,6 +14,10 @@ from apps.financeiro.models import (
 )
 
 from apps.auditoria.utils import registrar as audit
+from apps.financeiro.notifications import (
+    notificar_cobranca_cancelada, notificar_cobranca_vencida,
+    notificar_pagamento_recebido,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +160,7 @@ def _processar_payment_received(payment):
         cobranca.lancamento.valor_liquido = cobranca.valor_liquido
         cobranca.lancamento.save(update_fields=["status", "data_pagamento", "valor_liquido"])
         audit("status", "financeiro", f"Pagamento confirmado via webhook: {cobranca.asaas_id}", instance=cobranca.lancamento, fonte="asaas_webhook", detalhes={"pago_em": str(pago_em), "valor_liquido": str(cobranca.valor_liquido)})
+        notificar_pagamento_recebido(cobranca)
     else:
         _processar_payment_created(payment)
         cobranca.refresh_from_db()
@@ -176,6 +181,8 @@ def _processar_payment_overdue(payment):
         cobranca.lancamento.status = "pendente"  # mantem pendente mas pode ser filtrado por vencimento
         cobranca.lancamento.save(update_fields=["status"])
 
+    notificar_cobranca_vencida(cobranca)
+
 
 def _processar_payment_cancelled(payment):
     """PAYMENT_REFUNDED / PAYMENT_DELETED — cancela."""
@@ -187,3 +194,5 @@ def _processar_payment_cancelled(payment):
         cobranca.lancamento.status = "cancelado"
         cobranca.lancamento.save(update_fields=["status"])
         audit("status", "financeiro", f"Lancamento cancelado via webhook: {cobranca.asaas_id}", instance=cobranca.lancamento, fonte="asaas_webhook")
+
+    notificar_cobranca_cancelada(cobranca)

@@ -31,6 +31,11 @@ from apps.rh.models import (
 )
 
 from apps.auditoria.utils import registrar as audit
+from apps.financeiro.notifications import (
+    notificar_assinatura_cancelada, notificar_assinatura_criada,
+    notificar_folha_aprovada, notificar_folha_exportada,
+    notificar_lancamento_confirmado,
+)
 from .mixins import HtmxMixin, is_htmx
 
 
@@ -3424,6 +3429,8 @@ class LancamentoStatusView(PermissionRequiredMixin, View):
             lanc.save()
             descricao_campos = ", ".join(f"{k}: {v['de']} → {v['para']}" for k, v in mudancas.items())
             audit("status", "financeiro", f"Lancamento {lanc.descricao}: {descricao_campos}", instance=lanc, request=request, detalhes=mudancas)
+            if novo_status == "confirmado":
+                notificar_lancamento_confirmado(lanc)
         return redirect("web:fin-lancamento-detail", pk=pk)
 
 
@@ -4165,6 +4172,8 @@ class FolhaAprovarTodosView(PermissionRequiredMixin, View):
         from django.contrib import messages
         if atualizados > 0:
             messages.success(request, f"{atualizados} pagamento(s) aprovado(s) para {competencia.strftime('%m/%Y') if hasattr(competencia, 'strftime') else competencia}.")
+            if hasattr(competencia, 'strftime'):
+                notificar_folha_aprovada(competencia)
         else:
             messages.info(request, "Nenhum pagamento pendente de aprovação.")
         return redirect("web:fin-folha")
@@ -4257,6 +4266,7 @@ class FolhaExportarView(PermissionRequiredMixin, View):
             valor_total=valor_total,
             exportado_por=request.user,
         )
+        notificar_folha_exportada(competencia, formato, request.user)
 
         nome_arquivo = f"folha_{ano}_{mes_num:02d}"
 
@@ -5216,6 +5226,7 @@ class AsaasCriarAssinaturaView(PermissionRequiredMixin, View):
             )
             messages.success(request, f"Assinatura criada no Asaas: {resultado['id']}")
             audit("criacao", "financeiro", f"Assinatura Asaas criada: {resultado['id']}", instance=assinatura, request=request)
+            notificar_assinatura_criada(assinatura)
 
         except Exception as e:
             messages.error(request, f"Erro ao criar assinatura: {e}")
@@ -5242,6 +5253,7 @@ class AsaasCancelarAssinaturaView(PermissionRequiredMixin, View):
             assinatura.save(update_fields=["status", "cancelado_em"])
             messages.success(request, f"Assinatura {assinatura.asaas_id} cancelada.")
             audit("exclusao", "financeiro", f"Assinatura Asaas cancelada: {assinatura.asaas_id}", instance=assinatura, request=request)
+            notificar_assinatura_cancelada(assinatura)
         except Exception as e:
             messages.error(request, f"Erro ao cancelar: {e}")
 

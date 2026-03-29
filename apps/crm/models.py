@@ -267,6 +267,11 @@ class Notificacao(models.Model):
         RH_TREINAMENTO = "rh_treinamento", "Treinamento"
         RH_META = "rh_meta", "Meta/PDI"
         RH_ENPS = "rh_enps", "eNPS"
+        # Financeiro
+        FIN_LANCAMENTO = "fin_lancamento", "Lancamento financeiro"
+        FIN_COBRANCA = "fin_cobranca", "Cobranca / Pagamento"
+        FIN_FOLHA = "fin_folha", "Folha de pagamento"
+        FIN_ASAAS = "fin_asaas", "Gateway Asaas"
         SISTEMA = "sistema", "Sistema"
 
     destinatario = models.ForeignKey(
@@ -305,6 +310,11 @@ class PreferenciaNotificacao(models.Model):
     comissao_gerada = models.BooleanField("Comissao gerada", default=True)
     comissao_paga = models.BooleanField("Comissao paga", default=True)
     usuario_criado = models.BooleanField("Novo usuario criado", default=True)
+    # Financeiro
+    fin_lancamento = models.BooleanField("Lancamento financeiro", default=True)
+    fin_cobranca = models.BooleanField("Cobranca / Pagamento", default=True)
+    fin_folha = models.BooleanField("Folha de pagamento", default=True)
+    fin_asaas = models.BooleanField("Gateway Asaas", default=True)
     sistema = models.BooleanField("Notificacoes do sistema", default=True)
 
     class Meta:

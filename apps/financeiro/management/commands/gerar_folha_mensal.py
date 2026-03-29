@@ -100,6 +100,8 @@ class Command(BaseCommand):
                 self.stdout.write(f"  {socio.nome_completo} (pro-labore) — R$ {socio.remuneracao}")
 
         if total > 0:
+            from apps.financeiro.notifications import notificar_folha_gerada
+            notificar_folha_gerada(competencia, total)
             self.stdout.write(
                 self.style.SUCCESS(
                     f"Folha {competencia:%m/%Y}: {total} pagamento(s) gerado(s) "
