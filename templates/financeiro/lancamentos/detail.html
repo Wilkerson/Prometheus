@@ -2,11 +2,20 @@
 {% block title %}{{ lanc.descricao }}{% endblock %}
 {% block page_title %}Lancamento{% endblock %}
 {% block page_actions %}
-{% if can_edit %}
+{% if can_edit and lanc.canal != 'gateway' %}
 <a href="{% url 'web:fin-lancamento-edit' lanc.pk %}" class="btn-primary">Editar</a>
 {% endif %}
 {% endblock %}
 {% block content %}
+{% if lanc.canal == 'gateway' and cobranca_asaas %}
+<div class="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 mb-4 flex items-center justify-between">
+  <div>
+    <p class="text-sm font-medium text-blue-500">Lancamento gerido pelo Asaas</p>
+    <p class="text-[11px] text-t3 mt-0.5">Valores, status e datas de pagamento sao atualizados automaticamente via webhook. Para editar campos internos, acesse a cobranca.</p>
+  </div>
+  <a href="{% url 'web:fin-asaas-cobranca-detail' cobranca_asaas.pk %}" class="btn-secondary text-[12px] flex-shrink-0">Ver cobranca Asaas</a>
+</div>
+{% endif %}
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
   <div class="card">
     <div class="flex items-center justify-between mb-4">

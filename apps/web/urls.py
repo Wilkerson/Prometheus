@@ -179,6 +179,7 @@ urlpatterns = [
     path("financeiro/asaas/cobrancas/", views.AsaasCobrancaListView.as_view(), name="fin-asaas-cobrancas"),
     path("financeiro/asaas/cobrancas/novo/", views.AsaasCriarCobrancaView.as_view(), name="fin-asaas-criar-cobranca"),
     path("financeiro/asaas/cobrancas/<int:pk>/", views.AsaasCobrancaDetailView.as_view(), name="fin-asaas-cobranca-detail"),
+    path("financeiro/asaas/cobrancas/<int:pk>/lancamento/", views.AsaasLancamentoEditView.as_view(), name="fin-asaas-lancamento-edit"),
     path("financeiro/asaas/cobrancas/<int:pk>/excluir/", views.AsaasCobrancaDeleteView.as_view(), name="fin-asaas-cobranca-delete"),
     path("financeiro/asaas/assinaturas/", views.AsaasAssinaturaListView.as_view(), name="fin-asaas-assinaturas"),
     path("financeiro/asaas/assinaturas/novo/", views.AsaasCriarAssinaturaView.as_view(), name="fin-asaas-criar-assinatura"),

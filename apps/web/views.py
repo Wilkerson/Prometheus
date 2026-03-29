@@ -3304,10 +3304,14 @@ class LancamentoEditView(PermissionRequiredMixin, View):
 
     def get(self, request, pk):
         lanc = get_object_or_404(Lancamento, pk=pk)
+        if lanc.canal == "gateway":
+            return redirect("web:fin-lancamento-detail", pk=pk)
         return render(request, "financeiro/lancamentos/edit.html", self._ctx(lanc))
 
     def post(self, request, pk):
         lanc = get_object_or_404(Lancamento, pk=pk)
+        if lanc.canal == "gateway":
+            return redirect("web:fin-lancamento-detail", pk=pk)
         erros = {}
         descricao = request.POST.get("descricao", "").strip()
         if not descricao:
@@ -3358,11 +3362,14 @@ class LancamentoDetailView(PermissionRequiredMixin, View):
         )
         can_audit = request.user.has_perm("financeiro.view_auditorialancamento")
         auditorias = lanc.auditoria.select_related("usuario").all()[:20] if can_audit else []
+        # Buscar cobranca Asaas vinculada (se existir)
+        cobranca_asaas = getattr(lanc, "cobranca_asaas", None)
         return render(request, "financeiro/lancamentos/detail.html", {
             "lanc": lanc,
             "auditorias": auditorias,
             "can_audit": can_audit,
             "can_edit": request.user.has_perm("financeiro.change_lancamento"),
+            "cobranca_asaas": cobranca_asaas,
         })
 
 
@@ -4952,13 +4959,39 @@ class AsaasCobrancaDetailView(PermissionRequiredMixin, View):
 
     def get(self, request, pk):
         cobranca = get_object_or_404(
-            CobrancaAsaas.objects.select_related("cliente", "assinatura", "lancamento"), pk=pk
+            CobrancaAsaas.objects.select_related(
+                "cliente", "assinatura", "lancamento",
+                "lancamento__categoria", "lancamento__departamento",
+            ), pk=pk
         )
-        return render(request, "financeiro/asaas/cobranca_detail.html", {
+        ctx = {
             "cob": cobranca,
             "can_edit": request.user.has_perm("financeiro.change_cobrancaasaas"),
             "can_delete": request.user.has_perm("financeiro.delete_cobrancaasaas"),
-        })
+        }
+        if cobranca.lancamento and ctx["can_edit"]:
+            ctx["categorias"] = CategoriaFinanceira.objects.filter(
+                tipo=cobranca.lancamento.tipo, ativo=True
+            )
+            ctx["departamentos"] = Departamento.objects.filter(ativo=True)
+        return render(request, "financeiro/asaas/cobranca_detail.html", ctx)
+
+
+class AsaasLancamentoEditView(PermissionRequiredMixin, View):
+    """Edita campos internos do lancamento vinculado a uma cobranca Asaas."""
+    permission_required = "financeiro.change_cobrancaasaas"
+
+    def post(self, request, pk):
+        cobranca = get_object_or_404(CobrancaAsaas.objects.select_related("lancamento"), pk=pk)
+        lanc = cobranca.lancamento
+        if not lanc:
+            return redirect("web:fin-asaas-cobranca-detail", pk=pk)
+
+        lanc.categoria_id = request.POST.get("categoria", lanc.categoria_id)
+        lanc.departamento_id = request.POST.get("departamento") or None
+        lanc.observacao = request.POST.get("observacao", "").strip()
+        lanc.save()
+        return redirect("web:fin-asaas-cobranca-detail", pk=pk)
 
 
 class AsaasCobrancaDeleteView(PermissionRequiredMixin, View):
