@@ -233,6 +233,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60 * 60 * 24 * 30,  # mensal (~30 dias)
         "options": {"queue": "default"},
     },
+    "sistema-backup-db-diario": {
+        "task": "sistema.backup_db",
+        "schedule": 60 * 60 * 24,  # diariamente
+        "options": {"queue": "default"},
+    },
 }
 
 # -----------------------------------------------------------------------------
