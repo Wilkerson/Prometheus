@@ -24,9 +24,14 @@
           {% else %}<span class="badge bg-bg4 text-t3">{{ log.acao }}</span>{% endif %}
         </td>
         <td class="py-2.5">
-          <button type="button" @click="expanded = !expanded" class="text-left cursor-pointer hover:text-ruch-accent text-t1">
-            {{ log.descricao|truncatechars:80 }}
-          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" @click="expanded = !expanded" class="text-left cursor-pointer hover:text-ruch-accent text-t1">
+              {{ log.descricao|truncatechars:80 }}
+            </button>
+            {% if log.model == 'AuditLog' %}
+            <a href="{% url 'auditoria:detail' log.pk_num %}" class="text-[10px] text-t3 hover:text-ruch-accent no-underline flex-shrink-0">detalhes</a>
+            {% endif %}
+          </div>
           <div x-show="expanded" x-cloak x-transition class="mt-2 p-2 rounded bg-bg2 border border-bdr text-[11px] font-mono text-t3 whitespace-pre-wrap break-all">{{ log.detalhes }}</div>
         </td>
         <td class="py-2.5 text-t2 text-[12px]">{{ log.usuario }}</td>

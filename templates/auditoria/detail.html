@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Auditoria — Log #{{ log.pk }}{% endblock %}
+{% block page_title %}Registro de Auditoria{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <div class="card">
+    <h3 class="text-sm font-semibold text-t2 mb-3">Evento</h3>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between"><dt class="text-t3">ID</dt><dd class="font-mono text-t2">#{{ log.pk }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Acao</dt>
+        <dd>
+          {% if log.acao == 'criacao' %}<span class="badge bg-emerald-500/15 text-emerald-500">Criacao</span>
+          {% elif log.acao == 'edicao' %}<span class="badge bg-blue-500/15 text-blue-500">Edicao</span>
+          {% elif log.acao == 'exclusao' %}<span class="badge bg-red-500/15 text-red-500">Exclusao</span>
+          {% elif log.acao == 'webhook' %}<span class="badge bg-amber-500/15 text-amber-500">Webhook</span>
+          {% elif log.acao == 'status' %}<span class="badge bg-purple-500/15 text-purple-500">Status</span>
+          {% elif log.acao == 'exportacao' %}<span class="badge bg-cyan-500/15 text-cyan-500">Export</span>
+          {% else %}<span class="badge bg-bg4 text-t3">{{ log.get_acao_display }}</span>{% endif %}
+        </dd>
+      </div>
+      <div class="flex justify-between"><dt class="text-t3">Departamento</dt><dd class="text-t2">{{ log.get_departamento_display }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Descricao</dt><dd class="text-t1">{{ log.descricao }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Fonte</dt>
+        <dd>
+          {% if log.fonte == 'asaas_webhook' %}<span class="text-amber-500">Asaas Webhook</span>
+          {% elif log.fonte == 'celery' %}<span class="text-purple-500">Celery</span>
+          {% elif log.fonte == 'api' %}<span class="text-blue-500">API</span>
+          {% else %}<span class="text-t2">{{ log.fonte|title }}</span>{% endif %}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h3 class="text-sm font-semibold text-t2 mb-3">Contexto</h3>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between"><dt class="text-t3">Data/Hora</dt><dd class="text-t1">{{ log.criado_em|date:"d/m/Y H:i:s" }}</dd></div>
+      <div class="flex justify-between"><dt class="text-t3">Usuario</dt><dd class="text-t2">{{ log.usuario.get_full_name|default:"Sistema" }}</dd></div>
+      {% if log.object_repr %}
+      <div class="flex justify-between"><dt class="text-t3">Entidade</dt><dd class="text-t2">{{ log.object_repr }}</dd></div>
+      {% endif %}
+      {% if log.content_type %}
+      <div class="flex justify-between"><dt class="text-t3">Modelo</dt><dd class="font-mono text-[11px] text-t3">{{ log.content_type.app_label }}.{{ log.content_type.model }}</dd></div>
+      {% endif %}
+      {% if log.object_id %}
+      <div class="flex justify-between"><dt class="text-t3">ID</dt><dd class="font-mono text-t3">{{ log.object_id }}</dd></div>
+      {% endif %}
+    </dl>
+
+    {% if entity_url %}
+    <div class="mt-4 pt-3 border-t border-bdr">
+      <a href="{{ entity_url }}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Ver entidade no sistema</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if log.detalhes %}
+<div class="card mt-4">
+  <h3 class="text-sm font-semibold text-t2 mb-3">Detalhes</h3>
+  <pre class="p-3 rounded-lg bg-bg2 border border-bdr text-[12px] font-mono text-t2 overflow-x-auto whitespace-pre-wrap break-all">{{ detalhes_json }}</pre>
+</div>
+{% endif %}
+{% endblock %}

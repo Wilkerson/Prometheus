@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Auditoria{% endblock %}
 {% block page_title %}Auditoria{% endblock %}
+{% block page_actions %}
+<a href="{% url 'auditoria:export' %}" class="btn-secondary text-[12px]">Exportar tudo (CSV)</a>
+{% endblock %}
 {% block content %}
 
 <!-- Resumo -->

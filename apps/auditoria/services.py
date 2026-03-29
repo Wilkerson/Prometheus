@@ -10,6 +10,7 @@ def _normalize_auditlog(entry):
     """Normaliza AuditLog para dict padrao."""
     return {
         "id": f"audit-{entry.pk}",
+        "pk_num": entry.pk,
         "acao": entry.get_acao_display(),
         "acao_raw": entry.acao,
         "departamento": entry.departamento,

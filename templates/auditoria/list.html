@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Auditoria — {{ departamento_label }}{% endblock %}
 {% block page_title %}Auditoria — {{ departamento_label }}{% endblock %}
+{% block page_actions %}
+<a href="{% url 'auditoria:export' %}?departamento={{ departamento }}&fonte={{ fonte }}&q={{ busca }}" class="btn-secondary text-[12px]">Exportar CSV</a>
+{% endblock %}
 {% block content %}
 
 <!-- Filtros -->

@@ -202,6 +202,7 @@ BREADCRUMB_LABELS = {
     "excluir": ("Excluir", None),
     "configuracao": ("Configuração", None),
     "exportar": ("Exportar", None),
+    "log": ("Detalhe", None),
     "iniciar": ("Iniciar", None),
     "responder": ("Responder", None),
     "templates": ("Templates", None),

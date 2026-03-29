@@ -472,6 +472,8 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 79. [x] Modulo Financeiro Fase 6: Gateway Asaas (models, service HTTP, webhook, views, Celery)
 80. [x] Protecoes fiscais: AuditoriaLancamento (log imutavel), protecao duplicata id_externo, alerta webhook inativo
 81. [x] Modulo Auditoria Fase 1: app dedicado, AuditLog generico, dashboard + listas por departamento, agregacao de legados
+82. [x] Modulo Auditoria Fase 2: instrumentacao de views (create/edit/delete/status em todos os modulos)
+83. [x] Modulo Auditoria Fase 3: export CSV, detail com JSON, retencao 1 ano (periodo fiscal) via Celery
 82. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
 41. [ ] Aplicar design system (JSON) quando fornecido
 
@@ -495,7 +497,7 @@ Novos modulos sao implementados como submenus dentro do departamento corresponde
 | 7 | **Operacoes** | Placeholder | — | Onboarding de servicos, Suporte, SLA |
 | 8 | **Produto** | Placeholder | — | Gestao de produto, Roadmap, Backlog |
 
-| 9 | **Auditoria** | Fase 1 completa | Visao Geral, Financeiro, Comercial, RH, Integracoes | Export, graficos, auto-auditoria |
+| 9 | **Auditoria** | Completo (Fases 1-3) | Visao Geral, Financeiro, Comercial, RH, Integracoes, Export CSV, Retencao 1 ano | — |
 
 **Menu Administracao** (customizado, nao e departamento):
 Usuarios, Parceiros, Tokens API, Grupos, Admin Django

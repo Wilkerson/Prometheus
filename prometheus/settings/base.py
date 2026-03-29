@@ -223,6 +223,11 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 60 * 60 * 12,  # a cada 12 horas
         "options": {"queue": "default"},
     },
+    "auditoria-retencao-mensal": {
+        "task": "auditoria.limpar_logs_antigos",
+        "schedule": 60 * 60 * 24 * 30,  # mensal (~30 dias)
+        "options": {"queue": "default"},
+    },
 }
 
 # -----------------------------------------------------------------------------

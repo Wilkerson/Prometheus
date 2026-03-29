@@ -197,6 +197,9 @@ DJANGO_SETTINGS_MODULE=prometheus.settings.test python manage.py test apps
 - **Agregacao** — unifica AuditoriaLancamento, EventoWebhookAsaas, LogExportacaoFolha e ClienteHistorico
 - **Filtros HTMX** — busca, fonte (interno/webhook/api/celery), departamento
 - **Acesso restrito** — grupo Auditor + Administrador + superuser
+- **Export CSV** — exportacao filtrada com separador pt-BR (;) e BOM para Excel
+- **Detail** — visualizacao completa com JSON formatado e link para entidade
+- **Retencao fiscal** — task Celery mensal remove registros com mais de 1 ano
 
 ### RH / Pessoas
 - **Colaboradores** — cadastro CLT/PJ, historico de cargos/salarios, foto
@@ -290,7 +293,7 @@ A sidebar e organizada por departamentos com accordion exclusivo (1 aberto por v
 | RH / Pessoas | Completo | Colaboradores, Documentos, Onboarding, Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios, Cargos, Setores |
 | Comercial | Implementado | Clientes, Pipeline, Calendario, Produtos, Planos |
 | Financeiro | Completo (Fases 1-6) | Lancamentos, Contas a Receber, Contas a Pagar, NFs, Folha, Tributos, Patrimonio, Relatorios, Contas Bancarias, Gateway Asaas, Auditoria |
-| Auditoria | Fase 1 | Visao Geral, Financeiro, Comercial, RH, Integracoes |
+| Auditoria | Completo (Fases 1-3) | Visao Geral, Financeiro, Comercial, RH, Integracoes, Export CSV, Retencao |
 | Marketing | Placeholder | — |
 | Tecnologia | Placeholder | — |
 | Juridico | Placeholder | — |
