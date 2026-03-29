@@ -94,9 +94,9 @@ def _normalize_cliente_historico(entry):
             "status_novo": entry.status_novo,
             "observacao": entry.observacao,
         },
-        "usuario": entry.alterado_por.get_full_name() if entry.alterado_por else "Sistema",
+        "usuario": entry.usuario.get_full_name() if entry.usuario else "Sistema",
         "fonte": "interno",
-        "criado_em": entry.data_alteracao,
+        "criado_em": entry.criado_em,
         "object_repr": entry.cliente.nome,
         "model": "ClienteHistorico",
     }
@@ -150,7 +150,7 @@ def get_audit_logs(departamento=None, fonte=None, busca=None, limit=50):
 
     # 5. ClienteHistorico (legado — departamento comercial)
     if not departamento or departamento == "comercial":
-        qs_hist = ClienteHistorico.objects.select_related("cliente", "alterado_por")
+        qs_hist = ClienteHistorico.objects.select_related("cliente", "usuario")
         if busca:
             qs_hist = qs_hist.filter(cliente__nome__icontains=busca)
         if not fonte or fonte == "interno":
@@ -189,7 +189,7 @@ def get_audit_stats():
     lanc_30d = AuditoriaLancamento.objects.filter(criado_em__gte=d30).count()
     wh_30d = EventoWebhookAsaas.objects.filter(recebido_em__gte=d30).count()
     exp_30d = LogExportacaoFolha.objects.filter(criado_em__gte=d30).count()
-    hist_30d = ClienteHistorico.objects.filter(data_alteracao__gte=d30).count()
+    hist_30d = ClienteHistorico.objects.filter(criado_em__gte=d30).count()
 
     # Por departamento (legados + canonico)
     audit_by_depto = dict(
