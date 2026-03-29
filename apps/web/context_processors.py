@@ -204,7 +204,7 @@ BREADCRUMB_DEPTOS = {
     "/produtos/": "Comercial",
     "/planos/": "Comercial",
     "/financeiro/": "Financeiro",
-    "/rh/": "RH / Pessoas",
+    "/rh/": "RH",
     "/usuarios/": "Administração",
     "/parceiros/": "Administração",
     "/tokens/": "Administração",
@@ -219,23 +219,35 @@ def _build_breadcrumbs(path):
 
     crumbs = [{"label": "Dashboard", "url": "/dashboard/"}]
 
-    # Adicionar departamento
+    # Detectar departamento
+    depto_label = None
     for prefix, depto in BREADCRUMB_DEPTOS.items():
         if path.startswith(prefix):
-            crumbs.append({"label": depto, "url": None})
+            depto_label = depto
             break
 
     # Quebrar URL em segmentos
     segments = [s for s in path.strip("/").split("/") if s]
 
+    # Segmentos que sao raiz de departamento (ex: financeiro, rh)
+    SEGMENTOS_DEPTO = {"financeiro", "rh"}
+
+    # Se primeiro segmento NAO e raiz de depto, adicionar depto como crumb
+    if segments and segments[0] not in SEGMENTOS_DEPTO and depto_label:
+        crumbs.append({"label": depto_label, "url": None})
+
     for i, seg in enumerate(segments):
-        # Pular numeros (PKs) — serao substituidos pelo page_title
         if seg.isdigit():
+            continue
+
+        # Segmento raiz de departamento -> mostra label do depto com link
+        if seg in SEGMENTOS_DEPTO and depto_label:
+            first_url = BREADCRUMB_LABELS.get(seg, (None, None))[1]
+            crumbs.append({"label": depto_label, "url": first_url})
             continue
 
         if seg in BREADCRUMB_LABELS:
             label, url = BREADCRUMB_LABELS[seg]
-            # Ultimo segmento nao tem link
             is_last = (i == len(segments) - 1) or (
                 i == len(segments) - 2 and segments[-1].isdigit()
             )
