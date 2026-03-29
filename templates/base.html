@@ -25,6 +25,10 @@
 </head>
 <body class="h-screen bg-bg text-t1 text-[13px] overflow-hidden" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
+  {% if staging %}
+  <div class="bg-amber-500 text-black text-center text-[11px] font-bold py-1 px-4 z-[100] relative">AMBIENTE DE STAGING — dados de teste</div>
+  {% endif %}
+
   {% if user.is_authenticated %}
   <div class="h-screen overflow-hidden" style="display:grid; grid-template-columns:220px 1fr; grid-template-rows:52px 1fr;">
 

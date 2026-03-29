@@ -1,3 +1,6 @@
+from django.conf import settings as django_settings
+
+
 def navigation(request):
     """Navegacao em grupos colapsaveis, baseada nas permissoes do usuario."""
     if not request.user.is_authenticated:
@@ -148,6 +151,7 @@ def navigation(request):
         "notif_count": notif_count,
         "notif_recentes": notif_recentes,
         "breadcrumbs": breadcrumbs,
+        "staging": getattr(django_settings, "STAGING", False),
     }
 
 

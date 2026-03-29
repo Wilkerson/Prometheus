@@ -23,13 +23,13 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    DJANGO_SETTINGS_MODULE=prometheus.settings.production
+    DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE:-prometheus.settings.production}
 
 WORKDIR /app
 
 # Dependencias de sistema (runtime only)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libpq5 curl \
+    && apt-get install -y --no-install-recommends libpq5 curl postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia dependencias Python do builder

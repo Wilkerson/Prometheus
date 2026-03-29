@@ -13,6 +13,8 @@ env/
 
 # Environment
 .env
+.env.staging
+.env.production
 
 # IDE
 .vscode/

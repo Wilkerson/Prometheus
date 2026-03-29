@@ -1,0 +1,93 @@
+# Docker Compose para ambiente de STAGING
+# Uso: docker compose -f docker-compose.staging.yml up -d
+#
+# Banco separado: prometheus_staging
+# Asaas: sandbox
+# Dominio: staging.ruch.solutions
+
+services:
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    volumes:
+      - staging_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME:-prometheus_staging}
+      POSTGRES_USER: ${DB_USER:-prometheus}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-prometheus}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-prometheus}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env.staging
+    environment:
+      DJANGO_SETTINGS_MODULE: prometheus.settings.staging
+      DB_HOST: db
+      DB_NAME: prometheus_staging
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  celery:
+    build: .
+    restart: unless-stopped
+    env_file: .env.staging
+    environment:
+      DJANGO_SETTINGS_MODULE: prometheus.settings.staging
+      DB_HOST: db
+      DB_NAME: prometheus_staging
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A prometheus worker -l info --concurrency=2
+
+  celery-beat:
+    build: .
+    restart: unless-stopped
+    env_file: .env.staging
+    environment:
+      DJANGO_SETTINGS_MODULE: prometheus.settings.staging
+      DB_HOST: db
+      DB_NAME: prometheus_staging
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A prometheus beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+volumes:
+  staging_postgres_data:
