@@ -180,5 +180,7 @@ urlpatterns = [
     path("financeiro/asaas/cobrancas/<int:pk>/", views.AsaasCobrancaDetailView.as_view(), name="fin-asaas-cobranca-detail"),
     path("financeiro/asaas/cobrancas/<int:pk>/excluir/", views.AsaasCobrancaDeleteView.as_view(), name="fin-asaas-cobranca-delete"),
     path("financeiro/asaas/assinaturas/", views.AsaasAssinaturaListView.as_view(), name="fin-asaas-assinaturas"),
+    path("financeiro/asaas/assinaturas/novo/", views.AsaasCriarAssinaturaView.as_view(), name="fin-asaas-criar-assinatura"),
+    path("financeiro/asaas/assinaturas/<int:pk>/cancelar/", views.AsaasCancelarAssinaturaView.as_view(), name="fin-asaas-cancelar-assinatura"),
     path("financeiro/asaas/webhook-log/", views.AsaasWebhookLogView.as_view(), name="fin-asaas-webhook-log"),
 ]

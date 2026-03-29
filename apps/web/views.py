@@ -5011,6 +5011,89 @@ class AsaasAssinaturaListView(PermissionRequiredMixin, ListView):
         return AssinaturaAsaas.objects.select_related("cliente", "plano").order_by("-criado_em")
 
 
+class AsaasCriarAssinaturaView(PermissionRequiredMixin, View):
+    """Cria assinatura recorrente no Asaas."""
+    permission_required = "financeiro.add_assinaturaasaas"
+
+    def get(self, request):
+        return render(request, "financeiro/asaas/criar_assinatura.html", {
+            "clientes_sync": ClienteAsaas.objects.select_related("cliente").all(),
+            "planos": Plano.objects.filter(ativo=True).select_related("parceiro"),
+            "ciclo_choices": AssinaturaAsaas.Ciclo.choices,
+            "erros": {},
+        })
+
+    def post(self, request):
+        from django.contrib import messages
+
+        cliente_asaas_id = request.POST.get("cliente_asaas")
+        valor = request.POST.get("valor", "").strip()
+        ciclo = request.POST.get("ciclo", "MONTHLY")
+        vencimento = request.POST.get("vencimento", "").strip()
+        descricao = request.POST.get("descricao", "").strip()
+        billing_type = request.POST.get("billing_type", "UNDEFINED")
+        plano_id = request.POST.get("plano") or None
+
+        if not all([cliente_asaas_id, valor, vencimento]):
+            messages.error(request, "Preencha todos os campos obrigatórios.")
+            return redirect("web:fin-asaas-criar-assinatura")
+
+        try:
+            cliente_asaas = ClienteAsaas.objects.select_related("cliente").get(pk=cliente_asaas_id)
+            from apps.financeiro.services.asaas_client import AsaasClient
+            api = AsaasClient()
+
+            resultado = api.criar_assinatura(
+                customer_id=cliente_asaas.asaas_id,
+                valor=valor,
+                ciclo=ciclo,
+                vencimento=vencimento,
+                descricao=descricao,
+                billing_type=billing_type,
+            )
+
+            AssinaturaAsaas.objects.create(
+                asaas_id=resultado["id"],
+                cliente=cliente_asaas.cliente,
+                plano_id=plano_id,
+                valor=resultado["value"],
+                ciclo=resultado.get("cycle", ciclo),
+                proximo_vencimento=resultado.get("nextDueDate"),
+                status=resultado.get("status", "ACTIVE"),
+                billing_type=resultado.get("billingType", ""),
+            )
+            messages.success(request, f"Assinatura criada no Asaas: {resultado['id']}")
+
+        except Exception as e:
+            messages.error(request, f"Erro ao criar assinatura: {e}")
+
+        return redirect("web:fin-asaas")
+
+
+class AsaasCancelarAssinaturaView(PermissionRequiredMixin, View):
+    """Cancela assinatura no Asaas."""
+    permission_required = "financeiro.change_assinaturaasaas"
+
+    def post(self, request, pk):
+        from django.contrib import messages
+        from django.utils import timezone
+
+        assinatura = get_object_or_404(AssinaturaAsaas, pk=pk)
+
+        try:
+            from apps.financeiro.services.asaas_client import AsaasClient
+            api = AsaasClient()
+            api.cancelar_assinatura(assinatura.asaas_id)
+            assinatura.status = "INACTIVE"
+            assinatura.cancelado_em = timezone.now()
+            assinatura.save(update_fields=["status", "cancelado_em"])
+            messages.success(request, f"Assinatura {assinatura.asaas_id} cancelada.")
+        except Exception as e:
+            messages.error(request, f"Erro ao cancelar: {e}")
+
+        return redirect("web:fin-asaas")
+
+
 class AsaasWebhookLogView(PermissionRequiredMixin, ListView):
     template_name = "financeiro/asaas/webhook_log.html"
     context_object_name = "eventos"

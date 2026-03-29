@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Asaas — Assinaturas{% endblock %}
 {% block page_title %}Assinaturas Recorrentes{% endblock %}
+{% block page_actions %}
+<a href="{% url 'web:fin-asaas-criar-assinatura' %}" class="btn-primary">+ Nova Assinatura</a>
+{% endblock %}
 {% block content %}
 <div class="card">
   {% if assinaturas %}
@@ -15,13 +18,14 @@
           <th class="pb-3 font-medium">Ciclo</th>
           <th class="pb-3 font-medium">Próx. vencimento</th>
           <th class="pb-3 font-medium">Status</th>
+          <th class="pb-3 font-medium">Ações</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-bdr">
         {% for a in assinaturas %}
         <tr class="hover:bg-bg3">
           <td class="py-3 font-mono text-[12px] text-ruch-accent">{{ a.asaas_id }}</td>
-          <td class="py-3"><a href="{% url 'web:cliente-detail' a.cliente.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ a.cliente.nome }}</a></td>
+          <td class="py-3 text-t1">{{ a.cliente.nome }}</td>
           <td class="py-3 text-t2">{{ a.plano.nome|default:"—" }}</td>
           <td class="py-3 font-medium text-t1">{{ a.valor|brl }}</td>
           <td class="py-3 text-t2">{{ a.get_ciclo_display }}</td>
@@ -31,13 +35,27 @@
             {% elif a.status == 'INACTIVE' %}<span class="badge bg-bg4 text-t3">Inativa</span>
             {% else %}<span class="badge bg-red-500/15 text-red-500">Expirada</span>{% endif %}
           </td>
+          <td class="py-3 whitespace-nowrap">
+            {% if a.status == 'ACTIVE' %}
+            <form method="post" action="{% url 'web:fin-asaas-cancelar-assinatura' a.pk %}" x-data="{ conf: false }">
+              {% csrf_token %}
+              <button type="button" @click="conf = true" x-show="!conf" class="text-[12px] text-red-400 hover:text-red-300">Cancelar</button>
+              <div x-show="conf" x-cloak class="flex gap-1">
+                <button type="submit" class="text-[11px] text-red-400">Confirmar</button>
+                <button type="button" @click="conf = false" class="text-[11px] text-t3">Não</button>
+              </div>
+            </form>
+            {% elif a.cancelado_em %}
+            <span class="text-[10px] text-t3">{{ a.cancelado_em|date:"d/m/Y" }}</span>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% else %}
-  <p class="text-sm text-t3 py-4">Nenhuma assinatura Asaas registrada.</p>
+  <p class="text-sm text-t3 py-4">Nenhuma assinatura registrada.</p>
   {% endif %}
 </div>
 {% endblock %}
