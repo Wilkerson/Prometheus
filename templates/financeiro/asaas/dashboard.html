@@ -40,7 +40,7 @@
       {% for ca in clientes_sync|slice:":5" %}
       <div class="flex items-center justify-between p-2 rounded-lg bg-bg3">
         <div>
-          <div class="text-sm text-t1">{{ ca.cliente.nome }}</div>
+          <a href="{% url 'web:cliente-detail' ca.cliente.pk %}" class="text-sm text-t1 hover:text-ruch-accent no-underline">{{ ca.cliente.nome }}</a>
           <div class="text-[10px] text-t3">{{ ca.cliente.cnpj }}</div>
         </div>
         <span class="font-mono text-[10px] text-ruch-accent">{{ ca.asaas_id }}</span>
@@ -100,7 +100,7 @@
         {% for c in cobrancas %}
         <tr class="hover:bg-bg3">
           <td class="py-2 font-mono text-[11px] text-ruch-accent">{{ c.asaas_id }}</td>
-          <td class="py-2 text-t1">{{ c.cliente.nome }}</td>
+          <td class="py-2"><a href="{% url 'web:cliente-detail' c.cliente.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ c.cliente.nome }}</a></td>
           <td class="py-2 font-medium text-t1">{{ c.valor|brl }}</td>
           <td class="py-2 text-t2">{{ c.vencimento|date:"d/m/Y" }}</td>
           <td class="py-2 whitespace-nowrap">
