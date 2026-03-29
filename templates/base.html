@@ -226,7 +226,7 @@
       </div>
 
       <!-- Conteudo (atualizado via HTMX polling) — scroll interno -->
-      <div class="p-4 flex-1 overflow-y-auto" id="notif-content">
+      <div class="p-4 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden" style="scrollbar-width:none; -ms-overflow-style:none;" id="notif-content">
         {% include "notificacoes/_painel.html" %}
       </div>
 
