@@ -36,6 +36,7 @@
           {% else %}<span class="badge bg-bg4 text-t3">Baixado</span>{% endif %}
         </td>
         <td class="py-3 whitespace-nowrap">
+          <div class="flex items-center gap-2">
           {% if a.status == 'ativo' %}
           <form method="post" action="{% url 'web:fin-ativo-baixa' a.pk %}" x-data="{ show: false }">
             {% csrf_token %}
@@ -48,6 +49,7 @@
           {% elif a.status == 'baixado' %}
           <span class="text-[10px] text-t3">{{ a.data_baixa|date:"d/m/Y" }}</span>
           {% endif %}
+          </div>
         </td>
       </tr>
       {% endfor %}

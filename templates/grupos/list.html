@@ -23,7 +23,8 @@
           <td class="py-3 font-medium text-t1">{{ grupo.name }}</td>
           <td class="py-3 text-t2">{{ grupo.permissions.count }} permiss{{ grupo.permissions.count|pluralize:"ao,oes" }}</td>
           <td class="py-3 text-t2">{{ grupo.user_set.count }} usuario{{ grupo.user_set.count|pluralize }}</td>
-          <td class="py-3 flex gap-3">
+          <td class="py-3">
+            <div class="flex items-center gap-3">
             <a href="{% url 'web:grupo-edit' grupo.pk %}" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">Editar</a>
             <div x-data="{ confirmar: false }">
               <button @click="confirmar = true" x-show="!confirmar" class="text-[12px] text-red-400 hover:text-red-300 cursor-pointer">Excluir</button>
@@ -32,6 +33,7 @@
                 <button type="submit" class="text-[12px] text-red-400 font-semibold">Confirmar</button>
                 <button type="button" @click="confirmar = false" class="text-[12px] text-t3">Cancelar</button>
               </form>
+            </div>
             </div>
           </td>
         </tr>

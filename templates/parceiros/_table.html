@@ -24,7 +24,9 @@
           {% endif %}
         </td>
         <td class="py-3 whitespace-nowrap">
+          <div class="flex items-center gap-2">
           <a href="{% url 'web:parceiro-edit' parceiro.pk %}" class="text-ruch-accent hover:text-t1 text-[12px] font-medium">Editar</a>
+          </div>
         </td>
       </tr>
       {% endfor %}

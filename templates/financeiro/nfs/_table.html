@@ -25,8 +25,10 @@
         </td>
         <td class="py-3 text-t2">{{ nf.data_emissao|date:"d/m/Y" }}</td>
         <td class="py-3 whitespace-nowrap">
+          <div class="flex items-center gap-2">
           {% if nf.arquivo %}<a href="{{ nf.arquivo.url }}" target="_blank" class="text-[12px] text-ruch-accent hover:text-t1 no-underline">PDF</a>
           {% else %}<span class="text-[11px] text-t3">—</span>{% endif %}
+          </div>
         </td>
       </tr>
       {% endfor %}

@@ -30,6 +30,7 @@
           {% else %}<span class="badge bg-red-500/15 text-red-500">Vencido</span>{% endif %}
         </td>
         <td class="py-3 whitespace-nowrap">
+          <div class="flex items-center gap-2">
           {% if t.status != 'pago' %}
           <form method="post" action="{% url 'web:fin-tributo-confirmar' t.pk %}" enctype="multipart/form-data">
             {% csrf_token %}
@@ -38,6 +39,7 @@
           {% else %}
           <span class="text-[11px] text-t3">{{ t.data_pagamento|date:"d/m/Y" }}</span>
           {% endif %}
+          </div>
         </td>
       </tr>
       {% endfor %}

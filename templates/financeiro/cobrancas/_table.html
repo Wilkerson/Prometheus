@@ -25,6 +25,7 @@
           {% else %}<span class="badge bg-bg4 text-t3">Cancelado</span>{% endif %}
         </td>
         <td class="py-3 whitespace-nowrap">
+          <div class="flex items-center gap-2">
           {% if c.status == 'pendente' or c.esta_vencido %}
           <form method="post" action="{% url 'web:fin-cobranca-confirmar' c.pk %}">
             {% csrf_token %}
@@ -33,6 +34,7 @@
           {% elif c.status == 'pago' %}
           <span class="text-[11px] text-t3">{{ c.data_pagamento|date:"d/m/Y" }}</span>
           {% endif %}
+          </div>
         </td>
       </tr>
       {% endfor %}
