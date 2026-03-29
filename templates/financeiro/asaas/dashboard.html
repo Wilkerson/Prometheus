@@ -1,11 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Asaas{% endblock %}
 {% block page_title %}Painel{% endblock %}
-{% block page_actions %}
-<div class="flex gap-2">
-  {% if can_cobrar %}<a href="{% url 'web:fin-asaas-criar-cobranca' %}" class="btn-primary">+ Nova Cobrança</a>{% endif %}
-</div>
-{% endblock %}
 {% block content %}
 
 <!-- Resumo -->
@@ -115,7 +110,13 @@
     </table>
   </div>
   {% else %}
-  <p class="text-sm text-t3">Nenhuma cobrança registrada.</p>
+  <div class="flex flex-col items-center py-6">
+    <p class="text-sm text-t3 mb-3">Nenhuma cobrança registrada.</p>
+    {% if can_cobrar %}
+    <a href="{% url 'web:fin-asaas-criar-cobranca' %}" class="w-10 h-10 rounded-full bg-ruch-green flex items-center justify-center text-white text-lg hover:bg-ruch-green/80 no-underline">+</a>
+    <span class="text-[10px] text-t3 mt-1">Criar cobrança</span>
+    {% endif %}
+  </div>
   {% endif %}
 </div>
 
