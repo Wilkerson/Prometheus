@@ -230,27 +230,37 @@ class Lancamento(models.Model):
         sinal = "+" if self.tipo == self.Tipo.RECEITA else "-"
         return f"{sinal} R${self.valor} — {self.descricao}"
 
+    _skip_audit = False  # Flag para pular log legado quando view ja registrou
+
+    def get_mudancas(self):
+        """Retorna dict de mudancas comparando com o estado no banco."""
+        if not self.pk:
+            return {}
+        try:
+            antigo = Lancamento.objects.get(pk=self.pk)
+        except Lancamento.DoesNotExist:
+            return {}
+        mudancas = {}
+        for field in ["descricao", "valor", "valor_liquido", "status",
+                      "data_vencimento", "data_pagamento", "categoria_id",
+                      "conta_id", "canal", "observacao"]:
+            val_antigo = getattr(antigo, field)
+            val_novo = getattr(self, field)
+            if str(val_antigo) != str(val_novo):
+                mudancas[field] = {"de": str(val_antigo), "para": str(val_novo)}
+        return mudancas
+
     def save(self, *args, **kwargs):
         # Registrar auditoria se e uma edicao (pk ja existe)
-        if self.pk:
-            try:
-                antigo = Lancamento.objects.get(pk=self.pk)
-                mudancas = []
-                for field in ["descricao", "valor", "valor_liquido", "status",
-                              "data_vencimento", "data_pagamento", "categoria_id",
-                              "conta_id", "canal", "observacao"]:
-                    val_antigo = getattr(antigo, field)
-                    val_novo = getattr(self, field)
-                    if str(val_antigo) != str(val_novo):
-                        mudancas.append(f"{field}: {val_antigo} → {val_novo}")
-                if mudancas:
-                    AuditoriaLancamento.objects.create(
-                        lancamento=self,
-                        acao="edicao",
-                        detalhes="; ".join(mudancas),
-                    )
-            except Lancamento.DoesNotExist:
-                pass
+        if self.pk and not self._skip_audit:
+            mudancas = self.get_mudancas()
+            if mudancas:
+                AuditoriaLancamento.objects.create(
+                    lancamento=self,
+                    acao="edicao",
+                    detalhes="; ".join(f"{k}: {v['de']} → {v['para']}" for k, v in mudancas.items()),
+                )
+        self._skip_audit = False  # Reset flag
 
         if not self.data_competencia:
             self.data_competencia = self.data_vencimento

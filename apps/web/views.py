@@ -3362,8 +3362,12 @@ class LancamentoEditView(PermissionRequiredMixin, View):
         lanc.observacao = request.POST.get("observacao", "").strip()
         if request.FILES.get("comprovante"):
             lanc.comprovante = request.FILES["comprovante"]
+        mudancas = lanc.get_mudancas()
+        lanc._skip_audit = True
         lanc.save()
-        audit("edicao", "financeiro", f"Lancamento editado: {lanc.descricao}", instance=lanc, request=request)
+        if mudancas:
+            descricao_campos = ", ".join(f"{k}: {v['de']} → {v['para']}" for k, v in mudancas.items())
+            audit("edicao", "financeiro", f"Lancamento editado: {lanc.descricao} ({descricao_campos})", instance=lanc, request=request, detalhes=mudancas)
         return redirect("web:fin-lancamento-detail", pk=pk)
 
 
@@ -3397,13 +3401,15 @@ class LancamentoStatusView(PermissionRequiredMixin, View):
         lanc = get_object_or_404(Lancamento, pk=pk)
         novo_status = request.POST.get("status")
         if novo_status in dict(Lancamento.Status.choices):
-            old_status = lanc.status
             lanc.status = novo_status
             if novo_status == "confirmado" and not lanc.data_pagamento:
                 from django.utils import timezone
                 lanc.data_pagamento = timezone.now().date()
+            mudancas = lanc.get_mudancas()
+            lanc._skip_audit = True
             lanc.save()
-            audit("status", "financeiro", f"Lancamento {lanc.descricao}: {old_status} → {novo_status}", instance=lanc, request=request, detalhes={"de": old_status, "para": novo_status})
+            descricao_campos = ", ".join(f"{k}: {v['de']} → {v['para']}" for k, v in mudancas.items())
+            audit("status", "financeiro", f"Lancamento {lanc.descricao}: {descricao_campos}", instance=lanc, request=request, detalhes=mudancas)
         return redirect("web:fin-lancamento-detail", pk=pk)
 
 
@@ -5009,7 +5015,12 @@ class AsaasLancamentoEditView(PermissionRequiredMixin, View):
         lanc.categoria_id = request.POST.get("categoria", lanc.categoria_id)
         lanc.departamento_id = request.POST.get("departamento") or None
         lanc.observacao = request.POST.get("observacao", "").strip()
+        mudancas = lanc.get_mudancas()
+        lanc._skip_audit = True
         lanc.save()
+        if mudancas:
+            descricao_campos = ", ".join(f"{k}: {v['de']} → {v['para']}" for k, v in mudancas.items())
+            audit("edicao", "financeiro", f"Lancamento Asaas editado: {lanc.descricao} ({descricao_campos})", instance=lanc, request=request)
         return redirect("web:fin-asaas-cobranca-detail", pk=pk)
 
 
