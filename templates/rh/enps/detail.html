@@ -6,7 +6,6 @@
   {% if can_respond and pesquisa.status == 'ativa' %}
   <a href="{% url 'web:rh-enps-responder' pesquisa.pk %}" class="btn-primary">Responder</a>
   {% endif %}
-  <a href="{% url 'web:rh-enps' %}" class="btn-secondary">Voltar</a>
 </div>
 {% endblock %}
 {% block content %}

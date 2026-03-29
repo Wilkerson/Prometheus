@@ -145,9 +145,18 @@
 
     <!-- ==================== TOPBAR (col 2, row 1) ==================== -->
     <header style="grid-column:2; grid-row:1;" class="flex items-center px-6 border-b border-bdr gap-2">
-      <div class="flex items-center gap-1.5 text-t2 text-[13px]">
-        Dashboard <span class="text-t3">/</span> <span class="text-t1 font-medium">{% block page_title %}Visao geral{% endblock %}</span>
-      </div>
+      <nav class="flex items-center gap-1.5 text-[13px]">
+        {% for crumb in breadcrumbs %}
+        {% if not forloop.last %}
+        {% if crumb.url %}<a href="{{ crumb.url }}" class="text-t3 hover:text-ruch-accent no-underline">{{ crumb.label }}</a>{% else %}<span class="text-t3">{{ crumb.label }}</span>{% endif %}
+        <span class="text-t3">/</span>
+        {% else %}
+        <span class="text-t1 font-medium">{% block page_title %}{{ crumb.label }}{% endblock %}</span>
+        {% endif %}
+        {% empty %}
+        <span class="text-t1 font-medium">{% block page_title_fallback %}Dashboard{% endblock %}</span>
+        {% endfor %}
+      </nav>
 
       <!-- Loading -->
       <div id="loading-indicator" class="hidden ml-3">
@@ -155,8 +164,7 @@
       </div>
 
       <div class="ml-auto flex items-center gap-3">
-        {% block page_actions %}{% endblock %}
-
+        
         <!-- Sino de notificacoes -->
         <button onclick="var p=document.getElementById('notif-panel'); var o=document.getElementById('notif-overlay');
                 if(p.style.right==='-320px'||!p.style.right){p.style.right='0';o.style.display='block';}

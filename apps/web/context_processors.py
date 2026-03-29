@@ -126,6 +126,9 @@ def navigation(request):
 
     any_group_active = any(g["active"] for g in nav_groups)
 
+    # Breadcrumbs
+    breadcrumbs = _build_breadcrumbs(path)
+
     return {
         "nav_standalone": nav_standalone,
         "nav_groups": nav_groups,
@@ -133,4 +136,112 @@ def navigation(request):
         "nav_placeholders": placeholders,
         "notif_count": notif_count,
         "notif_recentes": notif_recentes,
+        "breadcrumbs": breadcrumbs,
     }
+
+
+# Mapa de segmentos de URL para labels de breadcrumb
+BREADCRUMB_LABELS = {
+    "dashboard": ("Dashboard", "/dashboard/"),
+    # Comercial
+    "clientes": ("Clientes", "/clientes/"),
+    "pipeline": ("Pipeline", "/clientes/pipeline/"),
+    "calendario": ("Calendário", "/clientes/calendario/"),
+    "produtos": ("Produtos", "/produtos/"),
+    "planos": ("Planos", "/planos/"),
+    # Financeiro
+    "financeiro": ("Financeiro", "/financeiro/lancamentos/"),
+    "lancamentos": ("Lançamentos", "/financeiro/lancamentos/"),
+    "cobrancas": ("Cobranças", "/financeiro/cobrancas/"),
+    "despesas": ("Despesas", "/financeiro/despesas/"),
+    "nfs": ("Notas Fiscais", "/financeiro/nfs/"),
+    "folha": ("Folha", "/financeiro/folha/"),
+    "tributos": ("Tributos", "/financeiro/tributos/"),
+    "ativos": ("Patrimônio", "/financeiro/ativos/"),
+    "contas": ("Contas Bancárias", "/financeiro/contas/"),
+    "asaas": ("Asaas", "/financeiro/asaas/"),
+    "assinaturas": ("Assinaturas", "/financeiro/asaas/assinaturas/"),
+    "webhook-log": ("Webhook Log", "/financeiro/asaas/webhook-log/"),
+    "dre": ("DRE", "/financeiro/dre/"),
+    "fluxo-caixa": ("Fluxo de Caixa", "/financeiro/fluxo-caixa/"),
+    "fechamento": ("Fechamento", "/financeiro/fechamento/"),
+    # RH
+    "rh": ("RH", "/rh/colaboradores/"),
+    "colaboradores": ("Colaboradores", "/rh/colaboradores/"),
+    "documentos": ("Documentos", "/rh/documentos/"),
+    "onboarding": ("Onboarding", "/rh/onboarding/templates/"),
+    "ausencias": ("Ausências", "/rh/ausencias/"),
+    "treinamentos": ("Treinamentos", "/rh/treinamentos/"),
+    "metas": ("Metas", "/rh/metas/"),
+    "pdi": ("PDI", "/rh/pdi/"),
+    "enps": ("eNPS", "/rh/enps/"),
+    "relatorios": ("Relatórios", None),
+    "cargos": ("Cargos", "/rh/cargos/"),
+    "setores": ("Setores", "/rh/setores/"),
+    # Administracao
+    "usuarios": ("Usuários", "/usuarios/"),
+    "parceiros": ("Parceiros", "/parceiros/"),
+    "tokens": ("Tokens API", "/tokens/"),
+    "grupos": ("Grupos", "/grupos/"),
+    # Acoes
+    "novo": ("Novo", None),
+    "editar": ("Editar", None),
+    "excluir": ("Excluir", None),
+    "configuracao": ("Configuração", None),
+    "exportar": ("Exportar", None),
+    "iniciar": ("Iniciar", None),
+    "responder": ("Responder", None),
+    "templates": ("Templates", None),
+    "criar-acesso": ("Criar Acesso", None),
+    "aprovar-todos": ("Aprovar Todos", None),
+    "gerar": ("Gerar", None),
+    "sincronizar": ("Sincronizar", None),
+}
+
+# Mapa de prefixo de URL para departamento
+BREADCRUMB_DEPTOS = {
+    "/clientes/": "Comercial",
+    "/produtos/": "Comercial",
+    "/planos/": "Comercial",
+    "/financeiro/": "Financeiro",
+    "/rh/": "RH / Pessoas",
+    "/usuarios/": "Administração",
+    "/parceiros/": "Administração",
+    "/tokens/": "Administração",
+    "/grupos/": "Administração",
+}
+
+
+def _build_breadcrumbs(path):
+    """Gera breadcrumbs a partir do URL path."""
+    if path == "/dashboard/" or path == "/":
+        return [{"label": "Dashboard", "url": None}]
+
+    crumbs = [{"label": "Dashboard", "url": "/dashboard/"}]
+
+    # Adicionar departamento
+    for prefix, depto in BREADCRUMB_DEPTOS.items():
+        if path.startswith(prefix):
+            crumbs.append({"label": depto, "url": None})
+            break
+
+    # Quebrar URL em segmentos
+    segments = [s for s in path.strip("/").split("/") if s]
+
+    for i, seg in enumerate(segments):
+        # Pular numeros (PKs) — serao substituidos pelo page_title
+        if seg.isdigit():
+            continue
+
+        if seg in BREADCRUMB_LABELS:
+            label, url = BREADCRUMB_LABELS[seg]
+            # Ultimo segmento nao tem link
+            is_last = (i == len(segments) - 1) or (
+                i == len(segments) - 2 and segments[-1].isdigit()
+            )
+            crumbs.append({
+                "label": label,
+                "url": None if is_last else url,
+            })
+
+    return crumbs

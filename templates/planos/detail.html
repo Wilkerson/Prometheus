@@ -4,7 +4,6 @@
 {% block page_actions %}
 <div class="flex gap-2">
   {% if can_edit %}<a href="{% url 'web:plano-edit' plano.pk %}" class="btn-primary">Editar</a>{% endif %}
-  <a href="{% url 'web:planos' %}" class="btn-secondary">Voltar</a>
 </div>
 {% endblock %}
 {% block content %}
