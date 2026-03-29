@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Asaas — Webhook Log{% endblock %}
+{% block page_title %}Asaas — Log de Eventos{% endblock %}
+{% block content %}
+<div class="card">
+  {% if eventos %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-bdr text-left text-t3">
+          <th class="pb-3 font-medium">Evento</th>
+          <th class="pb-3 font-medium">Payment ID</th>
+          <th class="pb-3 font-medium">Processado</th>
+          <th class="pb-3 font-medium">Recebido em</th>
+          <th class="pb-3 font-medium">Erro</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-bdr">
+        {% for e in eventos %}
+        <tr class="hover:bg-bg3">
+          <td class="py-3 font-medium text-t1">{{ e.evento }}</td>
+          <td class="py-3 font-mono text-[12px] text-t2">{{ e.asaas_payment_id|default:"—" }}</td>
+          <td class="py-3 whitespace-nowrap">
+            {% if e.processado %}<span class="badge bg-emerald-500/15 text-emerald-500">Sim</span>
+            {% else %}<span class="badge bg-amber-500/15 text-amber-500">Pendente</span>{% endif %}
+          </td>
+          <td class="py-3 text-t2">{{ e.recebido_em|date:"d/m/Y H:i" }}</td>
+          <td class="py-3 text-[11px] text-red-400">{{ e.erro|truncatewords:10|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-sm text-t3 py-4">Nenhum evento recebido do Asaas.</p>
+  {% endif %}
+</div>
+{% endblock %}

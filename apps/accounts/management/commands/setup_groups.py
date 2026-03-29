@@ -48,6 +48,10 @@ class Command(BaseCommand):
             "view_folhapagamento", "add_folhapagamento", "change_folhapagamento", "delete_folhapagamento",
             "view_tributo", "add_tributo", "change_tributo", "delete_tributo",
             "view_ativo", "add_ativo", "change_ativo", "delete_ativo",
+            "view_clienteasaas", "add_clienteasaas", "change_clienteasaas", "delete_clienteasaas",
+            "view_cobrancaasaas", "add_cobrancaasaas", "change_cobrancaasaas", "delete_cobrancaasaas",
+            "view_assinaturaasaas", "add_assinaturaasaas", "change_assinaturaasaas", "delete_assinaturaasaas",
+            "view_eventowebhookasaas",
         ])
         g.permissions.set(perms)
         self._log(g, created)

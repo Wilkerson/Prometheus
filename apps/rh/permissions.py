@@ -24,6 +24,10 @@ DEPARTAMENTO_MODELS = {
         ("financeiro", "folhapagamento"),
         ("financeiro", "tributo"),
         ("financeiro", "ativo"),
+        ("financeiro", "clienteasaas"),
+        ("financeiro", "cobrancaasaas"),
+        ("financeiro", "assinaturaasaas"),
+        ("financeiro", "eventowebhookasaas"),
     ],
     "rh": [
         ("rh", "colaborador"),

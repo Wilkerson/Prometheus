@@ -220,6 +220,13 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # -----------------------------------------------------------------------------
+# Asaas (Gateway de pagamento)
+# -----------------------------------------------------------------------------
+ASAAS_API_KEY = config("ASAAS_API_KEY", default="")
+ASAAS_WEBHOOK_TOKEN = config("ASAAS_WEBHOOK_TOKEN", default="")
+ASAAS_BASE_URL = config("ASAAS_BASE_URL", default="https://api-sandbox.asaas.com/v3")
+
+# -----------------------------------------------------------------------------
 # drf-spectacular (Swagger / OpenAPI)
 # -----------------------------------------------------------------------------
 SPECTACULAR_SETTINGS = {

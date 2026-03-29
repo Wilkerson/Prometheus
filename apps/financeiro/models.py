@@ -723,3 +723,150 @@ class Ativo(models.Model):
         if self.is_consumo:
             return 0
         return max(self.valor_compra - self.depreciacao_acumulada, 0)
+
+
+# =========================================================================
+# Gateway Asaas
+# =========================================================================
+class ClienteAsaas(models.Model):
+    """Vinculo entre o cliente do CRM e o cadastro no Asaas."""
+    cliente = models.OneToOneField(
+        "crm.Cliente", on_delete=models.CASCADE,
+        related_name="asaas", verbose_name="Cliente",
+    )
+    asaas_id = models.CharField("ID no Asaas", max_length=50, unique=True,
+        help_text="Ex: cus_xxxx",
+    )
+    sincronizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Cliente Asaas"
+        verbose_name_plural = "Clientes Asaas"
+
+    def __str__(self):
+        return f"{self.cliente} → {self.asaas_id}"
+
+
+class AssinaturaAsaas(models.Model):
+    """Assinatura recorrente criada no Asaas vinculada a um plano."""
+    class StatusAssinatura(models.TextChoices):
+        ACTIVE = "ACTIVE", "Ativa"
+        INACTIVE = "INACTIVE", "Inativa"
+        EXPIRED = "EXPIRED", "Expirada"
+
+    class Ciclo(models.TextChoices):
+        WEEKLY = "WEEKLY", "Semanal"
+        BIWEEKLY = "BIWEEKLY", "Quinzenal"
+        MONTHLY = "MONTHLY", "Mensal"
+        QUARTERLY = "QUARTERLY", "Trimestral"
+        SEMIANNUALLY = "SEMIANNUALLY", "Semestral"
+        YEARLY = "YEARLY", "Anual"
+
+    asaas_id = models.CharField("ID no Asaas", max_length=50, unique=True,
+        help_text="Ex: sub_xxxx",
+    )
+    cliente = models.ForeignKey(
+        "crm.Cliente", on_delete=models.PROTECT,
+        related_name="assinaturas_asaas", verbose_name="Cliente",
+    )
+    plano = models.ForeignKey(
+        "crm.Plano", null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="assinaturas_asaas", verbose_name="Plano",
+    )
+    valor = models.DecimalField("Valor", max_digits=10, decimal_places=2)
+    ciclo = models.CharField("Ciclo", max_length=15, choices=Ciclo.choices)
+    proximo_vencimento = models.DateField("Próximo vencimento", null=True, blank=True)
+    status = models.CharField("Status", max_length=10,
+        choices=StatusAssinatura.choices, default=StatusAssinatura.ACTIVE,
+    )
+    billing_type = models.CharField("Forma de pagamento", max_length=20, blank=True,
+        help_text="BOLETO, PIX, CREDIT_CARD, etc.",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    cancelado_em = models.DateTimeField("Cancelado em", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Assinatura Asaas"
+        verbose_name_plural = "Assinaturas Asaas"
+        ordering = ["-criado_em"]
+
+    def __str__(self):
+        return f"{self.cliente} — {self.get_ciclo_display()} {self.valor}"
+
+
+class CobrancaAsaas(models.Model):
+    """Espelho de cada cobranca criada no Asaas.
+    Ao ser paga, cria/atualiza Lancamento no modulo principal.
+    """
+    class TipoCobranca(models.TextChoices):
+        IMPLANTACAO = "implantacao", "Implantação"
+        MENSALIDADE = "mensalidade", "Mensalidade"
+        AVULSA = "avulsa", "Avulsa"
+
+    asaas_id = models.CharField("ID no Asaas", max_length=50, unique=True,
+        help_text="Ex: pay_xxxx",
+    )
+    assinatura = models.ForeignKey(
+        AssinaturaAsaas, null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="cobrancas", verbose_name="Assinatura",
+    )
+    cliente = models.ForeignKey(
+        "crm.Cliente", on_delete=models.PROTECT,
+        related_name="cobrancas_asaas", verbose_name="Cliente",
+    )
+    cobranca = models.OneToOneField(
+        Cobranca, null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="asaas", verbose_name="Cobrança vinculada",
+    )
+    lancamento = models.OneToOneField(
+        Lancamento, null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="cobranca_asaas", verbose_name="Lançamento gerado",
+    )
+    tipo = models.CharField("Tipo", max_length=15, choices=TipoCobranca.choices)
+    valor = models.DecimalField("Valor", max_digits=10, decimal_places=2)
+    valor_liquido = models.DecimalField("Valor líquido", max_digits=10, decimal_places=2,
+        null=True, blank=True, help_text="Após taxas do Asaas",
+    )
+    vencimento = models.DateField("Vencimento")
+    status = models.CharField("Status Asaas", max_length=40)
+    billing_type = models.CharField("Forma de pagamento", max_length=20, blank=True)
+    invoice_url = models.URLField("URL do boleto/fatura", blank=True)
+    bank_slip_url = models.URLField("URL do boleto bancário", blank=True)
+    pago_em = models.DateField("Pago em", null=True, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Cobrança Asaas"
+        verbose_name_plural = "Cobranças Asaas"
+        ordering = ["-vencimento"]
+
+    def __str__(self):
+        return f"{self.asaas_id} — {self.cliente} R${self.valor}"
+
+
+class EventoWebhookAsaas(models.Model):
+    """Log de todos os eventos recebidos do Asaas.
+    Essencial para auditoria e idempotencia.
+    """
+    evento = models.CharField("Evento", max_length=60)
+    asaas_payment_id = models.CharField("Payment ID", max_length=50, blank=True)
+    payload = models.JSONField("Payload")
+    processado = models.BooleanField("Processado", default=False)
+    erro = models.TextField("Erro", blank=True)
+    recebido_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Evento Webhook Asaas"
+        verbose_name_plural = "Eventos Webhook Asaas"
+        ordering = ["-recebido_em"]
+        indexes = [
+            models.Index(fields=["asaas_payment_id", "processado"]),
+        ]
+
+    def __str__(self):
+        return f"{self.evento} — {self.asaas_payment_id} ({'✓' if self.processado else '⏳'})"

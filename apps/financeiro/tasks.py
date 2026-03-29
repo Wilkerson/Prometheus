@@ -19,3 +19,10 @@ def gerar_folha_mensal():
     """
     from django.core.management import call_command
     call_command("gerar_folha_mensal")
+
+
+@shared_task(name="financeiro.processar_webhook_asaas")
+def processar_webhook_asaas(evento_id):
+    """Processa evento do webhook Asaas de forma assincrona."""
+    from apps.financeiro.services.asaas_webhook import processar_evento
+    processar_evento(evento_id)

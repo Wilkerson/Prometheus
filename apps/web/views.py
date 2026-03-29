@@ -15,8 +15,10 @@ from django.contrib.auth.models import Group
 from apps.accounts.models import Usuario
 from apps.crm.models import Cliente, ClienteHistorico, Endereco, EntidadeParceira, Notificacao, Plano, PlanoProduto, Produto
 from apps.financeiro.models import (
-    Ativo, CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria,
-    Despesa, FolhaPagamento, Lancamento, LogExportacaoFolha, NotaFiscal, Tributo,
+    AssinaturaAsaas, Ativo, CategoriaFinanceira, ClienteAsaas, Cobranca,
+    CobrancaAsaas, ConfiguracaoFolha, ContaBancaria, Despesa,
+    EventoWebhookAsaas, FolhaPagamento, Lancamento, LogExportacaoFolha,
+    NotaFiscal, Tributo,
 )
 from apps.crm.validators import ACCEPT_HTML, validar_arquivo
 from apps.integracao.models import TokenIntegracao
@@ -1095,6 +1097,8 @@ MODULOS_PERMISSOES_GRUPOS = [
         {"label": "Folha Pgto", "app": "financeiro", "model": "folhapagamento"},
         {"label": "Tributos", "app": "financeiro", "model": "tributo"},
         {"label": "Patrimônio", "app": "financeiro", "model": "ativo"},
+        {"label": "Asaas Clientes", "app": "financeiro", "model": "clienteasaas"},
+        {"label": "Asaas Cobranças", "app": "financeiro", "model": "cobrancaasaas"},
         {"label": "Contas Bancárias", "app": "financeiro", "model": "contabancaria"},
         {"label": "Categorias", "app": "financeiro", "model": "categoriafinanceira"},
     ]},
@@ -4808,3 +4812,147 @@ class FechamentoExportView(PermissionRequiredMixin, View):
             return response
 
         return redirect("web:fin-fechamento")
+
+
+# ===========================================================================
+# ASAAS (Gateway)
+# ===========================================================================
+
+class AsaasClienteListView(PermissionRequiredMixin, ListView):
+    template_name = "financeiro/asaas/clientes.html"
+    context_object_name = "clientes_asaas"
+    permission_required = "financeiro.view_clienteasaas"
+
+    def get_queryset(self):
+        return ClienteAsaas.objects.select_related("cliente").order_by("-sincronizado_em")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        # Clientes nao sincronizados
+        sincronizados = ClienteAsaas.objects.values_list("cliente_id", flat=True)
+        ctx["clientes_nao_sync"] = Cliente.objects.filter(ativo=True).exclude(pk__in=sincronizados)
+        ctx["can_sync"] = self.request.user.has_perm("financeiro.add_clienteasaas")
+        return ctx
+
+
+class AsaasSincronizarClienteView(PermissionRequiredMixin, View):
+    """Sincroniza um cliente do CRM com o Asaas."""
+    permission_required = "financeiro.add_clienteasaas"
+
+    def post(self, request, cliente_pk):
+        from django.contrib import messages
+        cliente = get_object_or_404(Cliente, pk=cliente_pk)
+
+        if hasattr(cliente, "asaas") and cliente.asaas:
+            messages.info(request, f"{cliente.nome} já está sincronizado (ID: {cliente.asaas.asaas_id})")
+            return redirect("web:fin-asaas-clientes")
+
+        try:
+            from apps.financeiro.services.asaas_client import AsaasClient
+            api = AsaasClient()
+
+            existentes = api.buscar_cliente_por_cpf(cliente.cnpj)
+            if existentes:
+                asaas_id = existentes[0]["id"]
+            else:
+                resultado = api.criar_cliente(
+                    nome=cliente.nome,
+                    cpf_cnpj=cliente.cnpj,
+                    email=cliente.email,
+                    telefone=cliente.telefone,
+                )
+                asaas_id = resultado["id"]
+
+            ClienteAsaas.objects.create(cliente=cliente, asaas_id=asaas_id)
+            messages.success(request, f"{cliente.nome} sincronizado com Asaas (ID: {asaas_id})")
+
+        except Exception as e:
+            messages.error(request, f"Erro ao sincronizar: {e}")
+
+        return redirect("web:fin-asaas-clientes")
+
+
+class AsaasCobrancaListView(PermissionRequiredMixin, ListView):
+    template_name = "financeiro/asaas/cobrancas.html"
+    context_object_name = "cobrancas_asaas"
+    permission_required = "financeiro.view_cobrancaasaas"
+
+    def get_queryset(self):
+        return CobrancaAsaas.objects.select_related("cliente", "lancamento").order_by("-vencimento")
+
+
+class AsaasCriarCobrancaView(PermissionRequiredMixin, View):
+    """Cria cobranca no Asaas pra um cliente ja sincronizado."""
+    permission_required = "financeiro.add_cobrancaasaas"
+
+    def get(self, request):
+        return render(request, "financeiro/asaas/criar_cobranca.html", {
+            "clientes_sync": ClienteAsaas.objects.select_related("cliente").all(),
+            "tipo_choices": CobrancaAsaas.TipoCobranca.choices,
+            "erros": {},
+        })
+
+    def post(self, request):
+        from django.contrib import messages
+
+        cliente_asaas_id = request.POST.get("cliente_asaas")
+        valor = request.POST.get("valor", "").strip()
+        vencimento = request.POST.get("vencimento", "").strip()
+        descricao = request.POST.get("descricao", "").strip()
+        tipo = request.POST.get("tipo", "avulsa")
+        billing_type = request.POST.get("billing_type", "UNDEFINED")
+
+        if not all([cliente_asaas_id, valor, vencimento]):
+            messages.error(request, "Preencha todos os campos obrigatórios.")
+            return redirect("web:fin-asaas-criar-cobranca")
+
+        try:
+            cliente_asaas = ClienteAsaas.objects.select_related("cliente").get(pk=cliente_asaas_id)
+            from apps.financeiro.services.asaas_client import AsaasClient
+            api = AsaasClient()
+
+            resultado = api.criar_cobranca(
+                customer_id=cliente_asaas.asaas_id,
+                valor=valor,
+                vencimento=vencimento,
+                descricao=descricao,
+                billing_type=billing_type,
+            )
+
+            CobrancaAsaas.objects.create(
+                asaas_id=resultado["id"],
+                cliente=cliente_asaas.cliente,
+                tipo=tipo,
+                valor=resultado["value"],
+                valor_liquido=resultado.get("netValue"),
+                vencimento=resultado["dueDate"],
+                status=resultado["status"],
+                billing_type=resultado.get("billingType", ""),
+                invoice_url=resultado.get("invoiceUrl", ""),
+                bank_slip_url=resultado.get("bankSlipUrl", ""),
+            )
+            messages.success(request, f"Cobrança criada no Asaas: {resultado['id']}")
+
+        except Exception as e:
+            messages.error(request, f"Erro ao criar cobrança: {e}")
+
+        return redirect("web:fin-asaas-cobrancas")
+
+
+class AsaasAssinaturaListView(PermissionRequiredMixin, ListView):
+    template_name = "financeiro/asaas/assinaturas.html"
+    context_object_name = "assinaturas"
+    permission_required = "financeiro.view_assinaturaasaas"
+
+    def get_queryset(self):
+        return AssinaturaAsaas.objects.select_related("cliente", "plano").order_by("-criado_em")
+
+
+class AsaasWebhookLogView(PermissionRequiredMixin, ListView):
+    template_name = "financeiro/asaas/webhook_log.html"
+    context_object_name = "eventos"
+    paginate_by = 50
+    permission_required = "financeiro.view_eventowebhookasaas"
+
+    def get_queryset(self):
+        return EventoWebhookAsaas.objects.order_by("-recebido_em")

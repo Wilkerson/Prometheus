@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from .models import Ativo, CategoriaFinanceira, Cobranca, ConfiguracaoFolha, ContaBancaria, Despesa, FolhaPagamento, Lancamento, LogExportacaoFolha, NotaFiscal, Tributo
+from .models import (
+    AssinaturaAsaas, Ativo, CategoriaFinanceira, ClienteAsaas, Cobranca,
+    CobrancaAsaas, ConfiguracaoFolha, ContaBancaria, Despesa,
+    EventoWebhookAsaas, FolhaPagamento, Lancamento, LogExportacaoFolha,
+    NotaFiscal, Tributo,
+)
 
 
 @admin.register(CategoriaFinanceira)
@@ -80,3 +85,29 @@ class LogExportacaoFolhaAdmin(admin.ModelAdmin):
     list_display = ("competencia", "formato", "total_registros", "valor_total", "exportado_por", "criado_em")
     list_filter = ("formato",)
     readonly_fields = ("competencia", "formato", "total_registros", "valor_total", "exportado_por", "criado_em")
+
+
+@admin.register(ClienteAsaas)
+class ClienteAsaasAdmin(admin.ModelAdmin):
+    list_display = ("cliente", "asaas_id", "sincronizado_em")
+    search_fields = ("cliente__nome", "asaas_id")
+
+
+@admin.register(AssinaturaAsaas)
+class AssinaturaAsaasAdmin(admin.ModelAdmin):
+    list_display = ("asaas_id", "cliente", "plano", "valor", "ciclo", "status")
+    list_filter = ("status", "ciclo")
+
+
+@admin.register(CobrancaAsaas)
+class CobrancaAsaasAdmin(admin.ModelAdmin):
+    list_display = ("asaas_id", "cliente", "tipo", "valor", "vencimento", "status", "pago_em")
+    list_filter = ("status", "tipo")
+    search_fields = ("asaas_id", "cliente__nome")
+
+
+@admin.register(EventoWebhookAsaas)
+class EventoWebhookAsaasAdmin(admin.ModelAdmin):
+    list_display = ("evento", "asaas_payment_id", "processado", "recebido_em")
+    list_filter = ("evento", "processado")
+    readonly_fields = ("evento", "asaas_payment_id", "payload", "processado", "erro", "recebido_em")

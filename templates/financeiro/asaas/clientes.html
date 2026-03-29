@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Asaas — Clientes{% endblock %}
+{% block page_title %}Asaas — Clientes Sincronizados{% endblock %}
+{% block content %}
+
+{% if clientes_asaas %}
+<div class="card mb-4">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-bdr text-left text-t3">
+          <th class="pb-3 font-medium">Cliente</th>
+          <th class="pb-3 font-medium">CNPJ</th>
+          <th class="pb-3 font-medium">ID Asaas</th>
+          <th class="pb-3 font-medium">Sincronizado em</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-bdr">
+        {% for ca in clientes_asaas %}
+        <tr class="hover:bg-bg3">
+          <td class="py-3 font-medium text-t1">{{ ca.cliente.nome }}</td>
+          <td class="py-3 text-t2">{{ ca.cliente.cnpj }}</td>
+          <td class="py-3 text-ruch-accent font-mono text-[12px]">{{ ca.asaas_id }}</td>
+          <td class="py-3 text-t2">{{ ca.sincronizado_em|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if clientes_nao_sync and can_sync %}
+<div class="card">
+  <h3 class="text-sm font-semibold text-t2 mb-3">Clientes não sincronizados</h3>
+  <div class="space-y-2">
+    {% for c in clientes_nao_sync %}
+    <div class="flex items-center justify-between p-2 rounded-lg bg-bg3">
+      <div>
+        <div class="text-sm text-t1">{{ c.nome }}</div>
+        <div class="text-[10px] text-t3">{{ c.cnpj }} · {{ c.email }}</div>
+      </div>
+      <form method="post" action="{% url 'web:fin-asaas-sincronizar' c.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="text-[12px] text-ruch-accent hover:text-t1">Sincronizar</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% elif not clientes_asaas %}
+<div class="card">
+  <p class="text-sm text-t3 py-4">Nenhum cliente sincronizado com o Asaas.</p>
+</div>
+{% endif %}
+{% endblock %}

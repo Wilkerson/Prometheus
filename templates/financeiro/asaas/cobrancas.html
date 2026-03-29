@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Asaas — Cobranças{% endblock %}
+{% block page_title %}Asaas — Cobranças{% endblock %}
+{% block page_actions %}
+<a href="{% url 'web:fin-asaas-criar-cobranca' %}" class="btn-primary">+ Nova Cobrança</a>
+{% endblock %}
+{% block content %}
+<div class="card">
+  {% if cobrancas_asaas %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-bdr text-left text-t3">
+          <th class="pb-3 font-medium">ID Asaas</th>
+          <th class="pb-3 font-medium">Cliente</th>
+          <th class="pb-3 font-medium">Tipo</th>
+          <th class="pb-3 font-medium">Valor</th>
+          <th class="pb-3 font-medium">Vencimento</th>
+          <th class="pb-3 font-medium">Status</th>
+          <th class="pb-3 font-medium">Pago em</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-bdr">
+        {% for c in cobrancas_asaas %}
+        <tr class="hover:bg-bg3">
+          <td class="py-3 font-mono text-[12px] text-ruch-accent">{{ c.asaas_id }}</td>
+          <td class="py-3 text-t1">{{ c.cliente.nome }}</td>
+          <td class="py-3 text-t2">{{ c.get_tipo_display }}</td>
+          <td class="py-3 font-medium text-t1">{{ c.valor|brl }}</td>
+          <td class="py-3 text-t2">{{ c.vencimento|date:"d/m/Y" }}</td>
+          <td class="py-3 whitespace-nowrap">
+            {% if c.status == 'RECEIVED' or c.status == 'CONFIRMED' %}
+            <span class="badge bg-emerald-500/15 text-emerald-500">Pago</span>
+            {% elif c.status == 'PENDING' %}
+            <span class="badge bg-blue-500/15 text-blue-500">Pendente</span>
+            {% elif c.status == 'OVERDUE' %}
+            <span class="badge bg-red-500/15 text-red-500">Vencido</span>
+            {% else %}
+            <span class="badge bg-bg4 text-t3">{{ c.status }}</span>
+            {% endif %}
+          </td>
+          <td class="py-3 text-t2">{{ c.pago_em|date:"d/m/Y"|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-sm text-t3 py-4">Nenhuma cobrança Asaas registrada.</p>
+  {% endif %}
+</div>
+{% endblock %}

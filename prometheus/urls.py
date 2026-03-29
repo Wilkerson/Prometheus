@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from apps.financeiro.webhooks import asaas_webhook
+
 
 def health_check(request):
     """Endpoint para load balancer / Easypanel verificar se o app esta vivo."""
@@ -24,6 +26,8 @@ urlpatterns = [
     path("api/v1/", include("apps.crm.urls")),
     path("api/v1/parceiro/", include("apps.crm.urls_parceiro")),
     path("api/v1/integracao/", include("apps.integracao.urls")),
+    # Webhooks
+    path("webhooks/asaas/", asaas_webhook, name="webhook-asaas"),
     # Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),

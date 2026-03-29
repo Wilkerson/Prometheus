@@ -469,7 +469,7 @@ Para Cloudflare R2: usar provider `s3` com `STORAGE_S3_ENDPOINT_URL`.
 76. [x] Modulo Financeiro Fase 3: FolhaPagamento (salario/pro-labore/bonus, fluxo calculado>aprovado>pago) + Tributo (tipo extensivel, datalist com sugestoes)
 77. [x] Modulo Financeiro Fase 4: Ativo (patrimonio, depreciacao calculada, baixa, inventario)
 78. [x] Modulo Financeiro Fase 5: Dashboard + DRE + Fluxo de Caixa + Fechamento mensal (CSV/JSON/XML/PDF)
-79. [ ] Modulo Financeiro Fase 6: Gateway Asaas
+79. [x] Modulo Financeiro Fase 6: Gateway Asaas (models, service HTTP, webhook, views, Celery)
 80. [ ] Implementar modulos futuros por departamento (ver mapa abaixo)
 41. [ ] Aplicar design system (JSON) quando fornecido
 

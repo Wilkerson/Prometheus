@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Asaas — Assinaturas{% endblock %}
+{% block page_title %}Asaas — Assinaturas Recorrentes{% endblock %}
+{% block content %}
+<div class="card">
+  {% if assinaturas %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-bdr text-left text-t3">
+          <th class="pb-3 font-medium">ID Asaas</th>
+          <th class="pb-3 font-medium">Cliente</th>
+          <th class="pb-3 font-medium">Plano</th>
+          <th class="pb-3 font-medium">Valor</th>
+          <th class="pb-3 font-medium">Ciclo</th>
+          <th class="pb-3 font-medium">Próx. vencimento</th>
+          <th class="pb-3 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-bdr">
+        {% for a in assinaturas %}
+        <tr class="hover:bg-bg3">
+          <td class="py-3 font-mono text-[12px] text-ruch-accent">{{ a.asaas_id }}</td>
+          <td class="py-3 text-t1">{{ a.cliente.nome }}</td>
+          <td class="py-3 text-t2">{{ a.plano.nome|default:"—" }}</td>
+          <td class="py-3 font-medium text-t1">{{ a.valor|brl }}</td>
+          <td class="py-3 text-t2">{{ a.get_ciclo_display }}</td>
+          <td class="py-3 text-t2">{{ a.proximo_vencimento|date:"d/m/Y"|default:"—" }}</td>
+          <td class="py-3 whitespace-nowrap">
+            {% if a.status == 'ACTIVE' %}<span class="badge bg-emerald-500/15 text-emerald-500">Ativa</span>
+            {% elif a.status == 'INACTIVE' %}<span class="badge bg-bg4 text-t3">Inativa</span>
+            {% else %}<span class="badge bg-red-500/15 text-red-500">Expirada</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-sm text-t3 py-4">Nenhuma assinatura Asaas registrada.</p>
+  {% endif %}
+</div>
+{% endblock %}
