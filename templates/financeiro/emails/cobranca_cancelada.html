@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;">
+  <div style="max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0;">
+    <div style="background: #2d4a3e; padding: 24px; text-align: center;">
+      <div style="display: inline-block; text-align: center;">
+        <span style="color: #ffffff; font-weight: 800; font-size: 22px; letter-spacing: 0.05em;">RUCH</span>
+        <br>
+        <span style="color: #4a8a72; font-size: 9px; letter-spacing: 0.25em; font-weight: 500;">SOLUTIONS</span>
+      </div>
+    </div>
+    <div style="padding: 32px 24px;">
+      <h2 style="color: #1a1a1a; font-size: 18px; margin: 0 0 8px;">Cobranca cancelada</h2>
+      <p style="color: #555; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+        Uma cobranca foi cancelada ou estornada no Asaas.
+      </p>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+        <table style="width: 100%; font-size: 14px;">
+          <tr>
+            <td style="color: #888; padding: 4px 0; width: 120px;">Cliente:</td>
+            <td style="color: #1a1a1a; font-weight: 600;">{{ cobranca.cliente.nome }}</td>
+          </tr>
+          <tr>
+            <td style="color: #888; padding: 4px 0;">ID Asaas:</td>
+            <td style="color: #1a1a1a; font-family: monospace;">{{ cobranca.asaas_id }}</td>
+          </tr>
+          <tr>
+            <td style="color: #888; padding: 4px 0;">Valor:</td>
+            <td style="color: #dc2626; font-weight: 700;">R$ {{ cobranca.valor }}</td>
+          </tr>
+          <tr>
+            <td style="color: #888; padding: 4px 0;">Status:</td>
+            <td><span style="background: #fee2e2; color: #dc2626; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">{{ cobranca.status }}</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div style="background: #f8f8f8; padding: 16px 24px; text-align: center; border-top: 1px solid #e8e8e8;">
+      <p style="color: #aaa; font-size: 11px; margin: 0;">RUCH Digital Technology &mdash; Prometheus</p>
+    </div>
+  </div>
+</body>
+</html>

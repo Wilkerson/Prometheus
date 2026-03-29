@@ -65,3 +65,62 @@ def enviar_cobranca_vencida(cobranca_asaas):
         )
     except Exception as e:
         logger.error(f"Erro ao enviar email cobranca vencida: {e}")
+
+
+def enviar_cobranca_cancelada(cobranca_asaas):
+    """Email quando cobranca e cancelada/estornada."""
+    try:
+        html = render_to_string("financeiro/emails/cobranca_cancelada.html", {
+            "cobranca": cobranca_asaas,
+        })
+        send_mail(
+            subject=f"Cobranca cancelada — {cobranca_asaas.cliente.nome} (R$ {cobranca_asaas.valor})",
+            message="",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=_get_emails_financeiro(),
+            html_message=html,
+            fail_silently=True,
+        )
+    except Exception as e:
+        logger.error(f"Erro ao enviar email cobranca cancelada: {e}")
+
+
+def enviar_folha_gerada(competencia, total):
+    """Email quando folha e gerada automaticamente."""
+    try:
+        html = render_to_string("financeiro/emails/folha_pronta.html", {
+            "titulo": "Folha de pagamento gerada",
+            "mensagem": f"A folha de pagamento foi gerada automaticamente pelo sistema.",
+            "competencia": competencia.strftime("%m/%Y"),
+            "total": total,
+        })
+        send_mail(
+            subject=f"Folha gerada — {competencia:%m/%Y} ({total} registros)",
+            message="",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=_get_emails_financeiro(),
+            html_message=html,
+            fail_silently=True,
+        )
+    except Exception as e:
+        logger.error(f"Erro ao enviar email folha gerada: {e}")
+
+
+def enviar_folha_aprovada(competencia):
+    """Email quando todas as folhas sao aprovadas."""
+    try:
+        html = render_to_string("financeiro/emails/folha_pronta.html", {
+            "titulo": "Folha aprovada",
+            "mensagem": "Todas as folhas foram aprovadas e estao prontas para exportacao.",
+            "competencia": competencia.strftime("%m/%Y"),
+        })
+        send_mail(
+            subject=f"Folha aprovada — {competencia:%m/%Y}",
+            message="",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=_get_emails_financeiro(),
+            html_message=html,
+            fail_silently=True,
+        )
+    except Exception as e:
+        logger.error(f"Erro ao enviar email folha aprovada: {e}")

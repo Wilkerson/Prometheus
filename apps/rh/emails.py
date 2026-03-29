@@ -105,6 +105,110 @@ def enviar_pesquisa_enps_ativa(pesquisa, colaboradores_emails):
         )
 
 
+def _get_emails_rh():
+    """Retorna emails do grupo RH."""
+    from django.contrib.auth.models import Group
+    from apps.accounts.models import Usuario
+    emails = set()
+    for u in Usuario.objects.filter(is_superuser=True, is_active=True).exclude(email=""):
+        emails.add(u.email)
+    try:
+        grupo = Group.objects.get(name="RH / Pessoas")
+        for u in grupo.user_set.filter(is_active=True).exclude(email=""):
+            emails.add(u.email)
+    except Group.DoesNotExist:
+        pass
+    return list(emails)
+
+
+def _enviar_evento_rh(titulo, mensagem, detalhes=None):
+    """Envia email generico de evento RH para o grupo RH."""
+    try:
+        html = render_to_string("rh/emails/colaborador_evento.html", {
+            "titulo": titulo,
+            "mensagem": mensagem,
+            "detalhes": detalhes or {},
+        })
+        send_mail(
+            subject=f"RUCH — {titulo}",
+            message=mensagem,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=_get_emails_rh(),
+            html_message=html,
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+
+def enviar_colaborador_admitido(colaborador):
+    """Email para RH quando novo colaborador e cadastrado."""
+    _enviar_evento_rh(
+        f"Novo colaborador: {colaborador.nome_completo}",
+        f"Um novo colaborador foi cadastrado no sistema.",
+        {"Nome": colaborador.nome_completo, "Cargo": str(colaborador.cargo), "Departamento": str(colaborador.departamento)},
+    )
+
+
+def enviar_colaborador_desligado(colaborador):
+    """Email para RH quando colaborador e desligado."""
+    _enviar_evento_rh(
+        f"Colaborador desligado: {colaborador.nome_completo}",
+        f"O colaborador foi desligado do quadro de funcionarios.",
+        {"Nome": colaborador.nome_completo, "Cargo": str(colaborador.cargo), "Departamento": str(colaborador.departamento)},
+    )
+
+
+def enviar_ausencia_solicitada(ausencia):
+    """Email para RH quando ausencia e solicitada (antes da aprovacao)."""
+    colab = ausencia.colaborador
+    _enviar_evento_rh(
+        f"Ausencia solicitada: {colab.nome_completo}",
+        f"Uma nova solicitacao de ausencia precisa de aprovacao.",
+        {
+            "Colaborador": colab.nome_completo,
+            "Tipo": ausencia.get_tipo_display(),
+            "Periodo": f"{ausencia.data_inicio:%d/%m/%Y} a {ausencia.data_fim:%d/%m/%Y}",
+            "Dias": str(ausencia.total_dias),
+        },
+    )
+
+
+def enviar_treinamento_concluido(participacao):
+    """Email para colaborador quando conclui treinamento."""
+    colab = participacao.colaborador
+    if not colab.email_pessoal:
+        return
+    _enviar_evento_rh_para_colaborador(
+        colab,
+        f"Treinamento concluido: {participacao.treinamento.nome}",
+        f"Parabens! Voce concluiu o treinamento com sucesso.",
+        {"Treinamento": participacao.treinamento.nome, "Status": "Concluido"},
+    )
+
+
+def _enviar_evento_rh_para_colaborador(colaborador, titulo, mensagem, detalhes=None):
+    """Envia email de evento RH para um colaborador especifico."""
+    if not colaborador.email_pessoal:
+        return
+    try:
+        html = render_to_string("rh/emails/colaborador_evento.html", {
+            "titulo": titulo,
+            "mensagem": mensagem,
+            "detalhes": detalhes or {},
+        })
+        send_mail(
+            subject=f"RUCH — {titulo}",
+            message=mensagem,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[colaborador.email_pessoal],
+            html_message=html,
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+
 def enviar_documento_vencendo(documento):
     """Envia email ao colaborador sobre documento proximo do vencimento."""
     colab = documento.colaborador

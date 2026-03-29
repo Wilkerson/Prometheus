@@ -14,7 +14,9 @@ from apps.financeiro.models import (
 )
 
 from apps.auditoria.utils import registrar as audit
-from apps.financeiro.emails import enviar_cobranca_vencida, enviar_pagamento_recebido
+from apps.financeiro.emails import (
+    enviar_cobranca_cancelada, enviar_cobranca_vencida, enviar_pagamento_recebido,
+)
 from apps.financeiro.notifications import (
     notificar_cobranca_cancelada, notificar_cobranca_vencida,
     notificar_pagamento_recebido,
@@ -199,3 +201,4 @@ def _processar_payment_cancelled(payment):
         audit("status", "financeiro", f"Lancamento cancelado via webhook: {cobranca.asaas_id}", instance=cobranca.lancamento, fonte="asaas_webhook")
 
     notificar_cobranca_cancelada(cobranca)
+    enviar_cobranca_cancelada(cobranca)

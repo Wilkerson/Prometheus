@@ -102,6 +102,8 @@ class Command(BaseCommand):
         if total > 0:
             from apps.financeiro.notifications import notificar_folha_gerada
             notificar_folha_gerada(competencia, total)
+            from apps.financeiro.emails import enviar_folha_gerada
+            enviar_folha_gerada(competencia, total)
             self.stdout.write(
                 self.style.SUCCESS(
                     f"Folha {competencia:%m/%Y}: {total} pagamento(s) gerado(s) "

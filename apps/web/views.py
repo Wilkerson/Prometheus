@@ -1727,6 +1727,8 @@ class ColaboradorCreateView(PermissionRequiredMixin, View):
 
         from apps.rh.notifications import notificar_novo_colaborador
         notificar_novo_colaborador(colab)
+        from apps.rh.emails import enviar_colaborador_admitido
+        enviar_colaborador_admitido(colab)
 
         audit("criacao", "rh", f"Colaborador criado: {colab.nome_completo}", instance=colab, request=request)
         return redirect("web:rh-colaborador-detail", pk=colab.pk)
@@ -1885,6 +1887,8 @@ class ColaboradorUpdateView(PermissionRequiredMixin, View):
         if colab.status == "desligado":
             from apps.rh.notifications import notificar_colaborador_desligado
             notificar_colaborador_desligado(colab)
+            from apps.rh.emails import enviar_colaborador_desligado
+            enviar_colaborador_desligado(colab)
 
         # Sincronizar usuario vinculado (nome + permissoes)
         if colab.usuario:
@@ -2487,6 +2491,8 @@ class AusenciaCreateView(PermissionRequiredMixin, View):
         )
         from apps.rh.notifications import notificar_nova_solicitacao_ausencia
         notificar_nova_solicitacao_ausencia(ausencia)
+        from apps.rh.emails import enviar_ausencia_solicitada
+        enviar_ausencia_solicitada(ausencia)
         return redirect("web:rh-ausencias")
 
 
@@ -2734,6 +2740,8 @@ class ParticipacaoUpdateView(PermissionRequiredMixin, View):
         if part.status == "concluido" and old_status != "concluido":
             from apps.rh.notifications import notificar_treinamento_concluido
             notificar_treinamento_concluido(part)
+            from apps.rh.emails import enviar_treinamento_concluido
+            enviar_treinamento_concluido(part)
         return redirect("web:rh-treinamento-detail", pk=part.treinamento_id)
 
 
@@ -4178,6 +4186,8 @@ class FolhaAprovarTodosView(PermissionRequiredMixin, View):
             messages.success(request, f"{atualizados} pagamento(s) aprovado(s) para {competencia.strftime('%m/%Y') if hasattr(competencia, 'strftime') else competencia}.")
             if hasattr(competencia, 'strftime'):
                 notificar_folha_aprovada(competencia)
+                from apps.financeiro.emails import enviar_folha_aprovada
+                enviar_folha_aprovada(competencia)
         else:
             messages.info(request, "Nenhum pagamento pendente de aprovação.")
         return redirect("web:fin-folha")

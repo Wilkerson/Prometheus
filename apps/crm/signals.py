@@ -16,9 +16,12 @@ def notificar_novo_cliente(sender, instance, created, **kwargs):
     notificar_admins(
         tipo=Notificacao.Tipo.CLIENTE_NOVO,
         titulo=f"Novo cliente: {instance.nome}",
-        mensagem=f"Cadastrado por {instance.parceiro.nome_entidade}.",
+        mensagem=f"Cadastrado por {instance.parceiro.nome_entidade}." if instance.parceiro else "Cadastrado no sistema.",
         link=f"/clientes/{instance.pk}/",
     )
+
+    from apps.crm.emails import enviar_cliente_novo
+    enviar_cliente_novo(instance)
 
 
 @receiver(post_save, sender=ClienteHistorico)
