@@ -4908,6 +4908,42 @@ class AsaasCobrancaListView(PermissionRequiredMixin, ListView):
         return CobrancaAsaas.objects.select_related("cliente", "lancamento").order_by("-vencimento")
 
 
+class AsaasCobrancaDetailView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.view_cobrancaasaas"
+
+    def get(self, request, pk):
+        cobranca = get_object_or_404(
+            CobrancaAsaas.objects.select_related("cliente", "assinatura", "lancamento"), pk=pk
+        )
+        return render(request, "financeiro/asaas/cobranca_detail.html", {
+            "cob": cobranca,
+            "can_edit": request.user.has_perm("financeiro.change_cobrancaasaas"),
+            "can_delete": request.user.has_perm("financeiro.delete_cobrancaasaas"),
+        })
+
+
+class AsaasCobrancaDeleteView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.delete_cobrancaasaas"
+
+    def post(self, request, pk):
+        cobranca = get_object_or_404(CobrancaAsaas, pk=pk)
+        from django.contrib import messages
+        # Cancelar no Asaas tambem
+        try:
+            from apps.financeiro.services.asaas_client import AsaasClient
+            api = AsaasClient()
+            api.delete(f"/payments/{cobranca.asaas_id}")
+            messages.success(request, f"Cobrança {cobranca.asaas_id} cancelada no Asaas e removida do sistema.")
+        except Exception as e:
+            messages.warning(request, f"Removida do sistema. Erro ao cancelar no Asaas: {e}")
+        # Cancelar lancamento vinculado
+        if cobranca.lancamento:
+            cobranca.lancamento.status = "cancelado"
+            cobranca.lancamento.save(update_fields=["status"])
+        cobranca.delete()
+        return redirect("web:fin-asaas-cobrancas")
+
+
 class AsaasCriarCobrancaView(PermissionRequiredMixin, View):
     """Cria cobranca no Asaas pra um cliente ja sincronizado."""
     permission_required = "financeiro.add_cobrancaasaas"

@@ -23,8 +23,8 @@
       <tbody class="divide-y divide-bdr">
         {% for c in cobrancas_asaas %}
         <tr class="hover:bg-bg3">
-          <td class="py-3 font-mono text-[12px] text-ruch-accent">{{ c.asaas_id }}</td>
-          <td class="py-3"><a href="{% url 'web:cliente-detail' c.cliente.pk %}" class="text-t1 hover:text-ruch-accent no-underline">{{ c.cliente.nome }}</a></td>
+          <td class="py-3"><a href="{% url 'web:fin-asaas-cobranca-detail' c.pk %}" class="font-mono text-[12px] text-ruch-accent hover:text-t1 no-underline">{{ c.asaas_id }}</a></td>
+          <td class="py-3 text-t1">{{ c.cliente.nome }}</td>
           <td class="py-3 text-t2">{{ c.get_tipo_display }}</td>
           <td class="py-3 font-medium text-t1">{{ c.valor|brl }}</td>
           <td class="py-3 text-t2">{{ c.vencimento|date:"d/m/Y" }}</td>
