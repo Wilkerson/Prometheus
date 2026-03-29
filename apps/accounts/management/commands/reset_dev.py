@@ -43,10 +43,11 @@ class Command(BaseCommand):
         self._create_superuser()
         self._load_fixtures()
         self._setup_groups()
+        self._atribuir_permissoes_colaboradores()
         self._summary()
 
     def _drop_tables(self):
-        self.stdout.write("1/5  Removendo tabelas...")
+        self.stdout.write("1/6  Removendo tabelas...")
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute(
@@ -59,13 +60,13 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"     {len(tables)} tabelas removidas"))
 
     def _migrate(self):
-        self.stdout.write("2/5  Rodando migrations...")
+        self.stdout.write("2/6  Rodando migrations...")
         from django.core.management import call_command
         call_command("migrate", verbosity=0)
         self.stdout.write(self.style.SUCCESS("     Migrations aplicadas (inclui seeds de departamentos e categorias)"))
 
     def _create_superuser(self):
-        self.stdout.write("3/5  Criando superuser admin...")
+        self.stdout.write("3/6  Criando superuser admin...")
         from apps.accounts.models import Usuario
         admin = Usuario(
             pk=1,
@@ -81,7 +82,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("     admin / admin123 (pk=1)"))
 
     def _load_fixtures(self):
-        self.stdout.write("4/5  Carregando fixtures...")
+        self.stdout.write("4/6  Carregando fixtures...")
         from django.core.management import call_command
 
         fixtures = [
@@ -97,10 +98,23 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f"     {label}: ERRO — {e}"))
 
     def _setup_groups(self):
-        self.stdout.write("5/5  Configurando grupos e permissoes...")
+        self.stdout.write("5/6  Configurando grupos e permissoes...")
         from django.core.management import call_command
         call_command("setup_groups", verbosity=0)
         self.stdout.write(self.style.SUCCESS("     7 grupos configurados"))
+
+    def _atribuir_permissoes_colaboradores(self):
+        self.stdout.write("6/6  Atribuindo permissoes por departamento/cargo...")
+        from apps.rh.models import Colaborador
+        from apps.rh.permissions import atribuir_permissoes
+        count = 0
+        for colab in Colaborador.objects.filter(usuario__isnull=False).select_related("cargo", "departamento", "usuario"):
+            try:
+                atribuir_permissoes(colab)
+                count += 1
+            except Exception:
+                pass
+        self.stdout.write(self.style.SUCCESS(f"     {count} colaborador(es) com permissoes atribuidas"))
 
     def _summary(self):
         from apps.accounts.models import Usuario
