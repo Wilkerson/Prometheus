@@ -3285,6 +3285,68 @@ class LancamentoCreateView(PermissionRequiredMixin, View):
         return redirect("web:fin-lancamentos")
 
 
+class LancamentoEditView(PermissionRequiredMixin, View):
+    permission_required = "financeiro.change_lancamento"
+
+    def _ctx(self, lanc, erros=None):
+        receita_cats = CategoriaFinanceira.objects.filter(tipo="receita", ativo=True)
+        despesa_cats = CategoriaFinanceira.objects.filter(tipo="despesa", ativo=True)
+        return {
+            "lanc": lanc,
+            "receita_cats": receita_cats,
+            "despesa_cats": despesa_cats,
+            "contas": ContaBancaria.objects.filter(ativo=True),
+            "departamentos": Departamento.objects.filter(ativo=True),
+            "canal_choices": Lancamento.Canal.choices,
+            "status_choices": Lancamento.Status.choices,
+            "erros": erros or {},
+        }
+
+    def get(self, request, pk):
+        lanc = get_object_or_404(Lancamento, pk=pk)
+        return render(request, "financeiro/lancamentos/edit.html", self._ctx(lanc))
+
+    def post(self, request, pk):
+        lanc = get_object_or_404(Lancamento, pk=pk)
+        erros = {}
+        descricao = request.POST.get("descricao", "").strip()
+        if not descricao:
+            erros["descricao"] = "A descricao e obrigatoria."
+        valor = request.POST.get("valor", "").strip()
+        if not valor:
+            erros["valor"] = "O valor e obrigatorio."
+        categoria_id = request.POST.get("categoria")
+        if not categoria_id:
+            erros["categoria"] = "A categoria e obrigatoria."
+        conta_id = request.POST.get("conta")
+        if not conta_id:
+            erros["conta"] = "A conta e obrigatoria."
+        data_vencimento = request.POST.get("data_vencimento", "").strip()
+        if not data_vencimento:
+            erros["data_vencimento"] = "A data de vencimento e obrigatoria."
+
+        if erros:
+            return render(request, "financeiro/lancamentos/edit.html", self._ctx(lanc, erros))
+
+        lanc.tipo = request.POST.get("tipo", lanc.tipo)
+        lanc.descricao = descricao
+        lanc.valor = valor
+        lanc.valor_liquido = request.POST.get("valor_liquido") or None
+        lanc.categoria_id = categoria_id
+        lanc.conta_id = conta_id
+        lanc.departamento_id = request.POST.get("departamento") or None
+        lanc.canal = request.POST.get("canal", lanc.canal)
+        lanc.data_vencimento = data_vencimento
+        lanc.data_competencia = request.POST.get("data_competencia") or None
+        lanc.data_pagamento = request.POST.get("data_pagamento") or None
+        lanc.status = request.POST.get("status", lanc.status)
+        lanc.observacao = request.POST.get("observacao", "").strip()
+        if request.FILES.get("comprovante"):
+            lanc.comprovante = request.FILES["comprovante"]
+        lanc.save()
+        return redirect("web:fin-lancamento-detail", pk=pk)
+
+
 class LancamentoDetailView(PermissionRequiredMixin, View):
     permission_required = "financeiro.view_lancamento"
 

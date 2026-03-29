@@ -129,6 +129,7 @@ urlpatterns = [
     path("financeiro/lancamentos/", views.LancamentoListView.as_view(), name="fin-lancamentos"),
     path("financeiro/lancamentos/novo/", views.LancamentoCreateView.as_view(), name="fin-lancamento-create"),
     path("financeiro/lancamentos/<int:pk>/", views.LancamentoDetailView.as_view(), name="fin-lancamento-detail"),
+    path("financeiro/lancamentos/<int:pk>/editar/", views.LancamentoEditView.as_view(), name="fin-lancamento-edit"),
     path("financeiro/lancamentos/<int:pk>/status/", views.LancamentoStatusView.as_view(), name="fin-lancamento-status"),
     # Financeiro — Contas Bancarias
     path("financeiro/contas/", views.ContaListView.as_view(), name="fin-contas"),

@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}{{ lanc.descricao }}{% endblock %}
 {% block page_title %}Lancamento{% endblock %}
+{% block page_actions %}
+{% if can_edit %}
+<a href="{% url 'web:fin-lancamento-edit' lanc.pk %}" class="btn-primary">Editar</a>
+{% endif %}
+{% endblock %}
 {% block content %}
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
   <div class="card">
