@@ -16,8 +16,8 @@
         <th class="pb-3 font-medium" style="width:120px">Data</th>
         <th class="pb-3 font-medium" style="width:80px">Acao</th>
         <th class="pb-3 font-medium">Descricao</th>
-        <th class="pb-3 font-medium" style="width:110px">Usuario</th>
-        <th class="pb-3 font-medium" style="width:80px">Fonte</th>
+        <th class="pb-3 font-medium" style="width:150px">Usuario</th>
+        <th class="pb-3 font-medium" style="width:90px">Fonte</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-bdr">
@@ -44,8 +44,8 @@
           </div>
           <div x-show="expanded" x-cloak x-transition class="mt-2 p-2 rounded bg-bg2 border border-bdr text-[11px] font-mono text-t3 whitespace-pre-wrap break-all">{{ log.detalhes }}</div>
         </td>
-        <td class="py-2.5 text-t2 text-[12px] truncate">{{ log.usuario }}</td>
-        <td class="py-2.5 whitespace-nowrap">
+        <td class="py-2.5 text-t2 text-[12px] truncate pr-3">{{ log.usuario }}</td>
+        <td class="py-2.5 whitespace-nowrap pl-2">
           {% if log.fonte == 'asaas_webhook' %}<span class="text-[11px] text-amber-500">Asaas</span>
           {% elif log.fonte == 'celery' %}<span class="text-[11px] text-purple-500">Celery</span>
           {% elif log.fonte == 'api' %}<span class="text-[11px] text-blue-500">API</span>
