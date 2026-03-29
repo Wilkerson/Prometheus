@@ -169,8 +169,8 @@
         
         <!-- Sino de notificacoes -->
         <button onclick="var p=document.getElementById('notif-panel'); var o=document.getElementById('notif-overlay');
-                if(p.style.right==='-320px'||!p.style.right){p.style.right='0';o.style.display='block';}
-                else{p.style.right='-320px';o.style.display='none';}"
+                if(p.style.right==='-100%'||!p.style.right){p.style.right='0';o.style.display='block';}
+                else{p.style.right='-100%';o.style.display='none';}"
                 class="relative p-1.5 rounded-lg hover:bg-bg3 cursor-pointer"
                 hx-get="{% url 'web:notificacao-painel' %}" hx-target="#notif-content" hx-trigger="every 30s">
           <!-- Icone sino SVG -->
@@ -210,17 +210,17 @@
 
     <!-- ==================== OVERLAY (fecha painel ao clicar fora) ==================== -->
     <div id="notif-overlay" style="display:none"
-         onclick="document.getElementById('notif-panel').style.right='-320px'; this.style.display='none';"
+         onclick="document.getElementById('notif-panel').style.right='-100%'; this.style.display='none';"
          class="fixed inset-0 z-40"></div>
 
     <!-- ==================== PAINEL DE NOTIFICACOES (desliza da direita) ==================== -->
-    <div id="notif-panel" style="right:-320px; transition:right 0.2s ease;"
+    <div id="notif-panel" style="right:-100%; transition:right 0.2s ease;"
          class="fixed top-0 h-full w-[85vw] sm:w-[320px] z-50 bg-bg2 border-l border-bdr shadow-2xl overflow-y-auto">
 
       <!-- Header do painel -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-bdr">
         <span class="text-[15px] font-bold">Notificacoes</span>
-        <button onclick="document.getElementById('notif-panel').style.right='-320px'; document.getElementById('notif-overlay').style.display='none';"
+        <button onclick="document.getElementById('notif-panel').style.right='-100%'; document.getElementById('notif-overlay').style.display='none';"
                 class="text-t3 hover:text-t1 text-lg cursor-pointer">&times;</button>
       </div>
 
