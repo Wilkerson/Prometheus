@@ -503,23 +503,28 @@ Novos modulos sao implementados como submenus dentro do departamento corresponde
 Usuarios, Parceiros, Tokens API, Grupos, Admin Django
 
 ### Numeros do projeto
-- **44 models** (accounts: 1, crm: 9, financeiro: 11, integracao: 1, rh: 21, auditoria: 1)
-- **134 URLs** web
-- **130 templates** HTML
-- **6 grupos** de permissoes
+- **45 models** (accounts: 1, crm: 9, financeiro: 15, integracao: 1, rh: 21, auditoria: 1)
+- **~140 URLs** web
+- **~135 templates** HTML
+- **7 grupos** de permissoes (Administrador, Comercial, Financeiro, RH/Pessoas, Colaborador, Empresa Parceira, Auditor)
 - **11 usuarios** de dev (8 colaboradores + 3 parceiros)
 - **3 fixtures** (CRM + RH + Financeiro)
-- **3 tasks Celery** periodicas
+- **5 tasks Celery** periodicas
 
 ### Notas arquiteturais
 - Departamentos seedados via migration (8 total, system-managed)
 - Ao criar acesso, usuario recebe grupo do **departamento** (Comercial, Financeiro, RH)
+- Usuario pode pertencer a **varios grupos** (permissoes aditivas) — select multi-grupo com chips
 - Permissoes diretas calculadas por **nivel hierarquico** do cargo (estagiario=view ... diretor=tudo)
-- Models senssiveis (folha, tributos) so acessiveis por Gerente+
+- Models sensiveis (folha, tributos) so acessiveis por Gerente+
+- Operacoes Asaas (sync, cobranca, assinatura): analista+ para criar, especialista+ para cancelar
+- Lancamentos gateway bloqueados para edicao generica — so via modulo Asaas (campos internos)
 - Ao mudar cargo/departamento, permissoes e grupo sao recalculados automaticamente
 - Folha gerada automaticamente via Celery Beat + Aprovar Todos + Exportar com validacao + Log
 - Fechamento mensal com exportacao CSV/JSON/XML/PDF (logo RUCH, formatacao pt-BR)
 - Tributo e Patrimonio com tipos texto livre (extensiveis)
+- Auditoria: AuditLog generico (ContentType + JSONField), agregacao de legados, retencao fiscal 1 ano
+- Auditoria: um registro por acao com todos os campos afetados (Lancamento.get_mudancas + _skip_audit)
 - Sidebar: accordion exclusivo (1 aberto por vez), ordem RH > Comercial > Financeiro > Admin
 - Formatacao pt-BR: filter |brl (builtin), datas d/m/Y, horas H:i 24h
 - Email: console (dev), SMTP (producao)

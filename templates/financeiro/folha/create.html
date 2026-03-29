@@ -8,7 +8,7 @@
       {% csrf_token %}
       {% if erros %}{% include "clientes/_form_errors.html" %}{% endif %}
       <div class="space-y-4 mt-2">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Departamento</label>
             <select name="departamento" class="input"
@@ -32,7 +32,7 @@
             </select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Tipo <span class="text-red-500">*</span></label>
             <select name="tipo" required class="input">
@@ -50,7 +50,7 @@
           <label class="label">Valor bruto (R$) <span class="text-red-500">*</span></label>
           <input type="number" step="0.01" name="valor_bruto" required class="input">
         </div>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="label">Desconto INSS</label>
             <input type="number" step="0.01" name="desconto_inss" class="input" value="0">

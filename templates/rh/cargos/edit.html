@@ -29,7 +29,7 @@
             {% endfor %}
           </select>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Faixa salarial min (R$)</label>
             <input type="number" step="0.01" name="faixa_salarial_min" class="input" value="{{ cargo.faixa_salarial_min|default:'' }}">
@@ -47,7 +47,7 @@
           <label class="label">Requisitos minimos</label>
           <textarea name="requisitos" rows="2" class="input">{{ cargo.requisitos }}</textarea>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Status</label>
             <label class="flex items-center gap-2 mt-2 cursor-pointer">

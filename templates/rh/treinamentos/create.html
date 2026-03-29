@@ -12,7 +12,7 @@
           <label class="label">Nome <span class="text-red-500">*</span></label>
           <input type="text" name="nome" required class="input" value="{{ dados.nome|default:'' }}">
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Tipo <span class="text-red-500">*</span></label>
             <select name="tipo" required class="input">
@@ -31,7 +31,7 @@
             </select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Carga horaria (h)</label>
             <input type="number" name="carga_horaria" class="input" value="1" min="1">

@@ -5,7 +5,7 @@
 
 <!-- Realizado -->
 <h3 class="text-sm font-semibold text-t2 mb-3">Realizado (mês atual)</h3>
-<div class="grid grid-cols-3 gap-3 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
   <div class="card text-center">
     <div class="text-2xl font-bold text-emerald-500">{{ entradas|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Entradas</div>
@@ -22,7 +22,7 @@
 
 <!-- Projetado -->
 <h3 class="text-sm font-semibold text-t2 mb-3">Projetado (próximos 30 dias)</h3>
-<div class="grid grid-cols-3 gap-3 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
   <div class="card text-center">
     <div class="text-2xl font-bold text-emerald-500/60">{{ entradas_proj|brl }}</div>
     <div class="text-[11px] text-t3 mt-1">Entradas previstas</div>

@@ -15,7 +15,7 @@
           <label class="label">Nome completo <span class="text-red-500">*</span></label>
           <input type="text" name="nome_completo" required class="input" value="{{ colab.nome_completo }}">
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">CPF <span class="text-red-500">*</span></label>
             <input type="text" name="cpf" required class="input" value="{{ colab.cpf }}">
@@ -25,7 +25,7 @@
             <input type="date" name="data_nascimento" required class="input" value="{{ colab.data_nascimento|date:'Y-m-d' }}">
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Telefone <span class="text-red-500">*</span></label>
             <input type="text" name="telefone" required class="input" value="{{ colab.telefone }}">
@@ -35,7 +35,7 @@
             <input type="email" name="email_pessoal" required class="input" value="{{ colab.email_pessoal }}">
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Contato emergencia — nome</label>
             <input type="text" name="contato_emergencia_nome" class="input" value="{{ colab.contato_emergencia_nome }}">
@@ -50,7 +50,7 @@
       <!-- Endereco -->
       <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Endereco</h3>
       <div class="space-y-4" x-data="{ semNumero: {{ colab.endereco.numero|default:'' }} === 'S/N' }">
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="label">CEP</label>
             <input type="text" name="cep" class="input" value="{{ colab.endereco.cep|default:'' }}" placeholder="00000-000"
@@ -88,7 +88,7 @@
           <label class="label">Complemento</label>
           <input type="text" name="complemento" class="input" value="{{ colab.endereco.complemento|default:'' }}">
         </div>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="label">Bairro</label>
             <input type="text" name="bairro" class="input" value="{{ colab.endereco.bairro|default:'' }}">
@@ -112,7 +112,7 @@
       <!-- Dados contratuais -->
       <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados contratuais</h3>
       <div class="space-y-4">
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="label">Tipo de contrato <span class="text-red-500">*</span></label>
             <select name="tipo_contrato" required class="input" x-model="tipo">
@@ -134,7 +134,7 @@
             </select>
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="label">Departamento <span class="text-red-500">*</span></label>
             <select name="departamento" required class="input">
@@ -163,7 +163,7 @@
             </select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Remuneração (R$) <span class="text-red-500">*</span></label>
             <input type="number" step="0.01" name="remuneracao" required class="input" value="{{ colab.remuneracao }}">
@@ -179,7 +179,7 @@
       <div x-show="tipo === 'clt'" x-cloak>
         <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados CLT</h3>
         <div class="space-y-4">
-          <div class="grid grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label class="label">PIS / NIT</label>
               <input type="text" name="pis_nit" class="input" value="{{ colab.pis_nit }}">
@@ -193,7 +193,7 @@
               <input type="text" name="ctps_serie" class="input" value="{{ colab.ctps_serie }}">
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="label">Banco para deposito</label>
               <input type="text" name="banco_deposito" class="input" value="{{ colab.banco_deposito }}">
@@ -215,7 +215,7 @@
       <div x-show="tipo === 'pj'" x-cloak>
         <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados PJ</h3>
         <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="label">CNPJ ou CPF (MEI)</label>
               <input type="text" name="cnpj_pj" class="input" value="{{ colab.cnpj_pj }}">
@@ -225,7 +225,7 @@
               <input type="text" name="razao_social" class="input" value="{{ colab.razao_social }}">
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="label">Banco para pagamento</label>
               <input type="text" name="banco_pagamento_pj" class="input" value="{{ colab.banco_pagamento_pj }}">

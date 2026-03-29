@@ -15,7 +15,7 @@
           <label class="label">Nome completo <span class="text-red-500">*</span></label>
           <input type="text" name="nome_completo" required class="input" value="{{ dados.nome_completo|default:'' }}">
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">CPF <span class="text-red-500">*</span></label>
             <input type="text" name="cpf" required class="input" value="{{ dados.cpf|default:'' }}" placeholder="000.000.000-00">
@@ -25,7 +25,7 @@
             <input type="date" name="data_nascimento" required class="input" value="{{ dados.data_nascimento|default:'' }}">
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Telefone <span class="text-red-500">*</span></label>
             <input type="text" name="telefone" required class="input" value="{{ dados.telefone|default:'' }}">
@@ -35,7 +35,7 @@
             <input type="email" name="email_pessoal" required class="input" value="{{ dados.email_pessoal|default:'' }}">
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Contato emergencia — nome</label>
             <input type="text" name="contato_emergencia_nome" class="input" value="{{ dados.contato_emergencia_nome|default:'' }}">
@@ -50,7 +50,7 @@
       <!-- Endereco -->
       <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Endereco</h3>
       <div class="space-y-4" x-data="{ semNumero: false }">
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="label">CEP</label>
             <input type="text" name="cep" class="input" value="{{ dados.cep|default:'' }}" placeholder="00000-000"
@@ -88,7 +88,7 @@
           <label class="label">Complemento</label>
           <input type="text" name="complemento" class="input" value="{{ dados.complemento|default:'' }}">
         </div>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="label">Bairro</label>
             <input type="text" name="bairro" class="input" value="{{ dados.bairro|default:'' }}">
@@ -112,7 +112,7 @@
       <!-- Dados contratuais -->
       <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados contratuais</h3>
       <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Tipo de contrato <span class="text-red-500">*</span></label>
             <select name="tipo_contrato" required class="input" x-model="tipo">
@@ -126,7 +126,7 @@
             <input type="date" name="data_admissao" required class="input" value="{{ dados.data_admissao|default:'' }}">
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label class="label">Departamento <span class="text-red-500">*</span></label>
             <select name="departamento" required class="input">
@@ -155,7 +155,7 @@
             </select>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Remuneração (R$) <span class="text-red-500">*</span></label>
             <input type="number" step="0.01" name="remuneracao" required class="input" value="{{ dados.remuneracao|default:'' }}">
@@ -171,7 +171,7 @@
       <div x-show="tipo === 'clt'" x-cloak>
         <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados CLT</h3>
         <div class="space-y-4">
-          <div class="grid grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label class="label">PIS / NIT</label>
               <input type="text" name="pis_nit" class="input" value="{{ dados.pis_nit|default:'' }}">
@@ -185,7 +185,7 @@
               <input type="text" name="ctps_serie" class="input" value="{{ dados.ctps_serie|default:'' }}">
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="label">Banco para deposito</label>
               <input type="text" name="banco_deposito" class="input" value="{{ dados.banco_deposito|default:'' }}">
@@ -207,7 +207,7 @@
       <div x-show="tipo === 'pj'" x-cloak>
         <h3 class="text-sm font-semibold text-t2 mb-3 mt-6 pt-4 border-t border-bdr">Dados PJ</h3>
         <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="label">CNPJ ou CPF (MEI)</label>
               <input type="text" name="cnpj_pj" class="input" value="{{ dados.cnpj_pj|default:'' }}">
@@ -217,7 +217,7 @@
               <input type="text" name="razao_social" class="input" value="{{ dados.razao_social|default:'' }}">
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="label">Banco para pagamento</label>
               <input type="text" name="banco_pagamento_pj" class="input" value="{{ dados.banco_pagamento_pj|default:'' }}">

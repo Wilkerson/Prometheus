@@ -93,16 +93,18 @@ python manage.py createsuperuser
 python manage.py setup_groups
 ```
 
-Cria 6 grupos:
-- **Administrador** (168) — acesso total
+Cria 7 grupos:
+- **Administrador** (196) — acesso total a todos os modulos incluindo auditoria
 - **Comercial** (16) — clientes, produtos, planos (atribuido a colaboradores do depto)
-- **Financeiro** (36) — lancamentos, cobrancas, despesas, NFs, folha, tributos, patrimonio
+- **Financeiro** (49) — lancamentos, cobrancas, despesas, NFs, folha, tributos, patrimonio, Asaas
 - **RH / Pessoas** (68) — colaboradores, documentos, ferias, treinamentos, metas, eNPS
 - **Colaborador** (12) — self-service (legado)
 - **Empresa Parceira** (3) — clientes (ver/criar/editar)
+- **Auditor** (2) — acesso ao modulo de auditoria (view_auditlog + view_auditorialancamento)
 
 Permissoes individuais sao atribuidas automaticamente ao criar acesso
 para um colaborador, baseadas no departamento e nivel hierarquico do cargo.
+Um usuario pode pertencer a varios grupos (permissoes aditivas).
 
 ---
 
@@ -245,17 +247,19 @@ Prometheus/
 ├── apps/
 │   ├── accounts/       # Usuario + JWT + permissions + setup_groups
 │   ├── crm/            # Cliente, Produto, Plano, Notificacao
-│   ├── financeiro/     # Lancamento, Cobranca, Despesa, NF, Folha, Tributo, Ativo
+│   ├── financeiro/     # Lancamento, Cobranca, Despesa, NF, Folha, Tributo, Ativo, Asaas
 │   ├── integracao/     # Token, API Key, callback Zypher
 │   ├── rh/             # Colaborador, Cargo, Setor, Documentos, Onboarding,
 │   │                   # Ferias, Treinamentos, Metas, PDI, eNPS, Relatorios
+│   ├── auditoria/      # AuditLog generico, servico de agregacao, retencao fiscal
 │   └── web/            # Views, mixins, context processors, URLs
 ├── templates/
 │   ├── base.html       # Layout (sidebar accordion exclusivo + topbar + main)
 │   ├── components/     # Logo, avatar (reutilizaveis)
 │   ├── accounts/       # Login
 │   ├── clientes/       # CRUD + pipeline + calendario
-│   ├── financeiro/     # Lancamentos, cobrancas, despesas, NFs, folha, tributos, ativos, contas
+│   ├── financeiro/     # Lancamentos, cobrancas, despesas, NFs, folha, tributos, ativos, contas, Asaas
+│   ├── auditoria/      # Dashboard, listas por departamento, detail, export
 │   ├── rh/             # Todos os submodulos de RH
 │   ├── grupos/         # Matriz de permissoes (colapsavel por departamento)
 │   └── public/         # Landing page
