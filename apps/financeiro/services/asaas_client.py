@@ -28,11 +28,26 @@ class AsaasClient:
         kwargs.setdefault("timeout", self.timeout)
         try:
             response = requests.request(method, url, **kwargs)
-            response.raise_for_status()
+            if response.status_code >= 400:
+                # Extrair mensagem de erro do Asaas
+                try:
+                    body = response.json()
+                    errors = body.get("errors", [])
+                    if errors:
+                        msgs = [e.get("description", e.get("code", "")) for e in errors]
+                        error_msg = " | ".join(msgs)
+                    else:
+                        error_msg = response.text
+                except Exception:
+                    error_msg = response.text
+                logger.error(f"Asaas API {response.status_code}: {method} {path} — {error_msg}")
+                raise Exception(f"Asaas: {error_msg}")
             return response.json() if response.content else {}
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Asaas API error: {method} {path} — {e}")
-            raise
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"Asaas API connection error: {method} {path} — {e}")
+            raise Exception("Não foi possível conectar ao Asaas. Verifique sua conexão.")
+        except requests.exceptions.Timeout:
+            raise Exception("Asaas: tempo limite excedido. Tente novamente.")
 
     def get(self, path, params=None):
         return self._request("GET", path, params=params)
